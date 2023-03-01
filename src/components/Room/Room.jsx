@@ -6,9 +6,10 @@ import Peer from "peerjs";
 const Room = (props) => {
     const [peerId, setPeerId] = useState(null)
     const [destPeerIdValue, setDestPeerIdValue] = useState("") // remote peer id
-    const remoteVideoRef = useRef(null);
     const peerRef = useRef(null);
- 
+    const remoteVideoRef = useRef(null);
+    const currentUserVideoRef = useRef(null);
+
     useEffect(()  => {
         const peer = new Peer();
         
@@ -19,9 +20,10 @@ const Room = (props) => {
             //answering  call (triggers when we get a call)
             peer.on('call', (call) => {
                 const getUserMedia = navigator.mediaDevices.getUserMedia 
-                getUserMedia({video: true, audio: true})
+                getUserMedia({video: true, audio: false})
                 .then((stream) => {
                     call.answer(stream);// Answer the call with an A/V stream.
+                    currentUserVideoRef.current.srcObject = stream;
                     call.on('stream', (remoteStream) => {
                         // Show stream in some video/canvas element.
                         remoteVideoRef.current.srcObject = remoteStream
@@ -39,8 +41,10 @@ const Room = (props) => {
     const call = (destPeerId) => {
         const getUserMedia = navigator.mediaDevices.getUserMedia 
 
-        getUserMedia({video: true, audio:true})
+        getUserMedia({video: true, audio:false})
         .then((stream) => {
+            currentUserVideoRef.current.srcObject = stream;
+
             const call = peerRef.current.call(destPeerId, stream);
             call.on('stream', (remoteStream) => {
                 //Show stream in some video/canvas element.
@@ -53,13 +57,23 @@ const Room = (props) => {
     return (
         <Container>
             <div className="d-flex flex-column">
+                <div>Current user peer id: {peerId}</div>
                 <div>
                     <input type="text" value={destPeerIdValue} onChange={e => setDestPeerIdValue(e.target.value)}/>
                     <Button onClick= {() => call(destPeerIdValue)} >Call</Button>
                 </div>
-                <div className="d-flex">
-                    <video />
+                <div className="d-flex flex-column">
+                    <div className="d-flex">
+                        <div>Current User: </div>
+                    <video ref={currentUserVideoRef} autoPlay/>
+
+                    </div>
+                    <div className="d-flex">
+                        <div>Remote User: </div>
                     <video ref={remoteVideoRef} autoPlay/>
+                    </div>
+                    
+                    
                 </div>
             </div>
         </Container>
