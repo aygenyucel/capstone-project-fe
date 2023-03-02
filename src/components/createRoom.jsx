@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import { v1 as uuid } from "uuid";
 
 const CreateRoom = (props) => {
@@ -7,11 +7,14 @@ const CreateRoom = (props) => {
     function create() {
         const id = uuid();
 
-        navigate(`/room/${id}`);
+        navigate(`/groupChatRoom/${id}`, {state: {roomID: id}});
     }
 
     return (
-        <button onClick={create}>Create room</button>
+        <div>
+            <button onClick={create}>Create room</button>
+
+        </div>
     );
 };
 
