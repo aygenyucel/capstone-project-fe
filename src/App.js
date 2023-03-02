@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Room from './components/Room/Room.jsx';
 import HomePage from './components/HomePage/Homepage.jsx';
 import SimplePeer from 'simple-peer';
-import SimplePeerRoom from './Simple-Peer-Room/SimplePeerRoom.jsx';
+import SimplePeerRoom from './SimplePeerRoom/SimplePeerRoom.jsx';
 
 function App() {
   return (

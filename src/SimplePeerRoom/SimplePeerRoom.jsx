@@ -1,4 +1,3 @@
-import "./groupChatRoom.css";
 import Peer from "simple-peer";
 import {io }from "socket.io-client";
 import { useEffect, useRef, useState } from 'react';
