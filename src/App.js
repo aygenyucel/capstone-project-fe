@@ -1,10 +1,9 @@
 import './App.css';
 import "/node_modules/bootstrap/dist/css/bootstrap.min.css"
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Room from './components/Room/Room.jsx';
+import PeerJSRoom from './components/PeerJSRoom/PeerJSRoom.jsx';
 import HomePage from './components/HomePage/Homepage.jsx';
-import SimplePeer from 'simple-peer';
-import SimplePeerRoom from './SimplePeerRoom/SimplePeerRoom.jsx';
+import SimplePeerRoom from './components/SimplePeerRoom/SimplePeerRoom.jsx';
 
 function App() {
   return (
@@ -12,8 +11,8 @@ function App() {
     <div className="App">
       <Routes>
         <Route path='/' element={<HomePage/>}/>
-        <Route path='/groupChatRoom/:id' element={<SimplePeerRoom/>}/>
-        <Route path='/room' element= {<Room/>}/>
+        <Route path='/simplePeerRoom/:id' element={<SimplePeerRoom/>}/>
+        <Route path='/peerJSRoom' element= {<PeerJSRoom/>}/>
       </Routes>
     </div>
     </BrowserRouter>
