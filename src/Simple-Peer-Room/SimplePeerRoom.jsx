@@ -24,7 +24,7 @@ const Video = (props) => {
 }
 
 
-const GroupChatRoom = (props) => {
+const SimplePeerRoom = (props) => {
     const params = useParams();
     const [peers, setPeers] = useState([]);
     const currentUserVideoRef = useRef({});
@@ -152,4 +152,4 @@ const GroupChatRoom = (props) => {
             </Container>
 }
 
-export default GroupChatRoom;
+export default SimplePeerRoom;
