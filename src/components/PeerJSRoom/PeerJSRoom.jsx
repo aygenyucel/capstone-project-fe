@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { useEffect } from 'react';
 import Peer from "peerjs";
 
-const Room = (props) => {
+const PeerJSRoom = (props) => {
     const [peerId, setPeerId] = useState(null)
     const [destPeerIdValue, setDestPeerIdValue] = useState("") // remote peer id
     const peerRef = useRef(null);
@@ -27,7 +27,7 @@ const Room = (props) => {
                     call.on('stream', (remoteStream) => {
                         // Show stream in some video/canvas element.
                         remoteVideoRef.current.srcObject = remoteStream
-                        console.log("remoteVideoRef.current: ",remoteVideoRef.current)
+                        console.log("remoteVideoRef.current: ", remoteVideoRef.current)
                     })
                 })
                 .catch(err => console.log("Failed to get local stream", err)) 
@@ -80,4 +80,4 @@ const Room = (props) => {
     )
 }
 
-export default Room
+export default PeerJSRoom

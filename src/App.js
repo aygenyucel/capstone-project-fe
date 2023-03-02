@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import PeerJSRoom from './components/PeerJSRoom/PeerJSRoom.jsx';
 import HomePage from './components/HomePage/Homepage.jsx';
 import SimplePeerRoom from './components/SimplePeerRoom/SimplePeerRoom.jsx';
+import PeerJSGroupRoom from './components/PeerJSGroupRoom/PeerJSGroupRoom.jsx';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path='/' element={<HomePage/>}/>
         <Route path='/simplePeerRoom/:id' element={<SimplePeerRoom/>}/>
         <Route path='/peerJSRoom' element= {<PeerJSRoom/>}/>
+        <Route path='/peerJSGroupRoom/:id' element={ <PeerJSGroupRoom/>}/>
       </Routes>
     </div>
     </BrowserRouter>
