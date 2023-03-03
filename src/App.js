@@ -1,10 +1,10 @@
 import './App.css';
 import "/node_modules/bootstrap/dist/css/bootstrap.min.css"
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import PeerJSRoom from './components/PeerJSRoom/PeerJSRoom.jsx';
-import HomePage from './components/HomePage/Homepage.jsx';
-import SimplePeerRoom from './components/SimplePeerRoom/SimplePeerRoom.jsx';
-import PeerJSGroupRoom from './components/PeerJSGroupRoom/PeerJSGroupRoom.jsx';
+import HomePage from './pages/HomePage/Homepage.jsx';
+import SimplePeerRoom from './tests/SimplePeerRoom/SimplePeerRoom';
+import PeerJSRoom from './tests/PeerJSRoom/PeerJSRoom';
+import PeerJSGroupRoom from './pages/PeerJSGroupRoom/PeerJSGroupRoom';
 
 function App() {
   return (

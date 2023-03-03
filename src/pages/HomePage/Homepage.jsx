@@ -1,4 +1,4 @@
-import CreateRoom from "../createRoom.jsx";
+import CreateRoom from "../../components/createRoom.jsx";
 
 const HomePage = () => {
     return <div className="d-flex flex-column">
