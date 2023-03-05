@@ -22,13 +22,11 @@ const peersReducer = (state = initialState, action) => {
             }
 
         case REMOVE_PEER:
-            console.log("xxxxxxxxxxxxxxxxxxxx", action.payload.peerID)
-
             return {
                 ...state,
                 peers: state.peers.filter((peer) => peer.peerID !== action.payload.peerID)
             }
-            
+
         case RESET_STATE:
             return {
                 peers: []

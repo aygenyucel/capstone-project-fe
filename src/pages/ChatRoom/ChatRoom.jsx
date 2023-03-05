@@ -44,7 +44,6 @@ const ChatRoom = (props) => {
         }
     }
 
-
     const getMediaDevices = (mediaConstraints) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
     }
@@ -85,8 +84,7 @@ const ChatRoom = (props) => {
                         remoteVideoRef.current.srcObject = remoteStream
                         console.log("New peer get called and addPeerAction triggered! (the remote peer added)")
                     }
-                })
-                
+                }) 
             })
 
             peer.on('call', call => {
@@ -115,11 +113,9 @@ const ChatRoom = (props) => {
     
     useEffect(() => {
         
-        console.log("qq", peers)
+        console.log("peers =>", peers)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPeersReducer])
-
-
 
     return (
         <Container>
