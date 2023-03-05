@@ -1,8 +1,5 @@
 import { combineReducers, configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
-
-import chatRoomsReducer from "../reducers/peersReduces";
-
-import { persistReducer, persistCombineReducers, persistStore } from "redux-persist";
+import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import peersReducer from './../reducers/peersReduces.js';
 
@@ -13,13 +10,13 @@ const reducers = combineReducers({
         storage: storage
     },
     peersReducer),
-
-    //otherReducers: otherNotPersistReducer
+    //...other reducers:
 })
 
 const store = configureStore({
     reducer: reducers,
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        //because the stream object is non-serializable value
         serializableCheck: false
     })
 })

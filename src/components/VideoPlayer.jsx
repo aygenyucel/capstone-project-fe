@@ -1,12 +1,16 @@
-
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useRef } from 'react';
 import { useEffect } from 'react';
+
 export const VideoPlayer = (props) => {
     let videoRef = useRef({});
 
     useEffect(() => {
-        videoRef = props.stream
+        videoRef.current.srcObject = props.stream
+        console.log("videPlayer triggered")
     }, [])
 
-    return <><div>dfsjkfslfsdf</div> <video ref={videoRef} autoPlay/></>
+    return  <>
+                <video ref={videoRef} autoPlay muted/>
+            </>
 }
