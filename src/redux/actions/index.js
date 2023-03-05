@@ -1,6 +1,7 @@
 export const ADD_PEER= 'ADD_PEER';
 export const REMOVE_PEER = 'REMOVE_PEER';
 export const RESET_STATE = 'RESET_STATE';
+export const UPDATE_PEER_STREAMS = 'UPDATE_PEER_STREAMS'
 
 export const addPeerAction = (peerID, stream) => {
     console.log("addPeerAction triggered => added PeerID: ", peerID)
@@ -15,6 +16,14 @@ export const removePeerAction = (peerID) => {
     return {
         type:REMOVE_PEER,
         payload: {peerID}
+    }
+}
+
+export const updatePeerStreamsAction = (peers) => {
+    console.log("update peer string triggerssssssssssssss")
+    return {
+        type: UPDATE_PEER_STREAMS,
+        payload: {peers}
     }
 }
 

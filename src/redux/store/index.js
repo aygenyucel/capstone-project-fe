@@ -1,7 +1,7 @@
 import { combineReducers, configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import peersReducer from './../reducers/peersReduces.js';
+import peersReducer from '../reducers/peersReducer.js';
 
 
 const reducers = combineReducers({

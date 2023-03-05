@@ -7,7 +7,7 @@ const HomePage = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        // dispatch(resetStateAction());
+        dispatch(resetStateAction());
     }, [])
     
     return <div className="d-flex flex-column">

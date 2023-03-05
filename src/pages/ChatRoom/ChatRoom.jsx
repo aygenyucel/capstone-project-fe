@@ -6,7 +6,7 @@ import Peer from "peerjs";
 import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { VideoPlayer } from '../../components/VideoPlayer';
-import peersReducer from '../../redux/reducers/peersReduces';
+import peersReducer from '../../redux/reducers/peersReducer';
 import { addPeerAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 
@@ -62,11 +62,11 @@ const ChatRoom = (props) => {
             // addNewUserToChatRooms(roomID, id)
             // console.log("users in this room after our connect: ", chatRooms)
         })
-        
         getMediaDevices(mediaConstraints)
         .then(stream => {
             myVideoRef.current.srcObject = stream;
-
+            // adding our peer
+            // dispatch(addPeerAction(myPeerId, stream))
             socket.on('user-connected', payload => {
                 console.log("new user-connected => peerID: ", payload.peerID)
                 setRemotePeerId(payload.peerID)
@@ -103,22 +103,24 @@ const ChatRoom = (props) => {
                 }) 
             })
 
-            socket.on('user-disconnect', payload => {
-                deleteUserFromChatRooms(roomID, payload.peerID)
+            socket.on('user-disconnected', payload => {
+                console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
                 dispatch(removePeerAction(payload.peerID))
-                // console.log("users in this room after disconnect: ", chatRooms)
             })
         })
         .catch(err => console.log("Failed to get local stream", err)) 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
+    
     useEffect(() => {
         
-        console.log(peers)
+        console.log("qq", peers)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPeersReducer])
-    
+
+
+
     return (
         <Container>
             <div className="d-flex flex-column">
@@ -131,7 +133,7 @@ const ChatRoom = (props) => {
                 </div>
                 <div className='d-flex flex-column'>
                     <h1>Remote Peers: </h1>
-                    {peers?.map(peer => <div>
+                    {currentPeersReducer.peers?.map(peer => <div>
                         <div>{peer.peerID}</div>
                         <VideoPlayer stream = {peer.stream}/>
                     </div>)}
