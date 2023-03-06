@@ -1,6 +1,9 @@
 import { Button, Container, Form } from "react-bootstrap"
 import "./signupPage.css"
 import { useState } from 'react';
+import { signupAndGetTokenAction } from './../../redux/actions/index';
+import { useNavigate } from 'react-router-dom';
+
 
 
 const LoginPage = (props) => {
@@ -8,10 +11,28 @@ const LoginPage = (props) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
+    const navigate = useNavigate()
+
     const handleSubmit = (event) => {
         event.preventDefault();
-        //TODO: add actions for signup and redirect the user if allowed
+        registerUser()
     }
+
+    const registerUser = () => {
+        const newUser = {
+            email: email,
+            username: username,
+            password: password
+        }
+        console.log("new registered user => ", newUser)
+
+        signupAndGetTokenAction(newUser)
+        .then((dispatchObj) => 
+             navigate("/login")
+            )
+        .catch((error) =>
+            console.log(error))
+    } 
 
     return <>
                 <Container>

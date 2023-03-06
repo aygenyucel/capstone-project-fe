@@ -2,15 +2,16 @@ import { combineReducers, configureStore, getDefaultMiddleware } from "@reduxjs/
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import peersReducer from '../reducers/peersReducer.js';
+import profileReducer from './../reducers/profileReducer';
 
 
 const reducers = combineReducers({
-    peers: persistReducer({
+    peersReducer: persistReducer({
         key: 'chatRooms',
         storage: storage
     },
     peersReducer),
-    //...other reducers:
+    profileReducer: profileReducer
 })
 
 const store = configureStore({
