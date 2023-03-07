@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import profileReducer from './../../redux/reducers/profileReducer';
+import CreateCustomRoom from './../../components/CreateCustomRoom/CreateCustomRoom';
 
 const HomePage = () => {
     const dispatch = useDispatch();
@@ -34,6 +35,9 @@ const HomePage = () => {
                 <div>{user.email}</div>
                 <div>Home Page</div>
                 <CreateRoom/>
+                <div className="mt-5">
+                    <CreateCustomRoom/>
+                </div>
             </div>
 }
 
