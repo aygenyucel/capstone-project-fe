@@ -1,3 +1,4 @@
+import { useDispatch } from 'react-redux';
 export const ADD_PEER= 'ADD_PEER';
 export const REMOVE_PEER = 'REMOVE_PEER';
 export const RESET_PEERS_STATE = 'RESET_PEERS_STATE';
@@ -7,6 +8,7 @@ export const GET_PROFILE_ID = 'GET_PROFILE_ID'
 export const ADD_NEW_ROOM = 'ADD_NEW_ROOM'
 export const DELETE_ROOM ='DELETE_ROOM'
 export const RESET_ROOMS_STATE = 'RESET_ROOMS_STATE';
+export const GET_ROOMS= 'GET_ROOMS'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
@@ -228,4 +230,35 @@ export const deleteRoomAction = (deletedRoomID) => {
         type: DELETE_ROOM,
         payload: deletedRoomID
     }
+}
+
+export const getAllRoomsAction = () => {
+    return new Promise(async (resolve, reject) => {
+        
+            const options = {
+                method: "GET",
+                headers:{
+                    "Content-Type": "application/json"
+                }
+            }
+            try {
+                const response = await fetch(`${BE_DEV_URL}/rooms`, options)
+    
+                if(response.ok) {
+                    const data = await response.json();
+                    
+                    const action = {type: GET_ROOMS, payload: data}
+                    resolve(action);
+                } else {
+                    throw new Error("oppppss something went wrong when fetching!")
+                }
+                
+            } catch (error) {
+                console.log(error)
+                reject(error)
+            }
+
+        
+       
+    })
 }

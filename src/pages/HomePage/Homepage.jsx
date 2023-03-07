@@ -1,6 +1,6 @@
 import CreateRoom from "../../components/CreateRoom.jsx";
 import { useDispatch } from 'react-redux';
-import { isLoggedInAction, resetPeersStateAction, resetRoomsStateAction } from "../../redux/actions/index.js";
+import { getAllRoomsAction, isLoggedInAction, resetPeersStateAction, resetRoomsStateAction } from "../../redux/actions/index.js";
 import { useEffect, useReducer, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
@@ -19,9 +19,11 @@ const HomePage = () => {
     const user = useSelector(state => state.profileReducer.data)
 
     const rooms = useSelector(state => state.roomsReducer.rooms)
+    
     useEffect(() => {
         // dispatch(resetPeersStateAction());
         // dispatch(resetRoomsStateAction());
+        getAllRoomsAction().then((action) => dispatch(action))
         console.log("user", user, "jwt: ", JWTToken)
         isLoggedInAction(user, JWTToken, dispatch)
         .then((boolean) => {
@@ -34,8 +36,10 @@ const HomePage = () => {
         })
         .catch(err => console.log(err))
     }, [])
+
     
     useEffect(() => {
+        getAllRoomsAction().then((action) => dispatch(action))
         console.log("xxxxxxxxxxxxxxxxxxxxxxxv", rooms)
     }, [rooms])
     return  isLoggedIn && <div className="d-flex flex-column">
