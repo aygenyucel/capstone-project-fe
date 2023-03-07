@@ -1,12 +1,12 @@
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-
 export const ADD_PEER= 'ADD_PEER';
 export const REMOVE_PEER = 'REMOVE_PEER';
-export const RESET_STATE = 'RESET_STATE';
+export const RESET_PEERS_STATE = 'RESET_PEERS_STATE';
 export const UPDATE_PEER_STREAMS = 'UPDATE_PEER_STREAMS'
 export const GET_PROFILE = 'GET_PROFILE'
 export const GET_PROFILE_ID = 'GET_PROFILE_ID'
+export const ADD_NEW_ROOM = 'ADD_NEW_ROOM'
+export const DELETE_ROOM ='DELETE_ROOM'
+export const RESET_ROOMS_STATE = 'RESET_ROOMS_STATE';
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
@@ -36,10 +36,16 @@ export const updatePeerStreamsAction = (peers) => {
     }
 }
 
-export const resetStateAction = () => {
+export const resetPeersStateAction = () => {
     console.log("resetStateAction triggered!")
     return {
-        type: RESET_STATE
+        type: RESET_PEERS_STATE
+    }
+}
+export const resetRoomsStateAction = () => {
+    console.log("resetRoomStateAction triggered!")
+    return {
+        type: RESET_ROOMS_STATE
     }
 }
 
@@ -171,7 +177,7 @@ export const isLoggedInAction =  (userState, JWTToken, dispatch) => {
                     }
                 }
                 
-                     try {
+                try {
                        
                         console.log("we have jwt but not user redux, fetching /users/me with jwt and saving user if ok")
                         const response = await fetch(`${BE_DEV_URL}/users/me`, options);
@@ -190,6 +196,9 @@ export const isLoggedInAction =  (userState, JWTToken, dispatch) => {
                             })  
                             resolve(true)
                         } 
+                        else{
+                            resolve(false)
+                        }
     
                     } catch (error) {
                         console.log(error)
@@ -203,4 +212,20 @@ export const isLoggedInAction =  (userState, JWTToken, dispatch) => {
             resolve(false);
         }
     })
+}
+
+export const addNewRoomAction = (newRoomData) => {
+    console.log("addNewRoomAction triggered", newRoomData);
+    return {
+        type: ADD_NEW_ROOM,
+        payload: newRoomData
+    }
+}
+
+export const deleteRoomAction = (deletedRoomID) => {
+    console.log("deleteRoomActionTriggered");
+    return {
+        type: DELETE_ROOM,
+        payload: deletedRoomID
+    }
 }

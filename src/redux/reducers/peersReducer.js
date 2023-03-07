@@ -1,5 +1,5 @@
 /* eslint-disable no-fallthrough */
-import { ADD_PEER, REMOVE_PEER, RESET_STATE, UPDATE_PEER_STREAMS } from '../actions/index.js';
+import { ADD_PEER, REMOVE_PEER, RESET_PEERS_STATE, UPDATE_PEER_STREAMS } from '../actions/index.js';
 
 const initialState = {
     peers: [],
@@ -27,7 +27,7 @@ const peersReducer = (state = initialState, action) => {
                 peers: state.peers.filter((peer) => peer.peerID !== action.payload.peerID)
             }
 
-        case RESET_STATE:
+        case RESET_PEERS_STATE:
             return {
                 peers: []
             }
