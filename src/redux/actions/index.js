@@ -1,4 +1,3 @@
-import { useDispatch } from 'react-redux';
 export const ADD_PEER= 'ADD_PEER';
 export const REMOVE_PEER = 'REMOVE_PEER';
 export const RESET_PEERS_STATE = 'RESET_PEERS_STATE';
@@ -178,7 +177,6 @@ export const isLoggedInAction =  (userState, JWTToken, dispatch) => {
                         Authorization: "Bearer " + JWTToken
                     }
                 }
-                
                 try {
                        
                         console.log("we have jwt but not user redux, fetching /users/me with jwt and saving user if ok")
@@ -257,8 +255,5 @@ export const getAllRoomsAction = () => {
                 console.log(error)
                 reject(error)
             }
-
-        
-       
     })
 }

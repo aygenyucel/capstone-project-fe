@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import "./createCustomRoom.css"
 import { Container, Button, Modal, Form } from 'react-bootstrap';
 import { useState, useReducer } from 'react';
@@ -5,39 +6,32 @@ import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNewRoomAction } from "../../redux/actions";
-import roomsReducer from './../../redux/reducers/roomsReducer';
-import { ADD_NEW_ROOM } from './../../redux/actions/index';
+
 const CreateCustomRoom = () => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
     const userData =  useSelector(state => state.profileReducer.data);
-    const roomsData = useSelector(state => state.roomsReducer.rooms)
 
     const [capacity, setCapacity] = useState("");
     const [language, setLanguage] = useState("");
     const [level, setLevel] = useState("");
     const [userID, setUserID] = useState(null);
 
-
     const dispatch = useDispatch();
-    const [currentRoomsReducer, dispatchRoomsReducer] = useReducer(roomsReducer, [])
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        console.log("create room form submitted!!!")
+        
         createNewRoom()
         .then((data) => {
             console.log("xxxxxxx", data)
             dispatch(addNewRoomAction(data))
-        }).catch((err) => {console.log(err)});
+        })
+        .then(handleClose())
+        .catch((err) => {console.log(err)});
     }
-    
-    useEffect(() => {
-        console.log("roomsData:", roomsData)
-    }, [roomsData])
-    
     
     const createNewRoom = () => {
         return new Promise (async (resolve, reject) => {
@@ -56,28 +50,21 @@ const CreateCustomRoom = () => {
                 }
             }
             
-        
             try {
                 const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms`, options)
-                
                 if(response.ok) {
                     const data = await response.json();
-                    
                     console.log("new room data", data)
-                    
-                    //TODO: dispatch new data to rooms reducer
-                    
                     resolve(data)
 
-                } else{
+                } else {
                     console.log("opssssss error fetching data")
                 }
-                
             } catch (error) {
                 console.log(error)
                 reject(error)
             }
-    })
+        })
     }
 
     useEffect(() => {
@@ -144,4 +131,4 @@ const CreateCustomRoom = () => {
     </>
 } 
 
-export default CreateCustomRoom
+export default CreateCustomRoom;
