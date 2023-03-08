@@ -48,7 +48,7 @@ const ChatRoom = (props) => {
             setMyPeerId(id)
             socket.emit('join-room', {roomID, peerID: id, userID: userID })
         })
-        
+
         getMediaDevices(mediaConstraints)
         .then(stream => {
             myVideoRef.current.srcObject = stream;
@@ -103,6 +103,7 @@ const ChatRoom = (props) => {
     useEffect(() => { 
         console.log("peers =>", peers)
     }, [currentPeersReducer])
+
 
     window.onpopstate = () => {
         //for make sure the user disconnect from the chat room

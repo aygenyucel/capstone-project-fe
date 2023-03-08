@@ -8,8 +8,6 @@ export const ADD_NEW_ROOM = 'ADD_NEW_ROOM'
 export const DELETE_ROOM ='DELETE_ROOM'
 export const RESET_ROOMS_STATE = 'RESET_ROOMS_STATE';
 export const GET_ROOMS= 'GET_ROOMS' //fetching /GET
-export const ADD_USER_TO_ROOM = 'ADD_USER_TO_ROOM';
-export const REMOVE_USER_FROM_ROOM = 'REMOVE_USER_FROM_ROOM'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
@@ -260,30 +258,3 @@ export const getAllRoomsAction = () => {
     })
 }
 
-export const addUserToRoomAction = (userID, roomEndpoint) => {
-    
-    //TODO: update the room  on database
-    console.log("addUserToRoomAction triggered!! payload userID => ", userID)
-    return new Promise (async (resolve, reject) => {
-        const options = {
-            method: "PUT",
-            body: JSON.stringify(),
-            headers:{
-                "Content-Type": "application/json"
-            }
-        }
-    }) 
-    // return {
-    //     type: ADD_USER_TO_ROOM,
-    //     payload: {userID, roomEndpoint}
-    // }
-}
-
-export const removeUserFromRoomAction = (userID, roomEndpoint) => {
-    //TODO: update the room on  database
-    console.log("removeUserFromRoomAction triggered!! payload userID => ", userID);
-    return {
-        type: REMOVE_USER_FROM_ROOM,
-        payload: {userID, roomEndpoint}
-    }
-}

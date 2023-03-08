@@ -3,24 +3,21 @@ import "./RoomPreview.css"
 import { useNavigate } from 'react-router-dom';
 import { useEffect} from "react";
 import {  useDispatch, useSelector } from "react-redux";
-import { addUserToRoomAction } from "../../redux/actions";
 const RoomPreview = (props) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const roomData = props.roomData;
     const user = useSelector(state => state.profileReducer.data)
 
-    
-    const addUserToRoom = () => {
-        dispatch(addUserToRoomAction(user._id, roomData.endpoint))
-    }
-    
-    
     const joinTheRoom = () => {
         console.log("join the room button triggered!")
-        navigate(`/chatroom/${roomData.endpoint}`,  {state: {user: user}})
-        // addUserToRoom();
+        navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user}})
+        // dispatch(addUserToRoomAction(user._id, roomData.endpoint, roomData._id))
+        // .then((action) => dispatch(action))
+        // .then(navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user}}))
+        // .catch(err => console.log(err))
     }
+
 
     return (<div className="d-flex flex-column room-preview-div">
         <div className="d-flex">
@@ -37,11 +34,9 @@ const RoomPreview = (props) => {
                 </div>
                 <div className="d-flex">
                     <div>creator: {roomData.creator}</div>
+                    
                 </div>
-                <div>
-                   current users in the room : 
-        
-                </div>
+                
                 <Button onClick={joinTheRoom}>Join the room</Button>
             </div>)
 }
