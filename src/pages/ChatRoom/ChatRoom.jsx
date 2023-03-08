@@ -8,7 +8,7 @@ import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import { VideoPlayer } from '../../components/VideoPlayer';
 import peersReducer from '../../redux/reducers/peersReducer';
-import { addPeerAction } from '../../redux/actions';
+import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 
@@ -19,8 +19,9 @@ const ChatRoom = (props) => {
     const params = useParams()
     const state = location.state;
     const userData = state.user;
+    const roomID = state.roomID;
     const userID = userData._id 
-    const roomID = params.id;
+    const roomEndpoint = params.id;
     const [myPeerId, setMyPeerId] = useState(null)
     const myVideoRef = useRef({});
     const remoteVideoRef =useRef({});
@@ -28,11 +29,15 @@ const ChatRoom = (props) => {
     //accessing the peersReducer
     const [currentPeersReducer, dispatch] = useReducer(peersReducer, {})
     const peers = currentPeersReducer.peers
+    const users = currentPeersReducer.users
+    
 
     const getMediaDevices = (mediaConstraints) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
     }
     const mediaConstraints = {video: true, audio: true}
+
+   
     
     useEffect(()  => {
 
@@ -44,19 +49,22 @@ const ChatRoom = (props) => {
 
         peer.on('open', (id) => {
             console.log('My peer ID is: ' + id)
-            console.log("roomID: ", roomID)
+            console.log("roomEndpoint: ", roomEndpoint)
             setMyPeerId(id)
-            socket.emit('join-room', {roomID, peerID: id, userID: userID })
+            socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID })
+            
+           
         })
 
         getMediaDevices(mediaConstraints)
         .then(stream => {
             myVideoRef.current.srcObject = stream;
             // adding our peer
-            // dispatch(addPeerAction(myPeerId, stream))
+            dispatch(addPeerAction(myPeerId, stream, userID))
             socket.on('user-connected', payload => {
                 console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID)
                 // console.log("users in this room after new connection: ", chatRooms)
+
                 
                 //we send the caller user info to who will answer it
                 const options = {metadata: {"userID": userID}};
@@ -70,6 +78,7 @@ const ChatRoom = (props) => {
                     if (id !== remoteStream.id) {
                         id = remoteStream.id
                         dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID))
+                        
                         remoteVideoRef.current.srcObject = remoteStream
                         console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)
                     }
@@ -94,7 +103,8 @@ const ChatRoom = (props) => {
 
             socket.on('user-disconnected', payload => {
                 console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
-                dispatch(removePeerAction(payload.peerID))
+                
+                dispatch(removePeerAction(payload.peerID, payload.userID))
             })
         })
         .catch(err => console.log("Failed to get local stream", err)) 
@@ -102,7 +112,13 @@ const ChatRoom = (props) => {
     
     useEffect(() => { 
         console.log("peers =>", peers)
+        console.log("currentPeersReducer => ", currentPeersReducer)
     }, [currentPeersReducer])
+
+    useEffect(() => {
+        //TODO: update the users inside chatrooms store and database.
+        updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
+    }, [users])
 
 
     window.onpopstate = () => {
@@ -123,7 +139,7 @@ const ChatRoom = (props) => {
                 </div>
                 <div className='d-flex flex-column'>
                     <h1>Remote Peers: </h1>
-                    {currentPeersReducer.peers?.map(peer => <div>
+                    {currentPeersReducer.peers?.map(peer => peer.userID !== userID && <div>
                         <div>{peer.peerID}</div>
                         <VideoPlayer stream = {peer.stream} userID = {peer.userID}/>
                     </div>)}
