@@ -9,6 +9,7 @@ const initialState = {
 const profileReducer = (state = initialState, action) => {
     switch (action.type) {
         case GET_PROFILE:
+            console.log("qqqqqqqqqqqqqqqqqq", action.payload)
             return {
                 ...state,
                 data: action.payload

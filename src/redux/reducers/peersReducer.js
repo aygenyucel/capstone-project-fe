@@ -1,5 +1,5 @@
 /* eslint-disable no-fallthrough */
-import { ADD_PEER, REMOVE_PEER, RESET_PEERS_STATE, UPDATE_PEER_STREAMS } from '../actions/index.js';
+import { ADD_PEER, REMOVE_PEER, RESET_PEERS_STATE } from '../actions/index.js';
 
 const initialState = {
     peers: [],

@@ -1,8 +1,8 @@
 
-import { ADD_NEW_ROOM, DELETE_ROOM, RESET_ROOMS_STATE, GET_ROOMS } from './../actions/index';
+import { ADD_NEW_ROOM, DELETE_ROOM, RESET_ROOMS_STATE, GET_ROOMS, ADD_USER_TO_ROOM, REMOVE_USER_FROM_ROOM } from './../actions/index';
 
 const initialState = {
-    rooms: []
+    rooms: [ ]
 }
 
 const roomsReducer = (state = initialState, action) => {
@@ -21,6 +21,18 @@ const roomsReducer = (state = initialState, action) => {
             return {
                 ...state,
                 rooms: action.payload
+            }
+        case ADD_USER_TO_ROOM:
+            return {
+                ...state,
+                rooms: state.rooms.map(room => room.endpoint === action.payload.roomEndpoint ? (room.users.concat(action.payload.userID)) : (room))
+            }
+        case REMOVE_USER_FROM_ROOM:
+            return {
+                ...state,
+                rooms: state.rooms.map(room => room.endpoint === action.payload.roomEndpoint 
+                    ? (room.users.filter(userID => userID !== action.payload.userID)) 
+                    : (room))
             }
         case RESET_ROOMS_STATE:
             return {

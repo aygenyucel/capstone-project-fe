@@ -45,6 +45,7 @@ const HomePage = () => {
     
     return  isLoggedIn && <div className="d-flex flex-column">
                 <div>{user.email}</div>
+                <div>user ID: {user._id}</div>
                 <div>Home Page</div>
                 <CreateRoom/>
                 <div className="mt-5">
@@ -52,7 +53,10 @@ const HomePage = () => {
                 </div>
                 <div>
                     <h3>All Rooms</h3>
-                    {rooms?.map((room) => <RoomPreview id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator}/>)}
+                    <div className="d-flex flex-wrap">
+                        {rooms?.map((room) => <div className="m-2"> <RoomPreview roomData= {room} id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator} endpoint = {room.endpoint}/></div>)}
+                    </div>
+                   
                 </div>
             </div>
 }

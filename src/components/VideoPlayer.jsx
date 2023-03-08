@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useRef } from 'react';
 import { useEffect } from 'react';
+import "../components/videoPlayer.css"
 
 export const VideoPlayer = (props) => {
     let videoRef = useRef({});
@@ -13,6 +14,8 @@ export const VideoPlayer = (props) => {
     }, [props.stream])
 
     return  <>
-                <video ref={videoRef} autoPlay muted width="350" height="200" />
+                <div className='video-player-container d-flex flex-column'>
+                    <div><video ref={videoRef} autoPlay muted width="300" height="200"  className='ms-2'/></div>
+                </div>
             </>
 }

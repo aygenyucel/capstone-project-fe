@@ -11,7 +11,11 @@ const reducers = combineReducers({
         storage: storage
     },
     peersReducer),
-    profileReducer: profileReducer,
+    profileReducer: persistReducer({
+        key: 'profile',
+        storage: storage
+    },
+    profileReducer),
     roomsReducer: persistReducer({
         key: 'rooms',
         storage: storage
