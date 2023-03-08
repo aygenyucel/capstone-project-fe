@@ -12,12 +12,12 @@ const peersReducer = (state = initialState, action) => {
             if(state.peers) {
                 return {
                     ...state,
-                    peers: [...state.peers, {peerID: action.payload.peerID, stream: action.payload.stream}]
+                    peers: [...state.peers, {peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID}]
                 }
             } else {
                 return {
                     ...state,
-                    peers: [{peerID: action.payload.peerID, stream: action.payload.stream}]
+                    peers: [{peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID}]
                 }
             }
 

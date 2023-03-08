@@ -15,11 +15,11 @@ const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
 
 
-export const addPeerAction = (peerID, stream) => {
-    console.log("addPeerAction triggered => added PeerID: ", peerID, )
+export const addPeerAction = (peerID, stream, userID) => {
+    console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID)
     return {
         type:ADD_PEER,
-        payload: {peerID, stream}
+        payload: {peerID, stream, userID}
     }
 }
 

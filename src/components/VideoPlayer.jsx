@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import "../components/videoPlayer.css"
 
 export const VideoPlayer = (props) => {
+    const userID = props.userID
     let videoRef = useRef({});
 
     useEffect(() => {
@@ -15,6 +16,7 @@ export const VideoPlayer = (props) => {
 
     return  <>
                 <div className='video-player-container d-flex flex-column'>
+                    <div>userID: {userID}</div>
                     <div><video ref={videoRef} autoPlay muted width="300" height="200"  className='ms-2'/></div>
                 </div>
             </>
