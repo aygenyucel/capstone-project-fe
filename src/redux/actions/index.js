@@ -12,8 +12,6 @@ export const UPDATE_ROOM_USERS = 'UPDATE_ROOM_USERS'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
-
-
 export const addPeerAction = (peerID, stream, userID) => {
     console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID)
     return {

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import './chatRoom.css';
-import { Container } from "react-bootstrap"
+import { Button, Container } from "react-bootstrap"
 import { useReducer, useRef, useState } from 'react';
 import { useEffect } from 'react';
 import Peer from "peerjs";
@@ -12,7 +12,7 @@ import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 
-const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
+const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"], closeOnBeforeunload: false})
 
 const ChatRoom = (props) => {
     const location = useLocation()
@@ -26,10 +26,14 @@ const ChatRoom = (props) => {
     const myVideoRef = useRef({});
     const remoteVideoRef =useRef({});
 
+
     //accessing the peersReducer
     const [currentPeersReducer, dispatch] = useReducer(peersReducer, {})
     const peers = currentPeersReducer.peers
     const users = currentPeersReducer.users
+
+    const remotePeerRef = useRef({})
+    const [usersArray, setUsersArray] = useState([])
     
 
     const getMediaDevices = (mediaConstraints) => {
@@ -37,7 +41,6 @@ const ChatRoom = (props) => {
     }
     const mediaConstraints = {video: true, audio: true}
 
-   
     
     useEffect(()  => {
 
@@ -51,11 +54,14 @@ const ChatRoom = (props) => {
             console.log('My peer ID is: ' + id)
             console.log("roomEndpoint: ", roomEndpoint)
             setMyPeerId(id)
-            socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID })
+            socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID, roomID })
             
-           
+           socket.on('user-join', payload => {
+                console.log("USER-JOIN PAYLOAD => ", payload.users)
+                setUsersArray(payload.users)
+            })    
         })
-
+        
         getMediaDevices(mediaConstraints)
         .then(stream => {
             myVideoRef.current.srcObject = stream;
@@ -65,7 +71,6 @@ const ChatRoom = (props) => {
                 console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID)
                 // console.log("users in this room after new connection: ", chatRooms)
 
-                
                 //we send the caller user info to who will answer it
                 const options = {metadata: {"userID": userID}};
                 const call = peer.call(payload.peerID, stream, options)
@@ -99,17 +104,24 @@ const ChatRoom = (props) => {
                         console.log("we answer the stream, addpeerAction triggered! (the owner of answer added)", call.metadata.userID, "xxxx")
                     }      
                 }) 
-
- 
             })
 
-            
+            remotePeerRef.current = peer
 
             socket.on('user-disconnected', payload => {
                 console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
                 
                 dispatch(removePeerAction(payload.peerID, payload.userID))
-                updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
+                updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
+                
+            })
+            
+            socket.on("user-left", (payload) => {
+                console.log("USER-LEFT PAYLOAD => ", payload.users)
+                setUsersArray(payload.users)
+                dispatch(removePeerAction(payload.peerID, payload.userID))
+                updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
+                remotePeerRef.current.destroy()
             })
         })
         .catch(err => console.log("Failed to get local stream", err)) 
@@ -129,11 +141,17 @@ const ChatRoom = (props) => {
         //for make sure the user disconnect from the chat room
         window.location.reload();
     }
-
-    //TODO: REMOVE THE LAST USER LEAVE THE ROOM, DELETE THE ROOM IF NOBODY LEFT
+    
+    const leaveTheRoomHandler = () => {
+        const updatedUsers = users.filter((user) => user !== userID)
+        dispatch(removePeerAction(myPeerId, userID))
+        updateRoomUsersAction(updatedUsers, roomID).then((action) => dispatch(action))
+    }
 
     return (
         <Container>
+            <div><a href='/'><Button onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
+            
             <div className="d-flex flex-column">
                 <div className="d-flex flex-column align-items-start">
                     <div>Current user peer id: {myPeerId}</div>
@@ -151,6 +169,7 @@ const ChatRoom = (props) => {
                     </div>)}
                 </div>
             </div>
+            
         </Container>
     )
 }

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import CreateRoom from "../../components/CreateRoom.jsx";
 import { useDispatch } from 'react-redux';
-import { getAllRoomsAction, isLoggedInAction} from "../../redux/actions/index.js";
+import { getAllRoomsAction, isLoggedInAction, removePeerAction, updateRoomUsersAction} from "../../redux/actions/index.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';

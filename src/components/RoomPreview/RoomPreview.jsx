@@ -2,8 +2,15 @@
 import { Button } from "react-bootstrap";
 import "./RoomPreview.css"
 import { useNavigate } from 'react-router-dom';
-import { useEffect} from "react";
+import { useEffect, useState} from "react";
 import {  useDispatch, useSelector } from "react-redux";
+import { io } from 'socket.io-client';
+import { removePeerAction, updateRoomUsersAction, updateRoomUsersActionWithUserID } from "../../redux/actions";
+
+
+const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
+
+
 const RoomPreview = (props) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -13,17 +20,19 @@ const RoomPreview = (props) => {
 
     const joinTheRoom = () => {
         console.log("join the room button triggered!")
-        navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user, roomID: roomData._id}})
-        // dispatch(addUserToRoomAction(user._id, roomData.endpoint, roomData._id))
-        // .then((action) => dispatch(action))
-        // .then(navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user}}))
-        // .catch(err => console.log(err))
-        
+        navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user, roomID: roomData._id}})  
     }
+
     useEffect(() => {
         console.log("roomData users", roomData)
-    }, [])
 
+        socket.on("user-left", (payload) => {
+            console.log("USER-LEFT PAYLOAD => ", payload.users)
+            dispatch(removePeerAction(payload.peerID, payload.userID))
+            updateRoomUsersAction(payload.users, payload.roomID).then((action) => dispatch(action))
+        })
+
+    }, [])
 
     return (<div className="d-flex flex-column room-preview-div">
         <div className="d-flex">

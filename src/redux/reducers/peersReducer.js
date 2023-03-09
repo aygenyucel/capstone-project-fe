@@ -33,15 +33,16 @@ const peersReducer = (state = initialState, action) => {
             }
 
         case REMOVE_PEER:
-            return {
-                ...state,
-                peers: state.peers.filter((peer) => peer.peerID !== action.payload.peerID),
-                users: state.users.filter((user) => user !== action.payload.userID)
-            }
+                return {
+                    ...state,
+                    peers: state.peers.filter((peer) => peer.peerID !== action.payload.peerID),
+                    users: state.users.filter((user) => user !== action.payload.userID)
+                }
 
         case RESET_PEERS_STATE:
             return {
-                peers: []
+                peers: [],
+                users: []
             }
 
         default: 
