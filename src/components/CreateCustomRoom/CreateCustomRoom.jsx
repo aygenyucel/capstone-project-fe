@@ -31,7 +31,7 @@ const CreateCustomRoom = () => {
         createNewRoom()
         .then((data) => {
             dispatch(addNewRoomAction(data))
-            navigate(`/chatroom/${data.endpoint}`)
+            navigate(`/chatroom/${data.endpoint}`, {state: {user: userData, roomID: data._id}})
         })
         .catch((err) => {console.log(err)});
     }
@@ -43,7 +43,7 @@ const CreateCustomRoom = () => {
                 capacity: capacity,
                 language: language,
                 level: level,
-                users:[userID],
+                users:[],
                 creator: `${userID}`,
                 endpoint: randomEndpoint
                 

@@ -11,11 +11,19 @@ const peersReducer = (state = initialState, action) => {
 
         case ADD_PEER:
             if(state.peers) {
-                return {
-                    ...state,
-                    peers: [...state.peers, {peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID}],
-                    users: [...state.users, action.payload.userID]
+                const index = state.peers.findIndex((peer) => peer.userID === action.payload.userID)
+                if(index === -1) {
+                    return {
+                        ...state,
+                        peers: [...state.peers, {peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID}],
+                        users: [...state.users, action.payload.userID]
+                    }
+                } else {
+                    return {
+                        ...state
+                    }
                 }
+                
             } else {
                 return {
                     ...state,

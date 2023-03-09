@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button } from "react-bootstrap";
 import "./RoomPreview.css"
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +9,7 @@ const RoomPreview = (props) => {
     const navigate = useNavigate();
     const roomData = props.roomData;
     const user = useSelector(state => state.profileReducer.data)
+    const users = roomData.users;
 
     const joinTheRoom = () => {
         console.log("join the room button triggered!")
@@ -16,7 +18,11 @@ const RoomPreview = (props) => {
         // .then((action) => dispatch(action))
         // .then(navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user}}))
         // .catch(err => console.log(err))
+        
     }
+    useEffect(() => {
+        console.log("roomData users", roomData)
+    }, [])
 
 
     return (<div className="d-flex flex-column room-preview-div">
@@ -35,6 +41,10 @@ const RoomPreview = (props) => {
                 <div className="d-flex">
                     <div>creator: {roomData.creator}</div>
                     
+                </div>
+                <div>
+                    <h1>users in the room</h1>
+                    {users?.map(user =>  <div>{user}</div>)}
                 </div>
                 
                 <Button onClick={joinTheRoom}>Join the room</Button>

@@ -99,12 +99,17 @@ const ChatRoom = (props) => {
                         console.log("we answer the stream, addpeerAction triggered! (the owner of answer added)", call.metadata.userID, "xxxx")
                     }      
                 }) 
+
+ 
             })
+
+            
 
             socket.on('user-disconnected', payload => {
                 console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
                 
                 dispatch(removePeerAction(payload.peerID, payload.userID))
+                updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
             })
         })
         .catch(err => console.log("Failed to get local stream", err)) 
@@ -116,7 +121,6 @@ const ChatRoom = (props) => {
     }, [currentPeersReducer])
 
     useEffect(() => {
-        //TODO: update the users inside chatrooms store and database.
         updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
     }, [users])
 
@@ -125,6 +129,8 @@ const ChatRoom = (props) => {
         //for make sure the user disconnect from the chat room
         window.location.reload();
     }
+
+    //TODO: REMOVE THE LAST USER LEAVE THE ROOM, DELETE THE ROOM IF NOBODY LEFT
 
     return (
         <Container>

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import CreateCustomRoom from './../../components/CreateCustomRoom/CreateCustomRoom';
 import RoomPreview from "../../components/RoomPreview/RoomPreview.jsx";
+import peersReducer from './../../redux/reducers/peersReducer';
 
 const HomePage = () => {
     const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const HomePage = () => {
     
     const user = useSelector(state => state.profileReducer.data)
     const rooms = useSelector(state => state.roomsReducer.rooms)
+    const users = useSelector(state => state.peersReducer.users)
     
     useEffect(() => {
         // dispatch(resetPeersStateAction());
@@ -54,7 +56,7 @@ const HomePage = () => {
                 <div>
                     <h3>All Rooms</h3>
                     <div className="d-flex flex-wrap">
-                        {rooms?.map((room) => <div className="m-2"> <RoomPreview roomData= {room} id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator} endpoint = {room.endpoint}/></div>)}
+                        {rooms?.map((room) => <div className="m-2"> <RoomPreview users={users} roomData= {room} id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator} endpoint = {room.endpoint}/></div>)}
                     </div>
                    
                 </div>
