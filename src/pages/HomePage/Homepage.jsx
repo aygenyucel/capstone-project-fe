@@ -48,8 +48,6 @@ const HomePage = () => {
     return  isLoggedIn && <div className="d-flex flex-column">
                 <div>{user.email}</div>
                 <div>user ID: {user._id}</div>
-                <div>Home Page</div>
-                <CreateRoom/>
                 <div className="mt-5">
                     <CreateCustomRoom/>
                 </div>

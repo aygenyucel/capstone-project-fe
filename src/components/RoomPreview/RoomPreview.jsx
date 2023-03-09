@@ -20,7 +20,12 @@ const RoomPreview = (props) => {
 
     const joinTheRoom = () => {
         console.log("join the room button triggered!")
-        navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user, roomID: roomData._id}})  
+        if(users.length < roomData.capacity){
+            navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user, roomID: roomData._id}})  
+        } else {
+            window.alert("Room is full!")
+        }
+        
     }
 
     useEffect(() => {

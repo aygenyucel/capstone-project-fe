@@ -93,9 +93,7 @@ const ChatRoom = (props) => {
                         dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID))
                         
                         remoteVideoRef.current.srcObject = remoteStream
-                        console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)
-
-                        
+                        console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)     
                     }
                 }) 
             })
