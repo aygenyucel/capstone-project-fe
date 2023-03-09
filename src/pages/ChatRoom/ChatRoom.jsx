@@ -34,6 +34,10 @@ const ChatRoom = (props) => {
 
     const remotePeerRef = useRef({})
     const [usersArray, setUsersArray] = useState([])
+
+    const [myStream, setMyStream] = useState({})
+    const [isMyCamOpen, setIsMyCamOpen] = useState(false)
+    const [isMyMicOpen, setIsMyMicOpen] = useState(false)
     
 
     const getMediaDevices = (mediaConstraints) => {
@@ -64,7 +68,12 @@ const ChatRoom = (props) => {
         
         getMediaDevices(mediaConstraints)
         .then(stream => {
+            
+            setMyStream(stream)
             myVideoRef.current.srcObject = stream;
+
+            stream.getVideoTracks()[0].enabled = false
+            stream.getAudioTracks()[0].enabled = false
             // adding our peer
             dispatch(addPeerAction(myPeerId, stream, userID))
             socket.on('user-connected', payload => {
@@ -74,11 +83,10 @@ const ChatRoom = (props) => {
                 //we send the caller user info to who will answer it
                 const options = {metadata: {"userID": userID}};
                 const call = peer.call(payload.peerID, stream, options)
-                let id;
 
+                let id;
                 //current peer send an offer to new peer 
                 call.on('stream', remoteStream => {
-
                     //checking for prevent running the code twice.
                     if (id !== remoteStream.id) {
                         id = remoteStream.id
@@ -86,6 +94,8 @@ const ChatRoom = (props) => {
                         
                         remoteVideoRef.current.srcObject = remoteStream
                         console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)
+
+                        
                     }
                 }) 
             })
@@ -148,17 +158,49 @@ const ChatRoom = (props) => {
         updateRoomUsersAction(updatedUsers, roomID).then((action) => dispatch(action))
     }
 
+    const toggleCamHandler = () => {
+        const videoTrack = myStream.getTracks().find(track => track.kind === 'video')
+        if(videoTrack.enabled) {
+            videoTrack.enabled = false;
+            setIsMyCamOpen(false)
+        } else {
+            videoTrack.enabled = true;
+            setIsMyCamOpen(true)
+        }
+    }
+
+    const toggleMicHandler = () => {
+        const audioTrack = myStream.getTracks().find(track => track.kind === 'audio')
+        if(audioTrack.enabled) {
+            audioTrack.enabled = false;
+            setIsMyMicOpen(false)
+        } else {
+            audioTrack.enabled = true;
+            setIsMyMicOpen(true)
+        }
+    }
+
     return (
         <Container>
             <div><a href='/'><Button onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
             
             <div className="d-flex flex-column">
-                <div className="d-flex flex-column align-items-start">
+                <div className="d-flex flex-column align-items-start mb-5">
                     <div>Current user peer id: {myPeerId}</div>
                     <div>Current userID: {userID}</div>
                     {/* video of current user */}
                     <div className="video-grid current-user-video-grid">
-                        <video className="video current-user-video" ref={myVideoRef} autoPlay muted/>
+                        <video className="video current-user-video" ref={myVideoRef} autoPlay/>
+                        <div className='d-flex '>
+                        {isMyCamOpen 
+                        ? <button onClick={toggleCamHandler}>hide your cam</button> 
+                        :  <button onClick={toggleCamHandler}>open your cam</button>}
+                        {isMyMicOpen 
+                        ? <button onClick={toggleMicHandler}>mute mic</button> 
+                        :  <button onClick={toggleMicHandler}>open mic</button>}
+                        </div>
+                        
+
                     </div>
                 </div>
                 <div className='d-flex flex-column'>
