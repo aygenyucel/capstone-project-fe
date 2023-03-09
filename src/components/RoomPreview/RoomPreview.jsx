@@ -53,7 +53,7 @@ const RoomPreview = (props) => {
                 </div>
                 <div>
                     <h1>users in the room</h1>
-                    {users?.map(user =>  <div>{user}</div>)}
+                    {users?.map(user =>  <div key={user}>{user}</div>)}
                 </div>
                 
                 <Button onClick={joinTheRoom}>Join the room</Button>

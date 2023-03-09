@@ -56,7 +56,7 @@ const HomePage = () => {
                 <div>
                     <h3>All Rooms</h3>
                     <div className="d-flex flex-wrap">
-                        {rooms?.map((room) => <div className="m-2"> <RoomPreview users={users} roomData= {room} id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator} endpoint = {room.endpoint}/></div>)}
+                        {rooms?.map((room) => <div key={room._id} className="m-2"> <RoomPreview users={users} roomData= {room} id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator} endpoint = {room.endpoint}/></div>)}
                     </div>
                    
                 </div>

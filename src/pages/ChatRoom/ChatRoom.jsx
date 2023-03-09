@@ -163,7 +163,8 @@ const ChatRoom = (props) => {
                 </div>
                 <div className='d-flex flex-column'>
                     <h1>Remote Peers: </h1>
-                    {currentPeersReducer.peers?.map(peer => peer.userID !== userID && <div>
+                    {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
+                    <div key={peer.userID}>
                         <div>{peer.peerID}</div>
                         <VideoPlayer stream = {peer.stream} userID = {peer.userID}/>
                     </div>)}
