@@ -28,6 +28,11 @@ export const VideoPlayer = (props) => {
             audioTrack.enabled = false;
         }
 
+
+        //TODO: get the user info with userID
+
+        //TODO: get the media stream track information (screen sharing)
+
         //every time we update peers State, stream will be changed
     }, [props.stream])
     

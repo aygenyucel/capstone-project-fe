@@ -38,6 +38,7 @@ const ChatRoom = (props) => {
     const [myStream, setMyStream] = useState({})
     const [isMyCamOpen, setIsMyCamOpen] = useState(false)
     const [isMyMicOpen, setIsMyMicOpen] = useState(false)
+    const [isSharingScreen, setIsSharingScreen] = useState(false)
     
 
     const getMediaDevices = (mediaConstraints) => {
@@ -47,6 +48,7 @@ const ChatRoom = (props) => {
 
     
     useEffect(()  => {
+        console.log(":)))) userData => ", userData)
 
         const peer = new Peer({
             config: {'iceServers': [
@@ -178,6 +180,21 @@ const ChatRoom = (props) => {
         }
     }
 
+    // const toggleShareScreenHandler = () => {
+    //     //we are accessing the media stream, not video stream
+    //     if(isSharingScreen) {
+    //         navigator.mediaDevices.getUserMedia({video:isMyCamOpen, audio: isMyMicOpen})
+    //         .then(stream => myVideoRef.current.srcObject = stream)
+    //         .then(setIsSharingScreen(false))
+            
+    //     } else {
+    //         navigator.mediaDevices.getDisplayMedia({})
+    //         .then(stream => myVideoRef.current.srcObject = stream)
+    //         .then(setIsSharingScreen(true))
+            
+    //     }
+    // }
+
     return (
         <Container>
             <div><a href='/'><Button onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
@@ -186,18 +203,23 @@ const ChatRoom = (props) => {
                 <div className="d-flex flex-column align-items-start mb-5">
                     <div>Current user peer id: {myPeerId}</div>
                     <div>Current userID: {userID}</div>
+                    <div>userName: {userData.username}</div>
                     {/* video of current user */}
-                    <div className="video-grid current-user-video-grid">
+                    <div className="video-grid current-user-video-grid d-flex flex-column">
                         <video className="video current-user-video" ref={myVideoRef} autoPlay/>
-                        <div className='d-flex '>
+                        <div className='d-flex'>
                         {isMyCamOpen 
-                        ? <button onClick={toggleCamHandler}>hide your cam</button> 
-                        :  <button onClick={toggleCamHandler}>open your cam</button>}
+                        ? <Button className='me-2' onClick={toggleCamHandler}>hide your cam</Button> 
+                        :  <Button className='me-2' onClick={toggleCamHandler}>open your cam</Button>}
                         {isMyMicOpen 
-                        ? <button onClick={toggleMicHandler}>mute mic</button> 
-                        :  <button onClick={toggleMicHandler}>open mic</button>}
+                        ? <Button  onClick={toggleMicHandler}>mute mic</Button> 
+                        :  <Button onClick={toggleMicHandler}>open mic</Button>}
                         </div>
-                        
+                        {/* <div className='d-flex mt-3'>
+                            {isSharingScreen 
+                            ? <Button variant='secondary' onClick={toggleShareScreenHandler}>stop sharing</Button> 
+                            :  <Button variant='secondary' onClick={toggleShareScreenHandler}>share your screen</Button>}
+                        </div> */}
 
                     </div>
                 </div>
@@ -206,7 +228,7 @@ const ChatRoom = (props) => {
                     {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
                     <div key={peer.userID}>
                         <div>{peer.peerID}</div>
-                        <VideoPlayer stream = {peer.stream} userID = {peer.userID}/>
+                        <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
                     </div>)}
                 </div>
             </div>

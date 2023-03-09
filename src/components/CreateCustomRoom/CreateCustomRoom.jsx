@@ -35,6 +35,8 @@ const CreateCustomRoom = () => {
         })
         .catch((err) => {console.log(err)});
     }
+
+    //TODO: when user create a new room, update the user info and save the roomid inside that user object
     
     const createNewRoom = () => {
         return new Promise (async (resolve, reject) => {
