@@ -7,25 +7,24 @@ export const GET_PROFILE_ID = 'GET_PROFILE_ID'
 export const ADD_NEW_ROOM = 'ADD_NEW_ROOM'
 export const DELETE_ROOM ='DELETE_ROOM'
 export const RESET_ROOMS_STATE = 'RESET_ROOMS_STATE';
-export const GET_ROOMS= 'GET_ROOMS'
+export const GET_ROOMS= 'GET_ROOMS' //fetching /GET
+export const UPDATE_ROOM_USERS = 'UPDATE_ROOM_USERS'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
-
-
-export const addPeerAction = (peerID, stream) => {
-    console.log("addPeerAction triggered => added PeerID: ", peerID)
+export const addPeerAction = (peerID, stream, userID) => {
+    console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID)
     return {
         type:ADD_PEER,
-        payload: {peerID, stream}
+        payload: {peerID, stream, userID}
     }
 }
 
-export const removePeerAction = (peerID) => {
+export const removePeerAction = (peerID, userID) => {
     console.log("removePeerAction triggered => removed peerID: ", peerID);
     return {
         type:REMOVE_PEER,
-        payload: {peerID}
+        payload: {peerID, userID}
     }
 }
 
@@ -255,5 +254,40 @@ export const getAllRoomsAction = () => {
                 console.log(error)
                 reject(error)
             }
+    })
+}
+
+export const updateRoomUsersAction = (users, roomID) => {
+    console.log("updateRoomUsersAction triggered!! users =>", users, "roomID =>", roomID)
+    return new Promise (async (resolve, reject) => {
+        //first we'll update the users of room on database
+        //then we'll resolve the action to update reducer
+        const options = {
+            method: "PUT",
+            body: JSON.stringify({users: users}),
+            headers:{
+                "Content-Type": "application/json"
+            }
+        }
+        try {
+            const response = await fetch(`${BE_DEV_URL}/rooms/${roomID}`, options)
+            
+            if(response.ok) {
+                const updatedRoom = await response.json()
+                console.log("updateRoomUsersAction triggered!! fetch the PUT endpoint response json =>", updatedRoom)
+                const action = {
+                    type: UPDATE_ROOM_USERS,
+                    payload: {users, roomID}
+                }
+
+                resolve(action)
+            } else {
+                throw new Error("oppppss something went wrong when fetching!")
+            }
+            
+        } catch (error) {
+            console.log(error)
+            reject(error)
+        }
     })
 }

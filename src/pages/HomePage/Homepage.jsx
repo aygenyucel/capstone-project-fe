@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import CreateRoom from "../../components/CreateRoom.jsx";
 import { useDispatch } from 'react-redux';
-import { getAllRoomsAction, isLoggedInAction} from "../../redux/actions/index.js";
+import { getAllRoomsAction, isLoggedInAction, removePeerAction, updateRoomUsersAction} from "../../redux/actions/index.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import CreateCustomRoom from './../../components/CreateCustomRoom/CreateCustomRoom';
 import RoomPreview from "../../components/RoomPreview/RoomPreview.jsx";
+import peersReducer from './../../redux/reducers/peersReducer';
 
 const HomePage = () => {
     const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const HomePage = () => {
     
     const user = useSelector(state => state.profileReducer.data)
     const rooms = useSelector(state => state.roomsReducer.rooms)
+    const users = useSelector(state => state.peersReducer.users)
     
     useEffect(() => {
         // dispatch(resetPeersStateAction());
@@ -45,14 +47,17 @@ const HomePage = () => {
     
     return  isLoggedIn && <div className="d-flex flex-column">
                 <div>{user.email}</div>
-                <div>Home Page</div>
-                <CreateRoom/>
+                <div>user ID: {user._id}</div>
+                <div>username: {user.username}</div>
                 <div className="mt-5">
                     <CreateCustomRoom/>
                 </div>
                 <div>
                     <h3>All Rooms</h3>
-                    {rooms?.map((room) => <RoomPreview id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator}/>)}
+                    <div className="d-flex flex-wrap">
+                        {rooms?.map((room) => <div key={room._id} className="m-2"> <RoomPreview users={users} roomData= {room} id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator} endpoint = {room.endpoint}/></div>)}
+                    </div>
+                   
                 </div>
             </div>
 }

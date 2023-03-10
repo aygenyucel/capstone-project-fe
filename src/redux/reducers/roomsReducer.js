@@ -1,8 +1,9 @@
 
-import { ADD_NEW_ROOM, DELETE_ROOM, RESET_ROOMS_STATE, GET_ROOMS } from './../actions/index';
+import { ADD_NEW_ROOM, DELETE_ROOM, RESET_ROOMS_STATE, GET_ROOMS, UPDATE_ROOM_USERS } from './../actions/index';
 
 const initialState = {
-    rooms: []
+    rooms: [],
+    users: []
 }
 
 const roomsReducer = (state = initialState, action) => {
@@ -22,6 +23,16 @@ const roomsReducer = (state = initialState, action) => {
                 ...state,
                 rooms: action.payload
             }
+
+        case UPDATE_ROOM_USERS:
+            console.log("lets seee if reducer will be updated, action.payload =>", action.payload)
+            
+            return {
+                ...state,
+                rooms: state.rooms.filter(room => room._id === action.payload.roomID ? {...room, users: action.payload.users} : room),
+                users: action.payload.users
+            }
+       
         case RESET_ROOMS_STATE:
             return {
                 rooms: []

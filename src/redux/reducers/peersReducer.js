@@ -1,8 +1,9 @@
 /* eslint-disable no-fallthrough */
-import { ADD_PEER, REMOVE_PEER, RESET_PEERS_STATE, UPDATE_PEER_STREAMS } from '../actions/index.js';
+import { ADD_PEER, REMOVE_PEER, RESET_PEERS_STATE } from '../actions/index.js';
 
 const initialState = {
     peers: [],
+    users: []
 }
 
 const peersReducer = (state = initialState, action) => {
@@ -10,26 +11,38 @@ const peersReducer = (state = initialState, action) => {
 
         case ADD_PEER:
             if(state.peers) {
-                return {
-                    ...state,
-                    peers: [...state.peers, {peerID: action.payload.peerID, stream: action.payload.stream}]
+                const index = state.peers.findIndex((peer) => peer.userID === action.payload.userID)
+                if(index === -1) {
+                    return {
+                        ...state,
+                        peers: [...state.peers, {peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID}],
+                        users: [...state.users, action.payload.userID]
+                    }
+                } else {
+                    return {
+                        ...state
+                    }
                 }
+                
             } else {
                 return {
                     ...state,
-                    peers: [{peerID: action.payload.peerID, stream: action.payload.stream}]
+                    peers: [{peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID}],
+                    users: [action.payload.userID]
                 }
             }
 
         case REMOVE_PEER:
-            return {
-                ...state,
-                peers: state.peers.filter((peer) => peer.peerID !== action.payload.peerID)
-            }
+                return {
+                    ...state,
+                    peers: state.peers.filter((peer) => peer.peerID !== action.payload.peerID),
+                    users: state.users.filter((user) => user !== action.payload.userID)
+                }
 
         case RESET_PEERS_STATE:
             return {
-                peers: []
+                peers: [],
+                users: []
             }
 
         default: 

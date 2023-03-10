@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNewRoomAction } from "../../redux/actions";
+import { v1 as uuid } from "uuid";
+import { useNavigate } from 'react-router-dom';
 
 const CreateCustomRoom = () => {
     const [show, setShow] = useState(false);
@@ -18,29 +20,35 @@ const CreateCustomRoom = () => {
     const [language, setLanguage] = useState("");
     const [level, setLevel] = useState("");
     const [userID, setUserID] = useState(null);
+    const [endpoint] = useState("") //random room link created by UUID
 
     const dispatch = useDispatch();
+    const navigate = useNavigate()
 
     const handleSubmit = (e) => {
         e.preventDefault()
         
         createNewRoom()
         .then((data) => {
-            console.log("xxxxxxx", data)
             dispatch(addNewRoomAction(data))
+            navigate(`/chatroom/${data.endpoint}`, {state: {user: userData, roomID: data._id}})
         })
-        .then(handleClose())
         .catch((err) => {console.log(err)});
     }
+
+    //TODO: when user create a new room, update the user info and save the roomid inside that user object
     
     const createNewRoom = () => {
         return new Promise (async (resolve, reject) => {
+            const randomEndpoint = uuid()
             const newRoom = {
                 capacity: capacity,
                 language: language,
                 level: level,
-                users:[userID],
-                creator: `${userID}`
+                users:[],
+                creator: `${userID}`,
+                endpoint: randomEndpoint
+                
             }
             const options = {
                 method: "POST",
