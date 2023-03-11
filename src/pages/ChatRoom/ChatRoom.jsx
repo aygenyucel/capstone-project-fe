@@ -38,7 +38,7 @@ const ChatRoom = (props) => {
     const [myStream, setMyStream] = useState({})
     const [isMyCamOpen, setIsMyCamOpen] = useState(false)
     const [isMyMicOpen, setIsMyMicOpen] = useState(false)
-    const [isSharingScreen, setIsSharingScreen] = useState(false)
+    // const [isSharingScreen, setIsSharingScreen] = useState(false)
     
 
     const getMediaDevices = (mediaConstraints) => {
@@ -195,9 +195,15 @@ const ChatRoom = (props) => {
     //     }
     // }
 
+    const copyTheChatLink = () => {
+        navigator.clipboard.writeText(`${process.env.REACT_APP_BE_DEV_URL}/chatroom/${roomEndpoint}`)
+        window.alert("the room link copied!")
+    }
+
     return (
         <Container>
-            <div><a href='/'><Button onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
+            <div className='mb-3 mt-3'><a href='/'><Button variant='danger' onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
+            <div><Button variant='secondary' onClick={copyTheChatLink}>Copy the chat link</Button></div>
             
             <div className="d-flex flex-column">
                 <div className="d-flex flex-column align-items-start mb-5">
@@ -215,11 +221,6 @@ const ChatRoom = (props) => {
                         ? <Button  onClick={toggleMicHandler}>mute mic</Button> 
                         :  <Button onClick={toggleMicHandler}>open mic</Button>}
                         </div>
-                        {/* <div className='d-flex mt-3'>
-                            {isSharingScreen 
-                            ? <Button variant='secondary' onClick={toggleShareScreenHandler}>stop sharing</Button> 
-                            :  <Button variant='secondary' onClick={toggleShareScreenHandler}>share your screen</Button>}
-                        </div> */}
 
                     </div>
                 </div>
