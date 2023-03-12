@@ -1,0 +1,30 @@
+.navbar-div {
+    width: 100%;
+    padding-block: 30px;
+    margin-bottom: 10px;
+    background-color: var(--color-main);
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.navbar-logo {
+    font-family: var(--secondary-font);
+    font-weight: 400;
+}
+
+.navbar-middle div {
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-inline:20px;
+}
+
+.navbar-right {
+    font-family: var(--secondary-font);
+    font-weight: 400;
+    font-size: 0.8rem;
+    background-color: var(--color-black);
+    color: var(--color-white);
+    padding-block: 10px;
+    padding-inline: 30px;
+    border-radius: 5px;
+}

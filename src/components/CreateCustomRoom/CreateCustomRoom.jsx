@@ -9,6 +9,7 @@ import { addNewRoomAction } from "../../redux/actions";
 import { v1 as uuid } from "uuid";
 import { useNavigate } from 'react-router-dom';
 import languages from 'languages-data';
+import Select from 'react-select';
 
 
 
@@ -22,13 +23,14 @@ const CreateCustomRoom = () => {
 
     const userData =  useSelector(state => state.profileReducer.data);
 
-    const [capacity, setCapacity] = useState("");
-    const [language, setLanguage] = useState("");
-    const [level, setLevel] = useState("");
+    const [capacity, setCapacity] = useState(2);
+    const [language, setLanguage] = useState("English");
+    const [level, setLevel] = useState("B1");
     const [userID, setUserID] = useState(null);
     const [endpoint] = useState("") //random room link created by UUID
 
-    const languagesData = languages.getAllLanguages()
+    const [languageOptions, setLanguageOptions] = useState("")
+   
 
 
     const handleSubmit = (e) => {
@@ -43,10 +45,17 @@ const CreateCustomRoom = () => {
         .catch((err) => {console.log(err)});
     }
 
+
+
     //TODO: when user create a new room, update the user info and save the roomid inside that user object
     
     useEffect(() => {
-        console.log(languagesData)
+        // console.log(languagesData)
+        const languagesData = languages.getAllLanguages()
+        
+        setLanguageOptions(languagesData.map((language ) =>  {
+            return {value: language.name, label: language.name}}))
+        console.log("xxx", languageOptions)
     }, [])
     const createNewRoom = () => {
         return new Promise (async (resolve, reject) => {
@@ -91,6 +100,11 @@ const CreateCustomRoom = () => {
         setUserID(userData._id)
     }, [])
 
+    const  handleChangeLanguage = (selectedLanguage) => {
+        setLanguage(selectedLanguage.value)
+        console.log("language selected: ", language)
+      };
+
     return <>
         <Container>
             <div className="create-custom-room">
@@ -105,28 +119,30 @@ const CreateCustomRoom = () => {
                 <Modal.Body>
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
-                            <Form.Select defaultValue={'DEFAULT'}   id="roomCapacity" onChange={e => setCapacity(e.target.value)}>
-                                <option value="DEFAULT" disabled>Choose a room capacity</option>
-                                <option   value= {2} >2</option>
+                            <Form.Label>Select the room capacity</Form.Label>
+                            <Form.Select defaultValue={2}   id="roomCapacity" onChange={e => setCapacity(e.target.value)}>
+                                <option value= {2} >2</option>
                                 <option value={3}>3</option>
                                 <option value={4}>4</option>
                                 <option value={5}>5</option>
                             </Form.Select>
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Select defaultValue={'DEFAULT'} id="roomLanguage" onChange={e => setLanguage(e.target.value)}>
-                                 <option value="DEFAULT" disabled>Choose a language</option>
-                                <option  value="English" >English</option>
-                                <option value="Chinese">Chinese</option>
-                                <option value="Spanish">Spanish</option>
-                                <option value="Turkish">Turkish</option>
-                                <option value="Russian">Russian</option>
-                            </Form.Select>
+                                <Form.Label>Select the language</Form.Label>
+                                <Select className="select-language"
+                                    defaultValue={"English"}
+                                    placeholder= {language ? language : "English" }
+                                    value={language}
+                                    onChange={handleChangeLanguage}
+                                    options={languageOptions}
+                                />
+                               
                         </Form.Group>
                         <Form.Group className="mb-3">
                             
-                            <Form.Select defaultValue={'DEFAULT'}  id="roomLevel" onChange={e => setLevel(e.target.value)}>
-                                <option value="DEFAULT" disabled>Choose a language level</option>
+                            <Form.Label>Select Language level</Form.Label>
+                            <Form.Select placeholder="B1 - Intermediate"  defaultValue={'B1'}  id="roomLevel" onChange={e => setLevel(e.target.value)}>
+                                {/* <option value="DEFAULT">Choose a language level</option> */}
                                 <option value="A1" >A1 - Beginner</option>
                                 <option value="A2" >A2 - Elementary</option>
                                 <option value="B1">B1 - Intermediate</option>

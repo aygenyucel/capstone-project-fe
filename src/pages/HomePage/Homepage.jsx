@@ -1,68 +1,84 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useDispatch } from 'react-redux';
-import { getAllRoomsAction, isLoggedInAction} from "../../redux/actions/index.js";
+import { Button, Container } from "react-bootstrap";
+import "./HomePage.css";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
-import CreateCustomRoom from './../../components/CreateCustomRoom/CreateCustomRoom';
-import RoomPreview from "../../components/RoomPreview/RoomPreview.jsx";
-import SearchRoom from '../../components/SearchRoom/SearchRoom.jsx';
+import Typical from 'react-typical'
 
-const HomePage = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const JWTToken = localStorage.getItem("JWTToken")
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
-    
-    const user = useSelector(state => state.profileReducer.data)
-    const rooms = useSelector(state => state.roomsReducer.rooms)
-    const users = useSelector(state => state.peersReducer.users)
+const Home = () => {
 
+    const [languages, setLanguages] = useState(["English",4000, "Chinese",4000, "Spanish",4000, "French", 4000,"Japanase",4000, "Italian",4000, "Korean",4000, "Russian",4000,"Arabic",4000, "Turkish",4000, "German",4000])
+    const [newLanguage, setNewLanguage] = useState("")
+    const [index, setIndex] = useState(0);
     
     
     useEffect(() => {
-        // dispatch(resetPeersStateAction());
-        // dispatch(resetRoomsStateAction());
-        getAllRoomsAction()
-        .then((action) => dispatch(action))
+       
 
-        console.log("user", user, "jwt: ", JWTToken)
-        isLoggedInAction(user, JWTToken, dispatch)
-        .then((boolean) => {
-            if(boolean === true) {
-                setIsLoggedIn(true)
-                console.log("yes its logged in")
-            } else {
-                navigate("/login")
-            }
-        })
-        .catch(err => console.log(err))
+        const timer = () => {
+            const randomIndex = Math.floor(Math.random() * languages.length);
+            setIndex(randomIndex)
+          };
+          setInterval(timer, 8000);
+          
+          //cleanup function in order clear the interval timer
+          //when the component unmounts
+          return () => { clearInterval(timer); }
+          
     }, [])
-
     
-    useEffect(() => {
-        getAllRoomsAction()
-        .then((action) => dispatch(action))
-
-    }, [rooms])
-
-    
-    
-    return  isLoggedIn && <div className="d-flex flex-column">
-                <div>{user.email}</div>
-                <div>user ID: {user._id}</div>
-                <div>username: {user.username}</div>
-                <div className="mt-5">
-                    <CreateCustomRoom/>
+    return   <div className="homepage d-flex flex-column"> 
+                <div className="homepage-div">
+                    <Container>
+                        <div className="main-container d-flex ">
+                            
+                            <div className="col-6 d-flex flex-column justify-content-center main-left">
+                                <div className="d-flex flex-column main-header">
+                                    <div>Start speaking</div>
+                                    <Typical
+                                        steps={languages}
+                                        loop={Infinity}
+                                        wrapper="p"
+                                        className="main-header-language"
+                                        /> 
+                                    <div>now!</div>
+                                </div>
+                                
+                            </div>
+                            <div className="col-6  main-right d-flex justify-content-start aling-items-end">
+                                <img className="home-img img-group-calling" src="/assets/group-calling.png" alt="group-calling" />
+                            </div>
+                        </div>
+                    </Container>
                 </div>
                 <div>
-                    <SearchRoom/>
-                    <h3>All Rooms</h3>
-                    <div className="d-flex flex-wrap">
-                        {rooms?.map((room) => <div key={room._id} className="m-2"> <RoomPreview users={users} roomData= {room} id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator} endpoint = {room.endpoint}/></div>)}
-                    </div>
+                    <Container>
+                        <div className="d-flex justify-content-center btn-div">
+                            <div className="btn-div-left">
+                                <Button className="main-btn get-started-btn">
+                                    Get started
+                                </Button>
+                            </div>
+                            <div>
+                                <Button className="main-btn learn-more-btn">
+                                    Learn more
+                                </Button>
+                            </div>
+                        </div>
+                    </Container>
                 </div>
+                <div className="homepage-div homepage-div-bottom">
+                    <Container>
+                        <div className="d-flex">
+                            <div className="col-6 bottom-img-div d-flex flex-end">
+                                <img className="bottom-img" src="/assets/around_the_world.png" alt="around-the-world" />
+                            </div>
+                            <div className="col-6 bottom-header">
+                                fdssgs
+                            </div>
+                        </div>
+                    </Container>
+                </div>
+                
             </div>
 }
 
-export default HomePage;
+export default Home;
