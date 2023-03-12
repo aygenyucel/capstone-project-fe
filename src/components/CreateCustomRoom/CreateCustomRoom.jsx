@@ -1,15 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import "./createCustomRoom.css"
 import { Container, Button, Modal, Form } from 'react-bootstrap';
-import { useState, useReducer } from 'react';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNewRoomAction } from "../../redux/actions";
 import { v1 as uuid } from "uuid";
 import { useNavigate } from 'react-router-dom';
+import languages from 'languages-data';
+
+
 
 const CreateCustomRoom = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate()
+
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -22,8 +28,8 @@ const CreateCustomRoom = () => {
     const [userID, setUserID] = useState(null);
     const [endpoint] = useState("") //random room link created by UUID
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate()
+    const languagesData = languages.getAllLanguages()
+
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -39,6 +45,9 @@ const CreateCustomRoom = () => {
 
     //TODO: when user create a new room, update the user info and save the roomid inside that user object
     
+    useEffect(() => {
+        console.log(languagesData)
+    }, [])
     const createNewRoom = () => {
         return new Promise (async (resolve, reject) => {
             const randomEndpoint = uuid()
@@ -101,6 +110,7 @@ const CreateCustomRoom = () => {
                                 <option   value= {2} >2</option>
                                 <option value={3}>3</option>
                                 <option value={4}>4</option>
+                                <option value={5}>5</option>
                             </Form.Select>
                         </Form.Group>
                         <Form.Group className="mb-3">

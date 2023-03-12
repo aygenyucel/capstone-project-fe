@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useRef } from 'react';
 import { useEffect } from 'react';
-import "../components/videoPlayer.css"
+import "./videoPlayer.css"
 
 export const VideoPlayer = (props) => {
     const userID = props.userID

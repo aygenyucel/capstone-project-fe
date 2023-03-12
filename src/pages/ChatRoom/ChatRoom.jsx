@@ -6,13 +6,13 @@ import { useEffect } from 'react';
 import Peer from "peerjs";
 import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
-import { VideoPlayer } from '../../components/VideoPlayer';
+import { VideoPlayer } from '../../components/VideoPlayer/VideoPlayer.jsx';
 import peersReducer from '../../redux/reducers/peersReducer';
 import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 
-const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"], closeOnBeforeunload: false})
+const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
 const ChatRoom = (props) => {
     const location = useLocation()
