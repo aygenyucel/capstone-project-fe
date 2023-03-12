@@ -29,9 +29,10 @@ const CreateCustomRoom = () => {
         e.preventDefault()
         
         createNewRoom()
-        .then((data) => {
+        .then(({data, roomEndpoint, roomID}) => {
             dispatch(addNewRoomAction(data))
-            navigate(`/chatroom/${data.endpoint}`, {state: {user: userData, roomID: data._id}})
+            console.log("ddddddd", data, roomEndpoint, roomID)
+            navigate(`/chatroom/${roomEndpoint}`, {state: {user: userData, roomID: roomID}})
         })
         .catch((err) => {console.log(err)});
     }
@@ -63,7 +64,9 @@ const CreateCustomRoom = () => {
                 if(response.ok) {
                     const data = await response.json();
                     console.log("new room data", data)
-                    resolve(data)
+                    const roomEndpoint = data.endpoint
+                    const roomID = data._id
+                    resolve({data, roomEndpoint, roomID})
 
                 } else {
                     console.log("opssssss error fetching data")
@@ -94,7 +97,7 @@ const CreateCustomRoom = () => {
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
                             <Form.Select defaultValue={'DEFAULT'}   id="roomCapacity" onChange={e => setCapacity(e.target.value)}>
-                                 <option value="DEFAULT" disabled>Choose a room capacity</option>
+                                <option value="DEFAULT" disabled>Choose a room capacity</option>
                                 <option   value= {2} >2</option>
                                 <option value={3}>3</option>
                                 <option value={4}>4</option>

@@ -39,8 +39,12 @@ const ChatRoom = (props) => {
     const [isMyCamOpen, setIsMyCamOpen] = useState(false)
     const [isMyMicOpen, setIsMyMicOpen] = useState(false)
     // const [isSharingScreen, setIsSharingScreen] = useState(false)
-    
 
+    window.onbeforeunload = closing;
+    var closing = function () {
+        console.log("function alrt WORKS !!!!");
+        window.alert("closing now.....");
+       }
     const getMediaDevices = (mediaConstraints) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
     }
@@ -55,11 +59,13 @@ const ChatRoom = (props) => {
                 { url: 'stun:stun.l.google.com:19302' },
               ]} 
         });
+        let peerID;
 
         peer.on('open', (id) => {
             console.log('My peer ID is: ' + id)
             console.log("roomEndpoint: ", roomEndpoint)
             setMyPeerId(id)
+            peerID = id;
             socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID, roomID })
             
            socket.on('user-join', payload => {
@@ -67,6 +73,7 @@ const ChatRoom = (props) => {
                 setUsersArray(payload.users)
             })    
         })
+        
         
         getMediaDevices(mediaConstraints)
         .then(stream => {
@@ -77,7 +84,9 @@ const ChatRoom = (props) => {
             stream.getVideoTracks()[0].enabled = false
             stream.getAudioTracks()[0].enabled = false
             // adding our peer
-            dispatch(addPeerAction(myPeerId, stream, userID))
+            console.log("jkfdshskjfjds", peerID, userID)
+
+            dispatch(addPeerAction(peerID, stream, userID))
             socket.on('user-connected', payload => {
                 console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID)
                 // console.log("users in this room after new connection: ", chatRooms)
@@ -92,6 +101,7 @@ const ChatRoom = (props) => {
                     //checking for prevent running the code twice.
                     if (id !== remoteStream.id) {
                         id = remoteStream.id
+                        console.log("#################",payload.peerID, remoteStream, payload.userID)
                         dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID))
                         
                         remoteVideoRef.current.srcObject = remoteStream
@@ -133,6 +143,7 @@ const ChatRoom = (props) => {
                 updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
                 remotePeerRef.current.destroy()
             })
+            
         })
         .catch(err => console.log("Failed to get local stream", err)) 
     }, [])
@@ -152,10 +163,15 @@ const ChatRoom = (props) => {
         window.location.reload();
     }
     
+    
     const leaveTheRoomHandler = () => {
         const updatedUsers = users.filter((user) => user !== userID)
         dispatch(removePeerAction(myPeerId, userID))
         updateRoomUsersAction(updatedUsers, roomID).then((action) => dispatch(action))
+    }
+
+    window.onbeforeunload =() => {
+        leaveTheRoomHandler()
     }
 
     const toggleCamHandler = () => {
@@ -229,6 +245,7 @@ const ChatRoom = (props) => {
                     {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
                     <div key={peer.userID}>
                         <div>{peer.peerID}</div>
+                        <div>userrrrID: {peer.userID}</div>
                         <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
                     </div>)}
                 </div>

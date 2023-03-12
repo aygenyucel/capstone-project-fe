@@ -5,10 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState} from "react";
 import {  useDispatch, useSelector } from "react-redux";
 import { io } from 'socket.io-client';
-import { removePeerAction, updateRoomUsersAction, updateRoomUsersActionWithUserID } from "../../redux/actions";
+import { addPeerAction, removePeerAction, updateRoomUsersAction, updateRoomUsersActionWithUserID } from "../../redux/actions";
 
-
-const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
 
 const RoomPreview = (props) => {
@@ -21,7 +19,7 @@ const RoomPreview = (props) => {
     const joinTheRoom = () => {
         console.log("join the room button triggered!")
         if(users.length < roomData.capacity){
-            navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user, roomID: roomData._id}})  
+            navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user, roomID: roomData._id}})
         } else {
             window.alert("Room is full!")
         }
@@ -31,11 +29,11 @@ const RoomPreview = (props) => {
     useEffect(() => {
         console.log("roomData users", roomData)
 
-        socket.on("user-left", (payload) => {
-            console.log("USER-LEFT PAYLOAD => ", payload.users)
-            dispatch(removePeerAction(payload.peerID, payload.userID))
-            updateRoomUsersAction(payload.users, payload.roomID).then((action) => dispatch(action))
-        })
+        // socket.on("user-left", (payload) => {
+        //     console.log("USER-LEFT PAYLOAD => ", payload.users)
+        //     dispatch(removePeerAction(payload.peerID, payload.userID))
+        //     updateRoomUsersAction(payload.users, payload.roomID).then((action) => dispatch(action))
+        // })
 
     }, [])
 
