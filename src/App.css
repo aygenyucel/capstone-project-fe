@@ -12,8 +12,13 @@
   --color-secondary: #5C2EE2;
   --color-black: #121329;
   --color-white: #FFFFFF;
+  --color-gray: #b3b3b3;
+  --color-gray-dark: #3F3D56;
 }
 .App {
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */
   text-align: center;
   font-family: 'Comfortaa', cursive;
   padding: 10px;

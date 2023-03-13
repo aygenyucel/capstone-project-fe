@@ -5,6 +5,7 @@
     background-color: var(--color-main);
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
+    height: 90px;
 }
 
 .navbar-logo {
@@ -15,16 +16,58 @@
 .navbar-middle div {
     font-size: 0.8rem;
     font-weight: 700;
-    margin-inline:20px;
+    margin-inline:10px;
 }
 
 .navbar-right {
     font-family: var(--secondary-font);
     font-weight: 400;
     font-size: 0.8rem;
+}
+
+.sign-up-btn {
+    font-family: var(--secondary-font);
+    font-weight: 400;
+    font-size: 0.8rem;
     background-color: var(--color-black);
     color: var(--color-white);
-    padding-block: 10px;
+    padding-block: 5px;
     padding-inline: 30px;
     border-radius: 5px;
+}
+
+.user-info {
+
+}
+
+.user-avatar img{
+    height: 30px;
+    border-radius: 50px;
+}
+
+a {
+    text-decoration: none;
+    color: var(--color-black);
+}
+a:hover {
+    color: black;
+}
+.navbar-item a:hover {
+    color: gray;
+}
+.navbar-item {
+    position: relative;
+}
+.active{
+    position: absolute;
+    bottom: -15px;
+    color: var(--color-black);
+    height: 11px;
+    width: 11px;
+    background-color: var(--color-gray-dark);
+    border-radius: 50px;
+}
+
+.bottom-header {
+    
 }
