@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import "./roomsPage.css";
 import { useDispatch } from 'react-redux';
 import { getAllRoomsAction, isLoggedInAction} from "../../redux/actions/index.js";
 import { useEffect, useState } from "react";
@@ -7,6 +8,7 @@ import { useSelector } from 'react-redux';
 import CreateCustomRoom from '../../components/CreateCustomRoom/CreateCustomRoom';
 import RoomPreview from "../../components/RoomPreview/RoomPreview.jsx";
 import SearchRoom from '../../components/SearchRoom/SearchRoom.jsx';
+import { Container } from "react-bootstrap";
 
 const RoomsPage = () => {
     const dispatch = useDispatch();
@@ -48,20 +50,34 @@ const RoomsPage = () => {
 
     
     
-    return  isLoggedIn && <div className="d-flex flex-column">
-                <div>{user.email}</div>
-                <div>user ID: {user._id}</div>
-                <div>username: {user.username}</div>
-                <div className="mt-5">
-                    <CreateCustomRoom/>
-                </div>
-                <div>
-                    {/* <SearchRoom/> */}
-                    <h3>All Rooms</h3>
-                    <div className="d-flex flex-wrap">
-                        {rooms?.map((room) => <div key={room._id} className="m-2"> <RoomPreview roomData= {room} /></div>)}
+    return  isLoggedIn && 
+            // <div className="d-flex flex-column">
+            //     <div>{user.email}</div>
+            //     <div>user ID: {user._id}</div>
+            //     <div>username: {user.username}</div>
+            //     <div className="mt-5">
+            //         <CreateCustomRoom/>
+            //     </div>
+                // <div>
+                //     {/* <SearchRoom/> */}
+                //     <h3>All Rooms</h3>
+                //     <div className="d-flex flex-wrap">
+                //         {rooms?.map((room) => <div key={room._id} className="m-2"> <RoomPreview roomData= {room} /></div>)}
+                //     </div>
+                // </div>
+            // </div>
+            <div className="roomspage d-flex flex-column justify-content-center">
+                <Container>
+                    <div className="rooms-list">
+                        {/* <SearchRoom/> */}
+                        <div className="d-flex flex-wrap justify-content-center">
+                            {rooms?.map((room) => 
+                                <div key={room._id} className="m-2"> 
+                                    <RoomPreview roomData= {room} />
+                                </div>)}
+                        </div>
                     </div>
-                </div>
+                </Container>
             </div>
 }
 

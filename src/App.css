@@ -2,6 +2,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
 
 :root {
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */
   --main-font: 'Comfortaa', cursive;
   --secondary-font: 'Bungee', cursive;
   background-color: #FFFFFF;
@@ -12,7 +15,7 @@
   --color-secondary: #5C2EE2;
   --color-black: #121329;
   --color-white: #FFFFFF;
-  --color-gray: #b3b3b3;
+  --color-gray: #dedede;
   --color-gray-dark: #3F3D56;
 }
 .App {

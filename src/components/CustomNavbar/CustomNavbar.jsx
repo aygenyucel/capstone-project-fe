@@ -51,7 +51,7 @@ const CustomNavbar = () => {
                     </div>
                     </a>
                   </div>
-                  <div className="navbar-middle d-flex">
+                  <div className="navbar-middle d-flex justify-content-center align-items-center">
                     <div className="navbar-item d-flex justify-content-center">
                       <div className={location.pathname=== "/" && "active"}></div>
                       <a href="/" ><div >Home</div></a>

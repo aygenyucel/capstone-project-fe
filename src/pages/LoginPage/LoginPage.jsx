@@ -31,7 +31,7 @@ const LoginPage = () => {
             loginAndGetTokenAction(user)
             .then(({dispatchAction1, dispatchAction2}) =>{
                 dispatch(dispatchAction1, dispatchAction2)
-                navigate("/")})
+                navigate("/rooms")})
             .catch((error) => console.log(error))
         
         }) }
