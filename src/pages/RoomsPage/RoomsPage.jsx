@@ -9,6 +9,7 @@ import CreateCustomRoom from '../../components/CreateCustomRoom/CreateCustomRoom
 import RoomPreview from "../../components/RoomPreview/RoomPreview.jsx";
 import SearchRoom from '../../components/SearchRoom/SearchRoom.jsx';
 import { Container } from "react-bootstrap";
+import CustomNavbar from "../../components/CustomNavbar/CustomNavbar";
 
 const RoomsPage = () => {
     const dispatch = useDispatch();
@@ -66,6 +67,8 @@ const RoomsPage = () => {
                 //     </div>
                 // </div>
             // </div>
+            <>
+            <CustomNavbar/> 
             <div className="roomspage d-flex flex-column justify-content-center">
                 <Container>
                     <div className="rooms-list">
@@ -79,6 +82,7 @@ const RoomsPage = () => {
                     </div>
                 </Container>
             </div>
+            </>
 }
 
 export default RoomsPage;

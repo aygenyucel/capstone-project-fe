@@ -22,6 +22,10 @@ const RoomPreview = (props) => {
     const [roomLevel, setRoomLevel] = useState(roomData.level);
     const [roomCreatorID, setRoomCreatorID] = useState(roomData.creator);
     const [roomCreatorUsername, setRoomCreatorUsername] = useState("");
+
+    const[usernames, setUsernames] = useState([]);
+
+    
     
     //todo get username for the creator
     //todo get username of the users in the rooms
@@ -40,14 +44,30 @@ const RoomPreview = (props) => {
 
         getUsername(roomCreatorID).then((username) =>{ console.log("userrrname:", username); setRoomCreatorUsername(username)})
         
+        console.log("userssss=>", users)
+
+        // const usernamesTemp = []
+        // for (let i =0; i < users.length; i++){
+        //     console.log("ddddd", users[i])
+        //     getUsername(users[i]).then((username) => usernamesTemp.push(username))
+
+        // }
+        // setUsernames(usernamesTemp)
+        const usernamesTemp = []
+        for (let i =0; i < users.length; i++){
+            getUsername(users[i]).then((username) => usernamesTemp.push(username))
+
+        }
+        setUsernames(usernamesTemp)
+
     }, [])
 
+    
     const getUsername = (userID) => {
         return new Promise(async (resolve, reject) => {
             try {
                 const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/users/${userID}`, {method: "GET"})
                 if(response.ok) {
-                    console.log("22222222222222222222")
                     const userData = await response.json();
                     const username = userData.username;
                     resolve(username);
@@ -76,9 +96,7 @@ const RoomPreview = (props) => {
                 <div className="room-online-users d-flex flex-column">
                     <div className="room-online-users-text">participants</div>
                     {users?.map(user =>  <div key={user}>{user}</div>)}
-                    {users?.forEach((user) => 
-                            getUsername(user).then(username =>  <div>{username}</div>)
-                      )}
+                    {usernames?.map(username =>  <div key={username}>{username}</div>)}
                 </div>
 
                 <div className="room-capacity d-flex">

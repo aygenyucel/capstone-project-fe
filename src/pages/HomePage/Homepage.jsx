@@ -2,6 +2,7 @@ import { Button, Container } from "react-bootstrap";
 import "./HomePage.css";
 import { useEffect, useState } from "react";
 import Typical from 'react-typical'
+import CustomNavbar from './../../components/CustomNavbar/CustomNavbar';
 
 const Home = () => {
 
@@ -25,7 +26,9 @@ const Home = () => {
           
     }, [])
     
-    return   <div className="homepage d-flex flex-column"> 
+    return   <>
+        <CustomNavbar/>
+        <div className="homepage d-flex flex-column"> 
                 <div className="homepage-div">
                     <Container>
                         <div className="main-container d-flex ">
@@ -93,6 +96,7 @@ const Home = () => {
                 </div>
                 
             </div>
+        </>
 }
 
 export default Home;

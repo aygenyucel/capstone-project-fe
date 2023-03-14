@@ -9,12 +9,12 @@ import LoginPage from './pages/LoginPage/LoginPage';
 import RoomsPage from './pages/RoomsPage/RoomsPage';
 import Home from './pages/HomePage/HomePage';
 import CustomNavbar from './components/CustomNavbar/CustomNavbar';
+import ChatRoomDesign from './tests/chatRoomDesign/ChatRoomDesign';
 
 function App() {
   return (
     <BrowserRouter>
       <div className="App">
-        <CustomNavbar/>
         <Routes>
           <Route path='/' element= {<Home/>}/>
           <Route path='/rooms' element= {<RoomsPage/>}/>
@@ -23,6 +23,8 @@ function App() {
           <Route path='/chatRoom/:id' element={ <ChatRoom/>}/>
           <Route path='/signup' element={<SignupPage/>} />
           <Route path='/login' element={<LoginPage/>}/>
+          {/* ##### */}
+          <Route path='chatRoomDesign' element= {<ChatRoomDesign/>} />
         </Routes>
       </div>
     </BrowserRouter>
