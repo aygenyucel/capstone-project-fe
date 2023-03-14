@@ -1,18 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import './chatRoom.css';
-import { Button, Container } from "react-bootstrap"
+import { Button, Container, Row } from "react-bootstrap"
 import { useReducer, useRef, useState } from 'react';
 import { useEffect } from 'react';
 import Peer from "peerjs";
 import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
-import { VideoPlayer } from '../../components/VideoPlayer';
+import { VideoPlayer } from '../../components/VideoPlayer/VideoPlayer.jsx';
 import peersReducer from '../../redux/reducers/peersReducer';
 import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
+import CustomNavbar from './../../components/CustomNavbar/CustomNavbar';
 
-const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"], closeOnBeforeunload: false})
+const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
 const ChatRoom = (props) => {
     const location = useLocation()
@@ -39,8 +40,14 @@ const ChatRoom = (props) => {
     const [isMyCamOpen, setIsMyCamOpen] = useState(false)
     const [isMyMicOpen, setIsMyMicOpen] = useState(false)
     // const [isSharingScreen, setIsSharingScreen] = useState(false)
-    
 
+    const [roomData, setRoomData] = useState({})
+
+    window.onbeforeunload = closing;
+    var closing = function () {
+        console.log("function alrt WORKS !!!!");
+        window.alert("closing now.....");
+       }
     const getMediaDevices = (mediaConstraints) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
     }
@@ -55,11 +62,13 @@ const ChatRoom = (props) => {
                 { url: 'stun:stun.l.google.com:19302' },
               ]} 
         });
+        let peerID;
 
         peer.on('open', (id) => {
             console.log('My peer ID is: ' + id)
             console.log("roomEndpoint: ", roomEndpoint)
             setMyPeerId(id)
+            peerID = id;
             socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID, roomID })
             
            socket.on('user-join', payload => {
@@ -67,6 +76,7 @@ const ChatRoom = (props) => {
                 setUsersArray(payload.users)
             })    
         })
+        
         
         getMediaDevices(mediaConstraints)
         .then(stream => {
@@ -77,7 +87,9 @@ const ChatRoom = (props) => {
             stream.getVideoTracks()[0].enabled = false
             stream.getAudioTracks()[0].enabled = false
             // adding our peer
-            dispatch(addPeerAction(myPeerId, stream, userID))
+            console.log("jkfdshskjfjds", peerID, userID)
+
+            dispatch(addPeerAction(peerID, stream, userID))
             socket.on('user-connected', payload => {
                 console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID)
                 // console.log("users in this room after new connection: ", chatRooms)
@@ -92,6 +104,7 @@ const ChatRoom = (props) => {
                     //checking for prevent running the code twice.
                     if (id !== remoteStream.id) {
                         id = remoteStream.id
+                        console.log("#################",payload.peerID, remoteStream, payload.userID)
                         dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID))
                         
                         remoteVideoRef.current.srcObject = remoteStream
@@ -133,8 +146,10 @@ const ChatRoom = (props) => {
                 updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
                 remotePeerRef.current.destroy()
             })
+            
         })
         .catch(err => console.log("Failed to get local stream", err)) 
+
     }, [])
     
     useEffect(() => { 
@@ -152,10 +167,15 @@ const ChatRoom = (props) => {
         window.location.reload();
     }
     
+    
     const leaveTheRoomHandler = () => {
         const updatedUsers = users.filter((user) => user !== userID)
         dispatch(removePeerAction(myPeerId, userID))
         updateRoomUsersAction(updatedUsers, roomID).then((action) => dispatch(action))
+    }
+
+    window.onbeforeunload =() => {
+        leaveTheRoomHandler()
     }
 
     const toggleCamHandler = () => {
@@ -200,41 +220,101 @@ const ChatRoom = (props) => {
         window.alert("the room link copied!")
     }
 
-    return (
-        <Container>
-            <div className='mb-3 mt-3'><a href='/'><Button variant='danger' onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
-            <div><Button variant='secondary' onClick={copyTheChatLink}>Copy the chat link</Button></div>
-            
-            <div className="d-flex flex-column">
-                <div className="d-flex flex-column align-items-start mb-5">
-                    <div>Current user peer id: {myPeerId}</div>
-                    <div>Current userID: {userID}</div>
-                    <div>userName: {userData.username}</div>
-                    {/* video of current user */}
-                    <div className="video-grid current-user-video-grid d-flex flex-column">
-                        <video className="video current-user-video" ref={myVideoRef} autoPlay/>
-                        <div className='d-flex'>
-                        {isMyCamOpen 
-                        ? <Button className='me-2' onClick={toggleCamHandler}>hide your cam</Button> 
-                        :  <Button className='me-2' onClick={toggleCamHandler}>open your cam</Button>}
-                        {isMyMicOpen 
-                        ? <Button  onClick={toggleMicHandler}>mute mic</Button> 
-                        :  <Button onClick={toggleMicHandler}>open mic</Button>}
-                        </div>
 
+    
+    const getRoomData = (roomID) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/${roomID}`, {method: "GET"})
+                if(response.ok) {
+                    const roomData = await response.json();
+                    resolve(roomData);
+                }
+            } catch (error) {
+                console.log(error)
+                reject(error)
+            }
+        })
+    }
+
+    useEffect(() => {
+        getRoomData(roomID).then(data => setRoomData(data))
+    }, [])
+
+    
+
+    return (
+        // <Container>
+        //     <div className='mb-3 mt-3'><a href='/rooms'><Button variant='danger' onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
+        //     <div><Button variant='secondary' onClick={copyTheChatLink}>Copy the chat link</Button></div>
+            
+        //     <div className="d-flex flex-column">
+        //         <div className="d-flex flex-column align-items-start mb-5">
+        //             {/* <div>Current user peer id: {myPeerId}</div> */}
+        //             {/* <div>Current userID: {userID}</div> */}
+        //             <div>userName: {userData.username}</div>
+        //             {/* video of current user */}
+        //             <div className="video-grid current-user-video-grid d-flex flex-column">
+        //                 <video className="video current-user-video" ref={myVideoRef} autoPlay/>
+        //                 <div className='d-flex'>
+        //                 {isMyCamOpen 
+        //                 ? <Button className='me-2' onClick={toggleCamHandler}>hide your cam</Button> 
+        //                 :  <Button className='me-2' onClick={toggleCamHandler}>open your cam</Button>}
+        //                 {isMyMicOpen 
+        //                 ? <Button  onClick={toggleMicHandler}>mute mic</Button> 
+        //                 :  <Button onClick={toggleMicHandler}>open mic</Button>}
+        //                 </div>
+
+        //             </div>
+        //         </div>
+        //         <div className='d-flex flex-column'>
+        //             <h1>Remote Peers: </h1>
+        //             {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
+        //             <div key={peer.userID}>
+        //                 {/* <div>{peer.peerID}</div> */}
+        //                 {/* <div>userrrrID: {peer.userID}</div> */}
+        //                 <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
+        //             </div>)}
+        //         </div>
+        //     </div>
+            
+        // </Container>
+        <div className = 'chatRoom'>
+            
+            <Container>
+                
+                
+                <div className='mb-3 mt-3'><a href='/rooms'><Button variant='danger' onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
+                <div><Button variant='secondary' onClick={copyTheChatLink}>Copy the chat link</Button></div>
+                <div>room capacity: {roomData.capacity}</div>
+                <div className="d-flex flex-column">
+                    <div className="d-flex flex-column align-items-start mb-5">
+                        <div>userName: {userData.username}</div>
+                        {/* video of current user */}
+                        <div className="video-grid current-user-video-grid d-flex flex-column">
+                            <video className="video current-user-video" ref={myVideoRef} autoPlay/>
+                            <div className='d-flex'>
+                            {isMyCamOpen 
+                            ? <Button className='me-2' onClick={toggleCamHandler}>hide your cam</Button> 
+                            :  <Button className='me-2' onClick={toggleCamHandler}>open your cam</Button>}
+                            {isMyMicOpen 
+                            ? <Button  onClick={toggleMicHandler}>mute mic</Button> 
+                            :  <Button onClick={toggleMicHandler}>open mic</Button>}
+                            </div>
+
+                        </div>
+                    </div>
+                    <div className='d-flex flex-column'>
+                        <h1>Remote Peers: </h1>
+                        {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
+                        <div key={peer.userID}>
+                            <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
+                        </div>)}
                     </div>
                 </div>
-                <div className='d-flex flex-column'>
-                    <h1>Remote Peers: </h1>
-                    {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
-                    <div key={peer.userID}>
-                        <div>{peer.peerID}</div>
-                        <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
-                    </div>)}
-                </div>
-            </div>
-            
-        </Container>
+                
+            </Container>
+        </div>
     )
 }
 

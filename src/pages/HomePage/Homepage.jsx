@@ -1,115 +1,102 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import CreateRoom from "../../components/CreateRoom.jsx";
-import { useDispatch } from 'react-redux';
-import { getAllRoomsAction, isLoggedInAction, removePeerAction, updateRoomUsersAction} from "../../redux/actions/index.js";
+import { Button, Container } from "react-bootstrap";
+import "./HomePage.css";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
-import CreateCustomRoom from './../../components/CreateCustomRoom/CreateCustomRoom';
-import RoomPreview from "../../components/RoomPreview/RoomPreview.jsx";
-import peersReducer from './../../redux/reducers/peersReducer';
-import { Form } from 'react-bootstrap';
-import { Button } from 'react-bootstrap';
+import Typical from 'react-typical'
+import CustomNavbar from './../../components/CustomNavbar/CustomNavbar';
 
-const HomePage = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const JWTToken = localStorage.getItem("JWTToken")
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
+const Home = () => {
+
+    const [languages, setLanguages] = useState(["English",4000, "Chinese",4000, "Spanish",4000, "French", 4000,"Japanase",4000, "Italian",4000, "Korean",4000, "Russian",4000,"Arabic",4000, "Turkish",4000, "German",4000])
+    const [newLanguage, setNewLanguage] = useState("")
+    const [index, setIndex] = useState(0);
     
-    const user = useSelector(state => state.profileReducer.data)
-    const rooms = useSelector(state => state.roomsReducer.rooms)
-    const users = useSelector(state => state.peersReducer.users)
-
-    const [searchCapacity, setSearchCapacity] = useState(null)
-    const [searchLanguage, setSearchLanguage] = useState(null)
-    const [searchLevel, setSearchLevel] = useState(null);
     
     useEffect(() => {
-        // dispatch(resetPeersStateAction());
-        // dispatch(resetRoomsStateAction());
-        getAllRoomsAction()
-        .then((action) => dispatch(action))
+       
 
-        console.log("user", user, "jwt: ", JWTToken)
-        isLoggedInAction(user, JWTToken, dispatch)
-        .then((boolean) => {
-            if(boolean === true) {
-                setIsLoggedIn(true)
-                console.log("yes its logged in")
-            } else {
-                navigate("/login")
-            }
-        })
-        .catch(err => console.log(err))
+        const timer = () => {
+            const randomIndex = Math.floor(Math.random() * languages.length);
+            setIndex(randomIndex)
+          };
+          setInterval(timer, 8000);
+          
+          //cleanup function in order clear the interval timer
+          //when the component unmounts
+          return () => { clearInterval(timer); }
+          
     }, [])
-
     
-    useEffect(() => {
-        getAllRoomsAction()
-        .then((action) => dispatch(action))
-
-    }, [rooms])
-
-    const onSubmitHandler = (e) => {
-        e.preventDefault();
-        //TODO: search room function
-    }
-    
-    return  isLoggedIn && <div className="d-flex flex-column">
-                <div>{user.email}</div>
-                <div>user ID: {user._id}</div>
-                <div>username: {user.username}</div>
-                <div className="mt-5">
-                    <CreateCustomRoom/>
+    return   <>
+        <CustomNavbar/>
+        <div className="homepage d-flex flex-column"> 
+                <div className="homepage-div">
+                    <Container>
+                        <div className="main-container d-flex ">
+                            
+                            <div className="col-6 d-flex flex-column justify-content-center main-left">
+                                <div className="d-flex flex-column main-header">
+                                    <div>Start speaking</div>
+                                    <Typical
+                                        steps={languages}
+                                        loop={Infinity}
+                                        wrapper="p"
+                                        className="main-header-language"
+                                        /> 
+                                    <div>now!</div>
+                                </div>
+                                
+                            </div>
+                            <div className="col-6  main-right d-flex justify-content-start aling-items-end">
+                                <img className="home-img img-group-calling" src="/assets/group-calling.png" alt="group-calling" />
+                            </div>
+                        </div>
+                    </Container>
                 </div>
                 <div>
-                    <Form onSubmit={onSubmitHandler} className="d-flex justify-content-center align-items-center mt-3 mb-3">
-                        <Form.Group className="me-2">
-                            <Form.Select defaultValue={'DEFAULT'}   id="roomCapacity" onChange={(e) => setSearchCapacity(e.target.value)}>
-                                 <option value="DEFAULT" disabled>Choose a room capacity</option>
-                                <option   value= {2} >2</option>
-                                <option value={3}>3</option>
-                                <option value={4}>4</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group className="me-2">
-                            <Form.Select defaultValue={'DEFAULT'} id="roomLanguage" onChange={(e) => setSearchLanguage(e.target.value)}>
-                                 <option value="DEFAULT" disabled>Choose a language</option>
-                                <option  value="English" >English</option>
-                                <option value="Chinese">Chinese</option>
-                                <option value="Spanish">Spanish</option>
-                                <option value="Turkish">Turkish</option>
-                                <option value="Russian">Russian</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group className="me-2">
-                            
-                            <Form.Select defaultValue={'DEFAULT'}  id="roomLevel" onChange={(e) => setSearchLevel(e.target.value)}>
-                                <option value="DEFAULT" disabled>Choose a language level</option>
-                                <option value="A1" >A1 - Beginner</option>
-                                <option value="A2" >A2 - Elementary</option>
-                                <option value="B1">B1 - Intermediate</option>
-                                <option value="B2">B2 - Upper Intermediate</option>
-                                <option value="C1">C1 - Advanced</option>
-                                <option value="C2">C2 - Proficiency</option>
-                                <option value="Native">Native Speaker</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Button variant="secondary" type="submit">
-                            Search
-                        </Button>
-                    </Form>
-                    
-                        <h3>All Rooms</h3>
-                        <div className="d-flex flex-wrap">
-                            {rooms?.map((room) => <div key={room._id} className="m-2"> <RoomPreview users={users} roomData= {room} id= {room._id} capacity = {room.capacity} language = {room.language} level = {room.level} creator = {room.creator} endpoint = {room.endpoint}/></div>)}
+                    <Container>
+                        <div className="d-flex justify-content-center btn-div">
+                            <div className="btn-div-left ">
+                                <img className="arrow-svg" src="/assets/undraw_fun-arrow.svg" alt="arrow-svg" />
+                                <Button className="main-btn get-started-btn">
+                                    Get started
+                                </Button>
+                            </div>
+                            <div>
+                                <Button className="main-btn learn-more-btn">
+                                    Learn more
+                                </Button>
+                            </div>
                         </div>
-                    
-
-                   
+                    </Container>
                 </div>
+                <div className="homepage-div homepage-div-bottom">
+                    <Container>
+                        <div className="d-flex">
+                            <div className="col-6 bottom-img-div d-flex justify-content-center">
+                                <img className="home-img bottom-img" src="/assets/around_the_world.png" alt="around-the-world" />
+                            </div>
+                            <div className="col-6 d-flex flex-column justify-content-center  bottom-header">
+                                <div className="d-flex bottom-header-1 mb-3 ">
+                                No lessons, no waiting. 
+                                </div>
+                                <div className="d-flex  bottom-header-2 justify-content-end">
+                                Find yourself a speaking opportunity
+                                </div>
+
+                                <div className="d-flex bottom-header-4 justify-content-end mb-3">
+                                at anytime, anywhere!
+                                </div>
+                            <div className="d-flex  bottom-header-2 justify-content-end">
+                            <Button className="discover-btn">DISCOVER</Button>
+                            </div>
+                            </div>
+
+                        </div>
+                    </Container>
+                </div>
+                
             </div>
+        </>
 }
 
-export default HomePage;
+export default Home;
