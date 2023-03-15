@@ -57,10 +57,6 @@
     bottom: 45px; 
 }
 
-.room-person {
-    font-size: 1.6rem;
-    color: white;
-}
 
 
 .room-creator {
@@ -99,4 +95,12 @@
 
 .room-preview:hover .room-join-div {
     opacity: 1;
+}
+
+.room-person {
+    font-size: 1.6rem;
+    color: white;
+}
+.room-person-full {
+    color: black;
 }

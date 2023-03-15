@@ -100,7 +100,8 @@ const RoomPreview = (props) => {
                 </div>
 
                 <div className="room-capacity d-flex">
-                    {Array(roomCapacity).fill(<GiPerson className="room-person"/>)}
+                    {Array(users.length).fill(<GiPerson className={"room-person room-person-full" }/>)}
+                    {Array(roomCapacity-(users.length)).fill(<GiPerson className={"room-person room-person-empty" }/>)}
                     {/* <GiPerson className="room-person room-person-full"/>
                     <GiPerson className="room-person room-person-available"/> */}
                 </div>
