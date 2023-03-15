@@ -5,7 +5,7 @@ import { useReducer, useRef, useState } from 'react';
 import { useEffect } from 'react';
 import Peer from "peerjs";
 import { io } from 'socket.io-client';
-import { useParams } from 'react-router-dom';
+import { json, useParams } from 'react-router-dom';
 import { VideoPlayer } from '../../components/VideoPlayer/VideoPlayer.jsx';
 import peersReducer from '../../redux/reducers/peersReducer';
 import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
@@ -17,21 +17,31 @@ import {MdOutlineCallEnd} from 'react-icons/md'
 import {BsCameraVideoOff, BsCameraVideo} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
 import {VscUnmute, VscMute} from 'react-icons/vsc'
+import { useSelector } from 'react-redux';
+import { isLoggedInAction } from './../../redux/actions/index';
+import { useNavigate } from 'react-router-dom';
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
 const ChatRoom = (props) => {
     const location = useLocation()
     const params = useParams()
-    const state = location.state;
-    const userData = state.user;
-    const roomID = state.roomID;
-    const userID = userData._id;
+    const userData = useSelector(state => state.profileReducer.data)
+    const userID = useSelector(state => state.profileReducer.data._id)
     const roomEndpoint = params.id;
     const [myPeerId, setMyPeerId] = useState(null)
     const myVideoRef = useRef({});
     const remoteVideoRef =useRef({});
-
+    
+    const [roomData, setRoomData] = useState({})
+    const navigate = useNavigate();
+    const state = location.state;
+    // const userData = state.user;
+    // const roomID = state.roomID;
+    const [roomID, setRoomID] = useState("")
+    // const userID = userData._id;
+    const JWTToken = localStorage.getItem("JWTToken")
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     //accessing the peersReducer
     const [currentPeersReducer, dispatch] = useReducer(peersReducer, {})
@@ -46,7 +56,6 @@ const ChatRoom = (props) => {
     const [isMyMicOpen, setIsMyMicOpen] = useState(false)
     // const [isSharingScreen, setIsSharingScreen] = useState(false)
 
-    const [roomData, setRoomData] = useState({})
 
     window.onbeforeunload = closing;
     var closing = function () {
@@ -57,6 +66,39 @@ const ChatRoom = (props) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
     }
     const mediaConstraints = {video: true, audio: true}
+
+
+    const getRoomData = (roomEndpoint) => {
+        return new Promise (async(resolve, reject) => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/endpoint/${roomEndpoint}`, {method: "GET" })
+                if(response.ok) {
+                    const roomData = await response.json();
+                    console.log("wtffff =>", roomData)
+                    resolve(roomData)
+                } 
+            } catch (error) {
+                console.log(error)
+                reject(error)
+            }
+        })
+    }
+
+    useEffect(() => {
+        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id); setRoomID(data[0]._id)})
+
+        console.log("user", userData, "jwt: ", JWTToken)
+        isLoggedInAction(userData, JWTToken, dispatch)
+        .then((boolean) => {
+            if(boolean === true) {
+                setIsLoggedIn(true)
+                console.log("yes its logged in")
+            } else {
+                navigate("/login")
+            }
+        })
+        .catch(err => console.log(err))
+    },[])
 
     
     useEffect(()  => {
@@ -141,7 +183,6 @@ const ChatRoom = (props) => {
                 
                 dispatch(removePeerAction(payload.peerID, payload.userID))
                 updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
-                
             })
             
             socket.on("user-left", (payload) => {
@@ -227,24 +268,22 @@ const ChatRoom = (props) => {
 
 
     
-    const getRoomData = (roomID) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/${roomID}`, {method: "GET"})
-                if(response.ok) {
-                    const roomData = await response.json();
-                    resolve(roomData);
-                }
-            } catch (error) {
-                console.log(error)
-                reject(error)
-            }
-        })
-    }
+    // const getRoomData = (roomID) => {
+    //     return new Promise(async (resolve, reject) => {
+    //         try {
+    //             const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/${roomID}`, {method: "GET"})
+    //             if(response.ok) {
+    //                 const roomData = await response.json();
+    //                 resolve(roomData);
+    //             }
+    //         } catch (error) {
+    //             console.log(error)
+    //             reject(error)
+    //         }
+    //     })
+    // }
 
-    useEffect(() => {
-        getRoomData(roomID).then(data => setRoomData(data))
-    }, [])
+    
 
     
 
