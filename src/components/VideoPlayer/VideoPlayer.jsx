@@ -55,11 +55,8 @@ export const VideoPlayer = (props) => {
         })
     }
 
-    return  <>
-                <div className='video-player-container d-flex flex-column'>
-                    {/* <div>userID: {userID}</div> */}
-                    <div>username: {username}</div>
-                    <div><video ref={videoRef} autoPlay width="300" height="200"  className='ms-2'/></div>
-                </div>
+    return  <>  
+                <video ref={videoRef} autoPlay className='video'/>
+                <div className='video-username'>{username}</div>
             </>
 }

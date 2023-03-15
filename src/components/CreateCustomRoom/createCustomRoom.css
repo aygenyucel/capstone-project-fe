@@ -1,0 +1,22 @@
+.create-room-btn {
+    font-family: var(--secondary-font);
+    font-weight: 400;
+    font-size: 1rem;
+    
+    color: var(--color-black);
+    padding-block: 10px;
+    padding-inline: 60px;
+    border-radius: 5px;
+    border: 0;
+    border-top: 4px solid transparent;
+    
+    text-decoration: none;
+    background-color: transparent;
+    border: 2px solid var(--color-black);
+}
+
+.create-room-btn:hover {
+    background-color: white;
+    color: black;
+    border: 2px solid var(--color-black);
+}

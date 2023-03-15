@@ -44,6 +44,17 @@
     
 }
 
+.main-top-username {
+    font-family: var(--secondary-font);
+    font-size: 1.3rem;
+    background-color: black;
+    padding-inline: 25px;
+    padding-block: 5px;
+    border-radius: 10px;
+    color: var(--color-main);
+    cursor: pointer;
+}
+
 .main-bottom {
     height: calc(100% - 80px);
     /* background-color: aquamarine; */
@@ -62,8 +73,14 @@
     width: 450px;
     height: calc(100%);
     /* background-color: thistle; */
+    background-color: white;
+    border-top-right-radius: 30px;
+    border-top-left-radius: 30px;
+    margin-left: 5px;
+    border-top: 4px solid black;
+    border-left: 4px solid black;
+    border-right: 4px solid black;
     
-    border-bottom:  4px solid black;
 }
 
 .video-area-header {
@@ -85,7 +102,7 @@
 }
 
 .video-area-player-frame .container {
-    background-color: var(--color-secondary);
+    /* background-color: var(--color-secondary); */
     height: 100%;
     border-radius: 10px;
 }
@@ -95,23 +112,26 @@
 }
 
 .video-player {
-    background-color: rgba(0, 0, 0, 0.374);
+    background-color: var(--color-black);
     color: white;
     border-radius: 10px;
     height: 200px;
     margin: 5px;
+    padding-block: 10px;
     
 }
 
 .video-username {
     position: absolute;
-    background-color: var(--color-main);
+    color: black;
+    background-color: var(--color-white);
     right: 3px;
     bottom: -2px;
     font-family: var(--secondary-font);
     font-size: 0.7rem;
-    border-top: 4px solid black;
-    border-left: 4px solid black;
+    border-top: 5px solid var(--color-secondary);
+    border-left: 5px solid var(--color-secondary);
+
     padding: 10px 15px 10px 10px;
     border-radius: 5px;
 }
@@ -122,6 +142,11 @@
     margin-inline: 12px;
     background-color: var(--color-white);
     border-radius: 10px;
+    cursor: pointer;
+}
+
+.end-call-btn a {
+    color: white;
 }
 
 .end-call-btn {
@@ -132,5 +157,6 @@
     width: 80px;
     height: 60px;
     margin-inline: 12px;
+    cursor: pointer;
 }
 

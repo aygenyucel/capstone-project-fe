@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import './chatRoom.css';
-import { Button, Container, Row } from "react-bootstrap"
+import { Button, Container, Row, Col } from "react-bootstrap"
 import { useReducer, useRef, useState } from 'react';
 import { useEffect } from 'react';
 import Peer from "peerjs";
@@ -12,6 +12,11 @@ import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 import CustomNavbar from './../../components/CustomNavbar/CustomNavbar';
+import {AiOutlineAudio, AiFillAudio, AiOutlineAudioMuted} from 'react-icons/ai'
+import {MdOutlineCallEnd} from 'react-icons/md'
+import {BsCameraVideoOff, BsCameraVideo} from 'react-icons/bs'
+import {FiSettings} from 'react-icons/fi'
+import {VscUnmute, VscMute} from 'react-icons/vsc'
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
@@ -21,7 +26,7 @@ const ChatRoom = (props) => {
     const state = location.state;
     const userData = state.user;
     const roomID = state.roomID;
-    const userID = userData._id 
+    const userID = userData._id;
     const roomEndpoint = params.id;
     const [myPeerId, setMyPeerId] = useState(null)
     const myVideoRef = useRef({});
@@ -279,42 +284,113 @@ const ChatRoom = (props) => {
         //     </div>
             
         // </Container>
-        <div className = 'chatRoom'>
-            
-            <Container>
-                
-                
-                <div className='mb-3 mt-3'><a href='/rooms'><Button variant='danger' onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
-                <div><Button variant='secondary' onClick={copyTheChatLink}>Copy the chat link</Button></div>
-                <div>room capacity: {roomData.capacity}</div>
-                <div className="d-flex flex-column">
-                    <div className="d-flex flex-column align-items-start mb-5">
-                        <div>userName: {userData.username}</div>
-                        {/* video of current user */}
-                        <div className="video-grid current-user-video-grid d-flex flex-column">
-                            <video className="video current-user-video" ref={myVideoRef} autoPlay/>
-                            <div className='d-flex'>
-                            {isMyCamOpen 
-                            ? <Button className='me-2' onClick={toggleCamHandler}>hide your cam</Button> 
-                            :  <Button className='me-2' onClick={toggleCamHandler}>open your cam</Button>}
-                            {isMyMicOpen 
-                            ? <Button  onClick={toggleMicHandler}>mute mic</Button> 
-                            :  <Button onClick={toggleMicHandler}>open mic</Button>}
-                            </div>
 
-                        </div>
+        //********************************************************************************* */
+        <div className='d-flex flex-row chatRoom-div'>
+                            <div className='left-sidebar'>
+                                sdjkfhsdjfs
+                            </div>
+                            <div className=' main-area'>
+                                <div className='main-top d-flex align-items-center justify-content-between'>
+                                    <div className='d-flex'>
+                                        <div className='main-top-language'>{roomData.language}</div>
+                                        <div className='main-top-level'>{roomData.level}</div>
+                                    </div>
+                                    <div>
+                                        <div className='main-top-username'>{userData.username}</div>
+                                    </div>
+                                    
+                                </div>
+                                <div className='main-bottom d-flex'>
+                                    <div className='video-area d-flex flex-column justify-content-between'>
+                                        <div className='video-area-header d-flex'>
+                                            <div>copylink</div>
+                                            <div>invite</div>
+                                        </div>
+                                        <div className='video-area-player'>
+                                            <div className='video-area-player-frame d-flex flex-column align-items-center justify-content-center'>
+                                                <Container className='d-flex flex-column justify-content-center'>
+                                                    <Row>
+                                                        <Col sm={6}> 
+                                                            <div className='position-relative'>
+                                                                <div className='video-player'>
+                                                                    <video className="video current-user-video" ref={myVideoRef} autoPlay/>
+                                                                </div>
+                                                                <div className='video-username'>you</div>
+                                                            </div>
+                                                        </Col>
+                                                        {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
+                                                            <Col sm={6}> 
+                                                                <div className='position-relative'>
+                                                                    <div className='video-player' key={peer.userID}>
+                                                                            {/* <div>{peer.peerID}</div> */}
+                                                                            {/* <div>userrrrID: {peer.userID}</div> */}
+                                                                        <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
+                                                                    </div>
+                                                                </div>
+                                                            </Col>
+                                                        )}
+                                                        {/* <Col sm={6}> 
+                                                            <div className='position-relative'>
+                                                                <div className='video-player'>fsdf</div>
+                                                                <div className='video-username'>username</div>
+
+                                                            </div>
+                                                        </Col> */}
+                                                    </Row>
+                                                    <Row>
+                                                        {/* <Col sm={6}> 
+                                                            <div className='position-relative'>
+                                                                <div className='video-player'>fsdf</div>
+                                                                <div className='video-username'>username</div>
+
+                                                            </div>
+                                                        </Col>
+                                                        <Col sm={6}> 
+                                                            <div className='position-relative'>
+                                                                <div className='video-player'>fsdf</div>
+                                                                <div className='video-username'>username</div>
+
+                                                            </div>
+                                                        </Col> */}
+                                                    </Row>
+                                                </Container>
+                                                
+                                                
+                                            </div>
+                                        </div>
+                                        <div className='video-area-footer d-flex justify-content-center align-items-center'>
+                                            <div className='chat-btns mute-btn d-flex justify-content-center align-items-center'>
+                                                <VscUnmute/>
+                                                {/* <VscMute/> */}
+                                            </div>
+                                            <div className='chat-btns audio-btn d-flex justify-content-center align-items-center'>
+                                                {isMyMicOpen 
+                                                    ? <AiOutlineAudioMuted onClick={toggleMicHandler} /> 
+                                                    :  <AiOutlineAudio onClick={toggleMicHandler} />}
+                                            </div>
+                                            <div className=' end-call-btn d-flex justify-content-center align-items-center'>
+                                                <a href='/rooms'>
+                                                    <MdOutlineCallEnd onClick={leaveTheRoomHandler}/>
+                                                </a>
+                                            </div>
+                                            <div className='chat-btns chat-btns camera-btn d-flex justify-content-center align-items-center'>
+                                                
+                                                {isMyCamOpen 
+                                                    ? <BsCameraVideoOff onClick={toggleCamHandler} /> 
+                                                    :  <BsCameraVideo onClick={toggleCamHandler} />}
+                                            </div>
+                                            <div className='chat-btns settings-btn d-flex justify-content-center align-items-center'>
+                                                <FiSettings/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className='chat-area'>
+                                        chat area
+                                    </div>
+                                </div>
+                            </div>
                     </div>
-                    <div className='d-flex flex-column'>
-                        <h1>Remote Peers: </h1>
-                        {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
-                        <div key={peer.userID}>
-                            <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
-                        </div>)}
-                    </div>
-                </div>
-                
-            </Container>
-        </div>
     )
 }
 

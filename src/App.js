@@ -7,9 +7,9 @@ import ChatRoom from './pages/ChatRoom/ChatRoom';
 import SignupPage from './pages/SignupPage/SignupPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import RoomsPage from './pages/RoomsPage/RoomsPage';
-import Home from './pages/HomePage/HomePage';
 import CustomNavbar from './components/CustomNavbar/CustomNavbar';
 import ChatRoomDesign from './tests/chatRoomDesign/ChatRoomDesign';
+import Home from './pages/HomePage/Homepage';
 
 function App() {
   return (

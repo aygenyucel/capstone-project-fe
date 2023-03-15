@@ -39,7 +39,6 @@ const SearchRoom = () => {
 
             if(response.ok) {
                 const data = await response.json();
-                console.log("yeeeeeeyyyyy", data)
                 setSearchedRooms(data)
                 
             } else {
@@ -93,12 +92,15 @@ const SearchRoom = () => {
                         <Button type="submit" onClick={getSearchedRooms}>Search</Button>
                 </Form>
                 <div className="d-flex flex-column">
-                    <h2>Search Results</h2>
+                    
                     {searchedRooms.length !== 0 
-                    ? searchedRooms.map((room) => <RoomPreview roomData = {room}/>) 
+                    ?<div className="border-dark border-bottom">
+                    <h2>Search Results</h2>
+                    {searchedRooms.map((room) => <RoomPreview roomData = {room}/>) }
+                    </div>  
                     : <div className="d-flex flex-column">
-                        <div>No room was found matching your selection</div>
-                        <a href="/">Create your own room?</a>
+                        {/* <div>No room was found matching your selection</div>
+                        <a href="/">Create your own room?</a> */}
                     </div>}
                     
                 </div>
