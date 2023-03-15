@@ -71,9 +71,13 @@ const RoomsPage = () => {
             <CustomNavbar/> 
             <div className="roomspage d-flex flex-column justify-content-center">
                 <Container>
+                    <div className="create-room-div">
+                        <CreateCustomRoom/>
+                        <div><SearchRoom/></div>
+                    </div>
                     <div className="rooms-list">
                         {/* <SearchRoom/> */}
-                        <div className="d-flex flex-wrap justify-content-center">
+                        <div className="d-flex flex-row-reverse flex-wrap-reverse justify-content-center">
                             {rooms?.map((room) => 
                                 <div key={room._id} className="m-2"> 
                                     <RoomPreview roomData= {room} />

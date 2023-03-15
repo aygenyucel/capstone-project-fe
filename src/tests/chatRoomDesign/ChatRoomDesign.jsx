@@ -1,5 +1,5 @@
-import { Row, Container, Col } from 'react-bootstrap';
 import "./chatRoomDesign.css"
+import { Row, Container, Col } from 'react-bootstrap';
 import {AiOutlineAudio, AiFillAudio} from 'react-icons/ai'
 import {MdOutlineCallEnd} from 'react-icons/md'
 import {BsCameraVideoOff, BsCameraVideo} from 'react-icons/bs'

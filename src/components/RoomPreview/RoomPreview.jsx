@@ -96,7 +96,7 @@ const RoomPreview = (props) => {
                 <div className="room-online-users d-flex flex-column">
                     <div className="room-online-users-text">participants</div>
                     {users?.map(user =>  <div key={user}>{user}</div>)}
-                    {usernames?.map(username =>  <div key={username}>{username}</div>)}
+                    {/* {usernames?.map(username =>  <div key={username}>{username}</div>)} */}
                 </div>
 
                 <div className="room-capacity d-flex">

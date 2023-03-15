@@ -106,9 +106,8 @@ const CreateCustomRoom = () => {
       };
 
     return <>
-        <Container>
             <div className="create-custom-room">
-            <Button variant="primary" onClick={handleShow}>
+            <Button className=" create-room-btn"  onClick={handleShow}>
                 Create Your Custom Room 
             </Button>
 
@@ -124,7 +123,6 @@ const CreateCustomRoom = () => {
                                 <option value= {2} >2</option>
                                 <option value={3}>3</option>
                                 <option value={4}>4</option>
-                                <option value={5}>5</option>
                             </Form.Select>
                         </Form.Group>
                         <Form.Group className="mb-3">
@@ -164,7 +162,6 @@ const CreateCustomRoom = () => {
                 </Modal.Footer>
             </Modal>
             </div>
-        </Container>
     </>
 } 
 
