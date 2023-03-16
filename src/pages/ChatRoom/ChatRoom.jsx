@@ -33,12 +33,13 @@ const ChatRoom = (props) => {
     const myVideoRef = useRef({});
     const remoteVideoRef =useRef({});
     
-    const [roomData, setRoomData] = useState({})
+    const [roomData, setRoomData] = useState({});
+    const roomCapacity = roomData.capacity
     const navigate = useNavigate();
     const state = location.state;
     // const userData = state.user;
     // const roomID = state.roomID;
-    const [roomID, setRoomID] = useState("")
+    const [roomID, setRoomID] = useState(roomData._id)
     // const userID = userData._id;
     const JWTToken = localStorage.getItem("JWTToken")
     const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -57,11 +58,6 @@ const ChatRoom = (props) => {
     // const [isSharingScreen, setIsSharingScreen] = useState(false)
 
 
-    window.onbeforeunload = closing;
-    var closing = function () {
-        console.log("function alrt WORKS !!!!");
-        window.alert("closing now.....");
-       }
     const getMediaDevices = (mediaConstraints) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
     }
@@ -84,9 +80,9 @@ const ChatRoom = (props) => {
         })
     }
 
-    useEffect(() => {
-        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id); setRoomID(data[0]._id)})
 
+    useEffect(() => {
+        //checking if user logged in
         console.log("user", userData, "jwt: ", JWTToken)
         isLoggedInAction(userData, JWTToken, dispatch)
         .then((boolean) => {
@@ -98,7 +94,16 @@ const ChatRoom = (props) => {
             }
         })
         .catch(err => console.log(err))
+
+        //getting roomData with endpoint
+        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id); setRoomID(data[0]._id)})
+
+        //checking if room is full already, if its full redirect the user to rooms page
+        
+        
     },[])
+
+ 
 
     
     useEffect(()  => {
@@ -110,15 +115,16 @@ const ChatRoom = (props) => {
               ]} 
         });
         let peerID;
-
+        
         peer.on('open', (id) => {
             console.log('My peer ID is: ' + id)
             console.log("roomEndpoint: ", roomEndpoint)
             setMyPeerId(id)
             peerID = id;
-            socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID, roomID })
             
-           socket.on('user-join', payload => {
+            socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID, roomID, roomCapacity})
+            
+            socket.on('user-join', payload => {
                 console.log("USER-JOIN PAYLOAD => ", payload.users)
                 setUsersArray(payload.users)
             })    
@@ -130,12 +136,13 @@ const ChatRoom = (props) => {
             
             setMyStream(stream)
             myVideoRef.current.srcObject = stream;
-
+            
             stream.getVideoTracks()[0].enabled = false
             stream.getAudioTracks()[0].enabled = false
             // adding our peer
             console.log("jkfdshskjfjds", peerID, userID)
-
+            
+            
             dispatch(addPeerAction(peerID, stream, userID))
             socket.on('user-connected', payload => {
                 console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID)
@@ -204,6 +211,7 @@ const ChatRoom = (props) => {
     }, [currentPeersReducer])
 
     useEffect(() => {
+        console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
         updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
     }, [users])
 
@@ -218,11 +226,30 @@ const ChatRoom = (props) => {
         const updatedUsers = users.filter((user) => user !== userID)
         dispatch(removePeerAction(myPeerId, userID))
         updateRoomUsersAction(updatedUsers, roomID).then((action) => dispatch(action))
+
+        //disable the webcam and mic before leave
+        myStream.getTracks()
+        .forEach((track) => track.stop());
+
     }
 
-    window.onbeforeunload =() => {
-        leaveTheRoomHandler()
-    }
+    // window.onbeforeunload =(e) => {
+    //     e.preventDefault();
+        
+           
+    // }
+
+    
+    window.onbeforeunload = function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        // eslint-disable-next-line no-param-reassign
+        e.returnValue = 'onbeforeunload';
+        leaveTheRoomHandler();
+      };
+    // window.onunload = () => {
+    //     leaveTheRoomHandler()
+    // }
 
     const toggleCamHandler = () => {
         const videoTrack = myStream.getTracks().find(track => track.kind === 'video')
