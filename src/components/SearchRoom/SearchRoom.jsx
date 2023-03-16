@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import languages from 'languages-data';
 import Select from 'react-select';
 import RoomPreview from './../RoomPreview/RoomPreview';
+import { useSelector } from 'react-redux';
 
 
 const SearchRoom = () => {
@@ -13,6 +14,7 @@ const SearchRoom = () => {
     const [level, setLevel] = useState(null);
     const [languageOptions, setLanguageOptions] = useState([])
     const [searchedRooms, setSearchedRooms] = useState([])
+    const rooms = useSelector(state => state.roomsReducer.rooms);
 
     const onSubmitHandler = (e) => {
         e.preventDefault();
@@ -28,17 +30,27 @@ const SearchRoom = () => {
         console.log("xxx", languageOptions)
     }, [])
 
-    const  handleChangeLanguage = (selectedLanguage) => {
-        setLanguage(selectedLanguage.value)
-        console.log("language selected: ", language)
-      };
 
-    const getSearchedRooms = async () => {
+    const getSearchedRooms = async (capacity, language, level) => {
+        let searchQuery = "";
+
+            if(capacity) {
+                searchQuery += `&capacity=${capacity}`
+            }
+            if(language) {
+                searchQuery += `&language=${language}`
+            }
+            if(level) {
+                searchQuery+= `&level=${level}`
+            }
+
         try {
-            const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms?capacity=${capacity}&language=${language}&level=${level}`, {method : "GET"})
+
+            const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms?${searchQuery}`, {method : "GET"})
 
             if(response.ok) {
                 const data = await response.json();
+                console.log("searched rooms triggered!", data, searchQuery)
                 setSearchedRooms(data)
                 
             } else {
@@ -50,10 +62,27 @@ const SearchRoom = () => {
     }
 
 
+    const onChangeCapacityHandler = (e) => {
+        const capacity = e.target.value
+        setCapacity(e.target.value);
+        getSearchedRooms(capacity, language, level)
+    }
+    const onChangeLanguageHandler = (e) => {
+        const language = e.target.value
+        console.log("language changed! ", language)
+        setLanguage(e.target.value);
+        getSearchedRooms(capacity, language, level)
+    }
+    const onChangeLevelHandler = (e) => {
+        const level =  e.target.value
+        setLevel(e.target.value);
+        getSearchedRooms(capacity, language, level)
+    }
+
     return <>
                 <Form onSubmit={onSubmitHandler} className="d-flex justify-content-center align-items-center mt-3 mb-3">
                         <Form.Group className="me-2">
-                            <Form.Select defaultValue={'DEFAULT'}   id="roomCapacity" onChange={(e) => setCapacity(e.target.value)}>
+                            <Form.Select defaultValue={'DEFAULT'}   id="roomCapacity" onChange={(e) => onChangeCapacityHandler(e)}>
                                  <option value="DEFAULT" disabled>Room capacity</option>
                                 <option   value= {2} >2</option>
                                 <option value={3}>3</option>
@@ -61,7 +90,7 @@ const SearchRoom = () => {
                             </Form.Select>
                         </Form.Group>
                         <Form.Group className="me-2">
-                            <Form.Select defaultValue={'DEFAULT'} id="roomLanguage" onChange={(e) => setLanguage(e.target.value)}>
+                            <Form.Select defaultValue={'DEFAULT'} id="roomLanguage" onChange={(e) => onChangeLanguageHandler(e)}>
                                 <option value="DEFAULT" disabled>
                                     Language
                                 </option>
@@ -78,7 +107,7 @@ const SearchRoom = () => {
                         </Form.Group>
                         <Form.Group className="me-2">
                             
-                            <Form.Select defaultValue={'DEFAULT'}  id="roomLevel" onChange={(e) => setLevel(e.target.value)}>
+                            <Form.Select defaultValue={'DEFAULT'}  id="roomLevel" onChange={(e) => onChangeLevelHandler(e)}>
                                 <option value="DEFAULT" disabled>Language level</option>
                                 <option value="A1" >A1 - Beginner</option>
                                 <option value="A2" >A2 - Elementary</option>
@@ -89,19 +118,15 @@ const SearchRoom = () => {
                                 <option value="Native">Native Speaker</option>
                             </Form.Select>
                         </Form.Group>
-                        <Button type="submit" onClick={getSearchedRooms}>Search</Button>
+                        {/* <Button type="submit" onClick={getSearchedRooms}>Search</Button> */}
                 </Form>
                 <div className="d-flex flex-column">
                     
-                    {searchedRooms.length !== 0 
-                    ?<div className="border-dark border-bottom">
+                    
                     <h2>Search Results</h2>
-                    {searchedRooms.map((room) => <RoomPreview roomData = {room}/>) }
-                    </div>  
-                    : <div className="d-flex flex-column">
-                        {/* <div>No room was found matching your selection</div>
-                        <a href="/">Create your own room?</a> */}
-                    </div>}
+                    {searchedRooms.map((room) => <RoomPreview key={room._id} roomData = {room}/>) }
+                   
+                    
                     
                 </div>
              </>

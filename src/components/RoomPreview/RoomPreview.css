@@ -1,13 +1,13 @@
 .room-preview {
     /* padding: 20px; */
     background-color: var(--color-secondary);
-    width: 300px;
+    width: 250px;
     margin-top: 10px;
-    height: 320px;
+    height: 200px;
     border-radius: 4px;
     color: var(--color-white);
     /* From https://css.glass */
-    background: rgb(92, 46, 226);
+    background: rgb(91, 46, 226);
     box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 2px, rgba(0, 0, 0, 0.07) 0px 2px 4px, rgba(0, 0, 0, 0.07) 0px 4px 8px, rgba(0, 0, 0, 0.07) 0px 8px 16px, rgba(0, 0, 0, 0.07) 0px 16px 32px, rgba(0, 0, 0, 0.07) 0px 32px 64px;
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
@@ -61,7 +61,7 @@
 
 .room-creator {
     padding-bottom: 5px;
-    border-bottom: 1px solid white;
+    /* border-bottom: 1px solid var(--color-black); */
 }
 
 .room-creator-text, .room-online-users-text{
