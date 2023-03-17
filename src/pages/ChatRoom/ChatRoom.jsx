@@ -8,7 +8,7 @@ import { io } from 'socket.io-client';
 import { json, useParams } from 'react-router-dom';
 import { VideoPlayer } from '../../components/VideoPlayer/VideoPlayer.jsx';
 import peersReducer from '../../redux/reducers/peersReducer';
-import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
+import { addMessageToChatAction, addPeerAction, updateChatAction, updateRoomChatAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 import CustomNavbar from './../../components/CustomNavbar/CustomNavbar';
@@ -20,6 +20,14 @@ import {VscUnmute, VscMute} from 'react-icons/vsc'
 import { useSelector } from 'react-redux';
 import { isLoggedInAction } from './../../redux/actions/index';
 import { useNavigate } from 'react-router-dom';
+import {BiHomeAlt} from 'react-icons/bi'
+import {HiHome, HiVideoCamera, HiPlus} from 'react-icons/hi'
+import {FaUserFriends} from 'react-icons/fa'
+import {MdSettings, MdAddBox} from 'react-icons/md'
+import {BsArrowLeftSquareFill} from 'react-icons/bs'
+import {TbArrowBarLeft} from 'react-icons/tb'
+import { Form } from 'react-bootstrap';
+
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
@@ -48,6 +56,7 @@ const ChatRoom = (props) => {
     const [currentPeersReducer, dispatch] = useReducer(peersReducer, {})
     const peers = currentPeersReducer.peers
     const users = currentPeersReducer.users
+    const chat = currentPeersReducer.chat
 
     const remotePeerRef = useRef({})
     const [usersArray, setUsersArray] = useState([])
@@ -56,6 +65,11 @@ const ChatRoom = (props) => {
     const [isMyCamOpen, setIsMyCamOpen] = useState(false)
     const [isMyMicOpen, setIsMyMicOpen] = useState(false)
     // const [isSharingScreen, setIsSharingScreen] = useState(false)
+
+
+    const [chatHistory, setChatHistory] = useState([]);
+    const [text, setText] = useState("");
+    const peerRef = useRef({})
 
 
     const getMediaDevices = (mediaConstraints) => {
@@ -96,12 +110,17 @@ const ChatRoom = (props) => {
         .catch(err => console.log(err))
 
         //getting roomData with endpoint
-        // getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id); setRoomID(data[0]._id)})
+        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
 
         //checking if room is full already, if its full redirect the user to rooms page
         
         
     },[])
+
+    useEffect(() => {
+        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
+        console.log("ffffff",roomData)
+    }, [chat])
 
  
 
@@ -129,6 +148,7 @@ const ChatRoom = (props) => {
                 setUsersArray(payload.users)
             })    
         })
+
         
         
         getMediaDevices(mediaConstraints)
@@ -199,6 +219,8 @@ const ChatRoom = (props) => {
                 updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
                 remotePeerRef.current.destroy()
             })
+
+
             
         })
         .catch(err => console.log("Failed to get local stream", err)) 
@@ -310,9 +332,46 @@ const ChatRoom = (props) => {
     //     })
     // }
 
+    //*************chat area ***************/
     
+    const resetFormValue = () => setText("");
+    const onSubmitHandler = (event) => {
+        event.preventDefault();
+        resetFormValue();
+    };
+    const onChangeHandler = (event) => {
+        setText(event.target.value);
+    };
+    const onKeyDownHandler = (event) => {
+        if (event.code === "Enter") {
+            sendMessage();
+            console.log(text)
+        }
+    };
+
+    const sendMessage = () => {
+        const newMessage = {
+            sender: userData.username,
+            msg: text,
+            time: new Date()
+        }
+        socket.emit("chatMessage", newMessage)
+    };
 
     
+
+    useEffect(() => {
+        //message from server
+    socket.on("message", newMessage => {
+        // console.log(message)
+        setChatHistory([...chatHistory, newMessage])
+    })
+       
+    }, [chatHistory])
+
+    useEffect(() => {
+        console.log("chatttttHistory", chatHistory)
+    }, [chatHistory])
 
     return (
         // <Container>
@@ -353,35 +412,62 @@ const ChatRoom = (props) => {
 
         //********************************************************************************* */
         <div className='d-flex flex-row chatRoom-div'>
-                            <div className='left-sidebar'>
-                                sdjkfhsdjfs
+                            <div className='left-sidebar d-flex flex-column justify-content-between align-items-center'>
+                                <div className="navbar-logo d-flex justify-content-center">
+                                    sipeaky
+                                </div>
+                                <div className='sidebar-btns d-flex flex-column justify-content-center align-items-center'>
+                                    <div className='d-flex justify-content-center'>
+                                        <HiHome/>
+                                    </div>
+                                    <div className='d-flex justify-content-center'>
+                                        <HiVideoCamera/>
+                                    </div>
+                                    <div className='d-flex justify-content-center'>
+                                        <FaUserFriends/>
+                                    </div>
+                                    <div>
+                                        <HiPlus/>
+                                    </div>
+                                    <div className='d-flex justify-content-center'>
+                                        <MdSettings/>
+                                    </div>
+                                </div>
+                                <div className='left-btn d-flex justify-content-center'>
+                                    <div className="sidebar-user-avatar d-flex justify-content-center">
+                                        <img src="/assets/avatar-default.png" alt="avatar-default" />
+                                    </div>
+
+                                </div>
+                            
                             </div>
                             <div className=' main-area'>
                                 <div className='main-top d-flex align-items-center justify-content-between'>
                                     <div className='d-flex'>
-                                        <div className='main-top-language'>{roomData.language}</div>
-                                        <div className='main-top-level'>{roomData.level}</div>
+                                        <div className='main-top-language'>{roomData.language} - {roomData.level}</div>
+                                        {/* <div className='main-top-level'>{roomData.level}</div> */}
                                     </div>
                                     <div>
                                         <div className='main-top-username'>{userData.username}</div>
                                     </div>
                                     
+                                    
                                 </div>
                                 <div className='main-bottom d-flex'>
                                     <div className='video-area d-flex flex-column justify-content-between'>
-                                        <div className='video-area-header d-flex'>
+                                        {/* <div className='video-area-header d-flex'>
                                             <div>copylink</div>
                                             <div>invite</div>
-                                        </div>
+                                        </div> */}
                                         <div className='video-area-player'>
                                             <div className='video-area-player-frame d-flex flex-column align-items-center justify-content-center'>
                                                 <Container className='d-flex flex-column justify-content-center'>
                                                     <Row>
                                                         <Col sm={6}> 
                                                             <div className='position-relative'>
-                                                                <div className='video-player'>
+                                                                {/* <div className='video-player'>
                                                                     <video className="video current-user-video" ref={myVideoRef} autoPlay/>
-                                                                </div>
+                                                                </div> */}
                                                                 <div className='video-username'>you</div>
                                                             </div>
                                                         </Col>
@@ -396,6 +482,7 @@ const ChatRoom = (props) => {
                                                                 </div>
                                                             </Col>
                                                         )}
+                                                        
                                                         {/* <Col sm={6}> 
                                                             <div className='position-relative'>
                                                                 <div className='video-player'>fsdf</div>
@@ -451,8 +538,33 @@ const ChatRoom = (props) => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='chat-area'>
-                                        chat area
+                                    <div className='chat-area d-flex flex-column justify-content-between '>
+                                        <div className='chat-messages-div'>
+                                            {chatHistory?.map(message => 
+                                                <div className={`chat-message d-flex flex-column ${(message.sender === userData.username)? 'my-message': 'user-message'}`}>
+                                                    <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>
+                                                    <div className='chat-message-text'>{message?.msg}</div>
+                                                    {/* <div>{message}</div> */}
+                                                </div>)}
+                                            
+                                        </div>
+                                        <div className='chat-input-div d-flex justify-content-end'>
+                                            <Form className="form" onSubmit={onSubmitHandler}>
+                                                <Form.Group
+                                                    className="form-group"
+                                                    controlId="formBasicEmail"
+                                                >
+                                                    <Form.Control
+                                                        className="form-control"
+                                                        type="text"
+                                                        placeholder="Type a message"
+                                                        onChange={onChangeHandler}
+                                                        value={text}
+                                                        onKeyDown={onKeyDownHandler}
+                                                    />
+                                                </Form.Group>
+                                            </Form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

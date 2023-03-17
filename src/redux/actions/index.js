@@ -8,7 +8,9 @@ export const ADD_NEW_ROOM = 'ADD_NEW_ROOM'
 export const DELETE_ROOM ='DELETE_ROOM'
 export const RESET_ROOMS_STATE = 'RESET_ROOMS_STATE';
 export const GET_ROOMS= 'GET_ROOMS' //fetching /GET
-export const UPDATE_ROOM_USERS = 'UPDATE_ROOM_USERS'
+export const UPDATE_ROOM_USERS = 'UPDATE_ROOM_USERS';
+export const ADD_MESSAGE_TO_CHAT = 'ADD_MESSAGE_TO_CHAT';
+export const UPDATE_CHAT ='UPDATE_CHAT'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
@@ -26,6 +28,68 @@ export const removePeerAction = (peerID, userID) => {
         type:REMOVE_PEER,
         payload: {peerID, userID}
     }
+}
+
+export const addMessageToChatAction = (newMessage) => {
+    console.log("addMessageToChatAction triggered => new message:", newMessage);
+    return {
+        type: ADD_MESSAGE_TO_CHAT,
+        payload: {newMessage}
+    }
+}
+
+export const updateChatAction = (chat) => {
+    console.log("addMessageToChatAction triggered => chat:", chat);
+    return {
+        type: UPDATE_CHAT,
+        payload: {chat}
+    }
+}
+
+export const updateRoomChatAction = (roomID, newMessage, chat) => {
+    return new Promise(async (resolve, reject) => {
+        // const options = {
+        //     method: "POST",
+        //     body: JSON.stringify(newMessage),
+        //     headers: {
+        //         "Content-Type": "application/json"
+        //     }
+        // }
+        // try {
+        //     const response = await fetch(`${BE_DEV_URL}/roomChats`, options);
+
+        //     if(response.ok) {
+        //         const roomChatData = await response.json();
+        //         const roomChatId = roomChatData._id
+
+                try {
+                    console.log("wtisth,", chat);
+                    const response= await fetch(`${BE_DEV_URL}/rooms/${roomID}`, 
+                    {method: "PUT", 
+                    body: JSON.stringify({chat: chat}), 
+                    headers: {
+                                "Content-Type": "application/json"
+                            }})
+                    if(response.ok) {
+                        const roomData = await response.json();
+                        console.log("######", roomData);
+
+                        resolve(roomData)
+                    } else {
+                        console.log("sorryyy, there is a problem when fetching!")
+                    }
+                } catch (error) {
+                    reject(error)
+                }
+        //     }
+        //     else {
+        //         console.log("sorryyy, there is a problem when fetching!")
+        //     }
+            
+        // } catch (error) {
+        //     reject(error)
+        // }
+    })
 }
 
 export const updatePeerStreamsAction = (peers) => {
