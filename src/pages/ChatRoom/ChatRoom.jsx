@@ -465,9 +465,9 @@ const ChatRoom = (props) => {
                                                     <Row>
                                                         <Col sm={6}> 
                                                             <div className='position-relative'>
-                                                                {/* <div className='video-player'>
+                                                                <div className='video-player'>
                                                                     <video className="video current-user-video" ref={myVideoRef} autoPlay/>
-                                                                </div> */}
+                                                                </div>
                                                                 <div className='video-username'>you</div>
                                                             </div>
                                                         </Col>
@@ -543,7 +543,7 @@ const ChatRoom = (props) => {
                                             {chatHistory?.map(message => 
                                                 <div className={`chat-message d-flex flex-column ${(message.sender === userData.username)? 'my-message': 'user-message'}`}>
                                                     <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>
-                                                    <div className='chat-message-text'>{message?.msg}</div>
+                                                    <div className='chat-message-text d-flex justify-content-start'>{message?.msg}</div>
                                                     {/* <div>{message}</div> */}
                                                 </div>)}
                                             

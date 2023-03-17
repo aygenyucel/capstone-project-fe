@@ -120,10 +120,9 @@ const SearchRoom = () => {
                         </Form.Group>
                         {/* <Button type="submit" onClick={getSearchedRooms}>Search</Button> */}
                 </Form>
-                <div className="d-flex flex-column">
+                <div className="search-results d-flex flex-column">
                     
-                    
-                    <h2>Search Results</h2>
+                    {/* <h2>Search Results</h2> */}
                     {searchedRooms.map((room) => <RoomPreview key={room._id} roomData = {room}/>) }
                    
                     

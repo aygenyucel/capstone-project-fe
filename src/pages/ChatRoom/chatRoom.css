@@ -236,3 +236,10 @@
     font-size: 0.8rem;
     margin-right: 10px;
 }
+
+.chat-message-text {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-left: 10px;
+    margin-bottom: 5px;
+}
