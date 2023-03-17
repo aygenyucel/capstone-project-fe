@@ -93,11 +93,10 @@ const RoomPreview = (props) => {
                     <div className="room-creator-username">{roomCreatorUsername}</div>
                 </div>
 
-                <div className="room-online-users d-flex flex-column">
+                {/* <div className="room-online-users d-flex flex-column">
                     <div className="room-online-users-text">participants</div>
                     {users?.map(user =>  <div key={user}>{user}</div>)}
-                    {/* {usernames?.map(username =>  <div key={username}>{username}</div>)} */}
-                </div>
+                </div> */}
 
                 <div className="room-capacity d-flex">
                     {Array(users.length).fill(<GiPerson className={"room-person room-person-full" }/>)}

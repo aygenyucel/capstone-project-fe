@@ -1,9 +1,11 @@
 /* eslint-disable no-fallthrough */
-import { ADD_PEER, REMOVE_PEER, RESET_PEERS_STATE } from '../actions/index.js';
+import { ADD_MESSAGE_TO_CHAT, ADD_PEER, REMOVE_PEER, RESET_PEERS_STATE } from '../actions/index.js';
+import { UPDATE_CHAT } from './../actions/index';
 
 const initialState = {
     peers: [],
-    users: []
+    users: [],
+    chat: []
 }
 
 const peersReducer = (state = initialState, action) => {
@@ -39,10 +41,31 @@ const peersReducer = (state = initialState, action) => {
                     users: state.users.filter((user) => user !== action.payload.userID)
                 }
 
+        case ADD_MESSAGE_TO_CHAT:
+           
+                if(state.chat) {
+                    return {
+                    ...state,
+                    chat:[...state.chat, action.payload.newMessage]
+                    }
+                } else {
+                    return {
+                        ...state,
+                        chat: [action.payload.newMessage]
+                    }
+                }
+        
+        case UPDATE_CHAT:
+                return {
+                ...state,
+                chat: action.payload.chat
+                }
+
         case RESET_PEERS_STATE:
             return {
                 peers: [],
-                users: []
+                users: [],
+                chat: []
             }
 
         default: 

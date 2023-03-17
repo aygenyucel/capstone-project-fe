@@ -5,10 +5,10 @@ import { useReducer, useRef, useState } from 'react';
 import { useEffect } from 'react';
 import Peer from "peerjs";
 import { io } from 'socket.io-client';
-import { useParams } from 'react-router-dom';
+import { json, useParams } from 'react-router-dom';
 import { VideoPlayer } from '../../components/VideoPlayer/VideoPlayer.jsx';
 import peersReducer from '../../redux/reducers/peersReducer';
-import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
+import { addMessageToChatAction, addPeerAction, updateChatAction, updateRoomChatAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 import CustomNavbar from './../../components/CustomNavbar/CustomNavbar';
@@ -17,26 +17,46 @@ import {MdOutlineCallEnd} from 'react-icons/md'
 import {BsCameraVideoOff, BsCameraVideo} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
 import {VscUnmute, VscMute} from 'react-icons/vsc'
+import { useSelector } from 'react-redux';
+import { isLoggedInAction } from './../../redux/actions/index';
+import { useNavigate } from 'react-router-dom';
+import {BiHomeAlt} from 'react-icons/bi'
+import {HiHome, HiVideoCamera, HiPlus} from 'react-icons/hi'
+import {FaUserFriends} from 'react-icons/fa'
+import {MdSettings, MdAddBox} from 'react-icons/md'
+import {BsArrowLeftSquareFill} from 'react-icons/bs'
+import {TbArrowBarLeft} from 'react-icons/tb'
+import { Form } from 'react-bootstrap';
+
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
 const ChatRoom = (props) => {
     const location = useLocation()
     const params = useParams()
-    const state = location.state;
-    const userData = state.user;
-    const roomID = state.roomID;
-    const userID = userData._id;
+    // const userData = useSelector(state => state.profileReducer.data)
+    // const userID = useSelector(state => state.profileReducer.data._id)
     const roomEndpoint = params.id;
     const [myPeerId, setMyPeerId] = useState(null)
     const myVideoRef = useRef({});
     const remoteVideoRef =useRef({});
-
+    
+    const [roomData, setRoomData] = useState({});
+    const roomCapacity = roomData.capacity
+    const navigate = useNavigate();
+    const state = location.state;
+    const userData = state.user;
+    const roomID = state.roomID;
+    // const [roomID, setRoomID] = useState(roomData._id)
+    const userID = userData._id;
+    const JWTToken = localStorage.getItem("JWTToken")
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     //accessing the peersReducer
     const [currentPeersReducer, dispatch] = useReducer(peersReducer, {})
     const peers = currentPeersReducer.peers
     const users = currentPeersReducer.users
+    const chat = currentPeersReducer.chat
 
     const remotePeerRef = useRef({})
     const [usersArray, setUsersArray] = useState([])
@@ -46,17 +66,63 @@ const ChatRoom = (props) => {
     const [isMyMicOpen, setIsMyMicOpen] = useState(false)
     // const [isSharingScreen, setIsSharingScreen] = useState(false)
 
-    const [roomData, setRoomData] = useState({})
 
-    window.onbeforeunload = closing;
-    var closing = function () {
-        console.log("function alrt WORKS !!!!");
-        window.alert("closing now.....");
-       }
+    const [chatHistory, setChatHistory] = useState([]);
+    const [text, setText] = useState("");
+    const peerRef = useRef({})
+
+
     const getMediaDevices = (mediaConstraints) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
     }
     const mediaConstraints = {video: true, audio: true}
+
+
+    const getRoomData = (roomEndpoint) => {
+        return new Promise (async(resolve, reject) => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/endpoint/${roomEndpoint}`, {method: "GET" })
+                if(response.ok) {
+                    const roomData = await response.json();
+                    console.log("wtffff =>", roomData)
+                    resolve(roomData)
+                } 
+            } catch (error) {
+                console.log(error)
+                reject(error)
+            }
+        })
+    }
+
+
+    useEffect(() => {
+        //checking if user logged in
+        console.log("user", userData, "jwt: ", JWTToken)
+        isLoggedInAction(userData, JWTToken, dispatch)
+        .then((boolean) => {
+            if(boolean === true) {
+                setIsLoggedIn(true)
+                console.log("yes its logged in")
+            } else {
+                navigate("/login")
+            }
+        })
+        .catch(err => console.log(err))
+
+        //getting roomData with endpoint
+        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
+
+        //checking if room is full already, if its full redirect the user to rooms page
+        
+        
+    },[])
+
+    useEffect(() => {
+        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
+        console.log("ffffff",roomData)
+    }, [chat])
+
+ 
 
     
     useEffect(()  => {
@@ -68,19 +134,21 @@ const ChatRoom = (props) => {
               ]} 
         });
         let peerID;
-
+        
         peer.on('open', (id) => {
             console.log('My peer ID is: ' + id)
             console.log("roomEndpoint: ", roomEndpoint)
             setMyPeerId(id)
             peerID = id;
-            socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID, roomID })
             
-           socket.on('user-join', payload => {
+            socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID, roomID, roomCapacity})
+            
+            socket.on('user-join', payload => {
                 console.log("USER-JOIN PAYLOAD => ", payload.users)
                 setUsersArray(payload.users)
             })    
         })
+
         
         
         getMediaDevices(mediaConstraints)
@@ -88,12 +156,13 @@ const ChatRoom = (props) => {
             
             setMyStream(stream)
             myVideoRef.current.srcObject = stream;
-
+            
             stream.getVideoTracks()[0].enabled = false
             stream.getAudioTracks()[0].enabled = false
             // adding our peer
             console.log("jkfdshskjfjds", peerID, userID)
-
+            
+            
             dispatch(addPeerAction(peerID, stream, userID))
             socket.on('user-connected', payload => {
                 console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID)
@@ -141,7 +210,6 @@ const ChatRoom = (props) => {
                 
                 dispatch(removePeerAction(payload.peerID, payload.userID))
                 updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
-                
             })
             
             socket.on("user-left", (payload) => {
@@ -151,6 +219,8 @@ const ChatRoom = (props) => {
                 updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
                 remotePeerRef.current.destroy()
             })
+
+
             
         })
         .catch(err => console.log("Failed to get local stream", err)) 
@@ -163,6 +233,7 @@ const ChatRoom = (props) => {
     }, [currentPeersReducer])
 
     useEffect(() => {
+        console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
         updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
     }, [users])
 
@@ -177,11 +248,30 @@ const ChatRoom = (props) => {
         const updatedUsers = users.filter((user) => user !== userID)
         dispatch(removePeerAction(myPeerId, userID))
         updateRoomUsersAction(updatedUsers, roomID).then((action) => dispatch(action))
+
+        //disable the webcam and mic before leave
+        myStream.getTracks()
+        .forEach((track) => track.stop());
+
     }
 
-    window.onbeforeunload =() => {
-        leaveTheRoomHandler()
-    }
+    // window.onbeforeunload =(e) => {
+    //     e.preventDefault();
+        
+           
+    // }
+
+    
+    window.onbeforeunload = function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        // eslint-disable-next-line no-param-reassign
+        e.returnValue = 'onbeforeunload';
+        leaveTheRoomHandler();
+      };
+    // window.onunload = () => {
+    //     leaveTheRoomHandler()
+    // }
 
     const toggleCamHandler = () => {
         const videoTrack = myStream.getTracks().find(track => track.kind === 'video')
@@ -227,26 +317,61 @@ const ChatRoom = (props) => {
 
 
     
-    const getRoomData = (roomID) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/${roomID}`, {method: "GET"})
-                if(response.ok) {
-                    const roomData = await response.json();
-                    resolve(roomData);
-                }
-            } catch (error) {
-                console.log(error)
-                reject(error)
-            }
-        })
-    }
+    // const getRoomData = (roomID) => {
+    //     return new Promise(async (resolve, reject) => {
+    //         try {
+    //             const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/${roomID}`, {method: "GET"})
+    //             if(response.ok) {
+    //                 const roomData = await response.json();
+    //                 resolve(roomData);
+    //             }
+    //         } catch (error) {
+    //             console.log(error)
+    //             reject(error)
+    //         }
+    //     })
+    // }
 
-    useEffect(() => {
-        getRoomData(roomID).then(data => setRoomData(data))
-    }, [])
+    //*************chat area ***************/
+    
+    const resetFormValue = () => setText("");
+    const onSubmitHandler = (event) => {
+        event.preventDefault();
+        resetFormValue();
+    };
+    const onChangeHandler = (event) => {
+        setText(event.target.value);
+    };
+    const onKeyDownHandler = (event) => {
+        if (event.code === "Enter") {
+            sendMessage();
+            console.log(text)
+        }
+    };
+
+    const sendMessage = () => {
+        const newMessage = {
+            sender: userData.username,
+            msg: text,
+            time: new Date()
+        }
+        socket.emit("chatMessage", newMessage)
+    };
 
     
+
+    useEffect(() => {
+        //message from server
+    socket.on("message", newMessage => {
+        // console.log(message)
+        setChatHistory([...chatHistory, newMessage])
+    })
+       
+    }, [chatHistory])
+
+    useEffect(() => {
+        console.log("chatttttHistory", chatHistory)
+    }, [chatHistory])
 
     return (
         // <Container>
@@ -287,26 +412,53 @@ const ChatRoom = (props) => {
 
         //********************************************************************************* */
         <div className='d-flex flex-row chatRoom-div'>
-                            <div className='left-sidebar'>
-                                sdjkfhsdjfs
+                            <div className='left-sidebar d-flex flex-column justify-content-between align-items-center'>
+                                <div className="navbar-logo d-flex justify-content-center">
+                                    sipeaky
+                                </div>
+                                <div className='sidebar-btns d-flex flex-column justify-content-center align-items-center'>
+                                    <div className='d-flex justify-content-center'>
+                                        <HiHome/>
+                                    </div>
+                                    <div className='d-flex justify-content-center'>
+                                        <HiVideoCamera/>
+                                    </div>
+                                    <div className='d-flex justify-content-center'>
+                                        <FaUserFriends/>
+                                    </div>
+                                    <div>
+                                        <HiPlus/>
+                                    </div>
+                                    <div className='d-flex justify-content-center'>
+                                        <MdSettings/>
+                                    </div>
+                                </div>
+                                <div className='left-btn d-flex justify-content-center'>
+                                    <div className="sidebar-user-avatar d-flex justify-content-center">
+                                        <img src="/assets/avatar-default.png" alt="avatar-default" />
+                                    </div>
+
+                                </div>
+                            
                             </div>
                             <div className=' main-area'>
                                 <div className='main-top d-flex align-items-center justify-content-between'>
                                     <div className='d-flex'>
-                                        <div className='main-top-language'>{roomData.language}</div>
-                                        <div className='main-top-level'>{roomData.level}</div>
+                                        <div className='main-top-language'>{roomData.language} - {roomData.level}</div>
+                                        {/* <div className='main-top-level'>{roomData.level}</div> */}
                                     </div>
                                     <div>
                                         <div className='main-top-username'>{userData.username}</div>
                                     </div>
                                     
+                                    
                                 </div>
                                 <div className='main-bottom d-flex'>
                                     <div className='video-area d-flex flex-column justify-content-between'>
-                                        <div className='video-area-header d-flex'>
+                                        {/* <div className='video-area-header d-flex'>
                                             <div>copylink</div>
                                             <div>invite</div>
-                                        </div>
+                                        </div> */}
                                         <div className='video-area-player'>
                                             <div className='video-area-player-frame d-flex flex-column align-items-center justify-content-center'>
                                                 <Container className='d-flex flex-column justify-content-center'>
@@ -330,6 +482,7 @@ const ChatRoom = (props) => {
                                                                 </div>
                                                             </Col>
                                                         )}
+                                                        
                                                         {/* <Col sm={6}> 
                                                             <div className='position-relative'>
                                                                 <div className='video-player'>fsdf</div>
@@ -385,8 +538,33 @@ const ChatRoom = (props) => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='chat-area'>
-                                        chat area
+                                    <div className='chat-area d-flex flex-column justify-content-between '>
+                                        <div className='chat-messages-div'>
+                                            {chatHistory?.map(message => 
+                                                <div className={`chat-message d-flex flex-column ${(message.sender === userData.username)? 'my-message': 'user-message'}`}>
+                                                    <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>
+                                                    <div className='chat-message-text d-flex justify-content-start'>{message?.msg}</div>
+                                                    {/* <div>{message}</div> */}
+                                                </div>)}
+                                            
+                                        </div>
+                                        <div className='chat-input-div d-flex justify-content-end'>
+                                            <Form className="form" onSubmit={onSubmitHandler}>
+                                                <Form.Group
+                                                    className="form-group"
+                                                    controlId="formBasicEmail"
+                                                >
+                                                    <Form.Control
+                                                        className="form-control"
+                                                        type="text"
+                                                        placeholder="Type a message"
+                                                        onChange={onChangeHandler}
+                                                        value={text}
+                                                        onKeyDown={onKeyDownHandler}
+                                                    />
+                                                </Form.Group>
+                                            </Form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
