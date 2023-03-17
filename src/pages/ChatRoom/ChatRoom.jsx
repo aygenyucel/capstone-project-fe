@@ -26,8 +26,8 @@ const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 const ChatRoom = (props) => {
     const location = useLocation()
     const params = useParams()
-    const userData = useSelector(state => state.profileReducer.data)
-    const userID = useSelector(state => state.profileReducer.data._id)
+    // const userData = useSelector(state => state.profileReducer.data)
+    // const userID = useSelector(state => state.profileReducer.data._id)
     const roomEndpoint = params.id;
     const [myPeerId, setMyPeerId] = useState(null)
     const myVideoRef = useRef({});
@@ -37,10 +37,10 @@ const ChatRoom = (props) => {
     const roomCapacity = roomData.capacity
     const navigate = useNavigate();
     const state = location.state;
-    // const userData = state.user;
-    // const roomID = state.roomID;
-    const [roomID, setRoomID] = useState(roomData._id)
-    // const userID = userData._id;
+    const userData = state.user;
+    const roomID = state.roomID;
+    // const [roomID, setRoomID] = useState(roomData._id)
+    const userID = userData._id;
     const JWTToken = localStorage.getItem("JWTToken")
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
@@ -96,7 +96,7 @@ const ChatRoom = (props) => {
         .catch(err => console.log(err))
 
         //getting roomData with endpoint
-        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id); setRoomID(data[0]._id)})
+        // getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id); setRoomID(data[0]._id)})
 
         //checking if room is full already, if its full redirect the user to rooms page
         
