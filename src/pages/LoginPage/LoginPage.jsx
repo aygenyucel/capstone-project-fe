@@ -2,10 +2,10 @@ import "./loginPage.css"
 import { Container } from 'react-bootstrap';
 import { Form } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
-import { useState } from "react";
-import { loginAndGetTokenAction } from "../../redux/actions";
+import { useEffect, useState } from "react";
+import { isLoggedInAction, loginAndGetTokenAction } from "../../redux/actions";
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 
 const LoginPage = () => {
@@ -15,6 +15,9 @@ const LoginPage = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const JWTToken = localStorage.getItem("JWTToken")
+    const userData = useSelector(state => state.profileReducer.data);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -31,11 +34,26 @@ const LoginPage = () => {
             loginAndGetTokenAction(user)
             .then(({dispatchAction1, dispatchAction2}) =>{
                 dispatch(dispatchAction1, dispatchAction2)
-                navigate("/rooms")
+                
                 window.location.reload()})
             .catch((error) => console.log(error))
         
         }) }
+
+    useEffect(() => {
+        
+        //checking if user already logged in
+        
+        console.log("user", userData, "jwt: ", JWTToken)
+        isLoggedInAction(userData, JWTToken, dispatch)
+        .then((boolean) => {
+            if(boolean === true) {
+                console.log("yes its logged in")
+                navigate("/rooms")
+            } 
+        })
+        .catch(err => console.log(err))
+    }, [])
     
     return <>
                 <Container>

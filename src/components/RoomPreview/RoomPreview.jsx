@@ -12,19 +12,19 @@ const RoomPreview = (props) => {
     
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    
     const roomData = props.roomData;
     const user = useSelector(state => state.profileReducer.data)
-    const users = roomData.users;
     
+    const users = roomData.users;
     const [roomID, setRoomID] = useState(roomData._id)
     const [roomCapacity, setRoomCapacity] = useState(roomData.capacity);
     const [roomLanguage, setRoomLanguage] = useState(roomData.language);
     const [roomLevel, setRoomLevel] = useState(roomData.level);
     const [roomCreatorID, setRoomCreatorID] = useState(roomData.creator);
     const [roomCreatorUsername, setRoomCreatorUsername] = useState("");
-
+    
     const[usernames, setUsernames] = useState([]);
-
     
     
     //todo get username for the creator

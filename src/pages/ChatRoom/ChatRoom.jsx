@@ -1,31 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import './chatRoom.css';
-import { Button, Container, Row, Col } from "react-bootstrap"
+import {  Container, Row, Col } from "react-bootstrap"
 import { useReducer, useRef, useState } from 'react';
 import { useEffect } from 'react';
 import Peer from "peerjs";
 import { io } from 'socket.io-client';
-import { json, useParams } from 'react-router-dom';
+import {  useParams } from 'react-router-dom';
 import { VideoPlayer } from '../../components/VideoPlayer/VideoPlayer.jsx';
 import peersReducer from '../../redux/reducers/peersReducer';
-import { addMessageToChatAction, addPeerAction, updateChatAction, updateRoomChatAction, updateRoomUsersAction } from '../../redux/actions';
+import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
-import CustomNavbar from './../../components/CustomNavbar/CustomNavbar';
-import {AiOutlineAudio, AiFillAudio, AiOutlineAudioMuted} from 'react-icons/ai'
+import {AiOutlineAudio, AiOutlineAudioMuted} from 'react-icons/ai'
 import {MdOutlineCallEnd} from 'react-icons/md'
 import {BsCameraVideoOff, BsCameraVideo} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
-import {VscUnmute, VscMute} from 'react-icons/vsc'
+import {VscUnmute} from 'react-icons/vsc'
 import { useSelector } from 'react-redux';
 import { isLoggedInAction } from './../../redux/actions/index';
 import { useNavigate } from 'react-router-dom';
-import {BiHomeAlt} from 'react-icons/bi'
 import {HiHome, HiVideoCamera, HiPlus} from 'react-icons/hi'
 import {FaUserFriends} from 'react-icons/fa'
-import {MdSettings, MdAddBox} from 'react-icons/md'
-import {BsArrowLeftSquareFill} from 'react-icons/bs'
-import {TbArrowBarLeft} from 'react-icons/tb'
+import {MdSettings} from 'react-icons/md'
 import { Form } from 'react-bootstrap';
 
 
@@ -45,18 +41,26 @@ const ChatRoom = (props) => {
     const roomCapacity = roomData.capacity
     const navigate = useNavigate();
     const state = location.state;
-    const userData = state.user;
-    const roomID = state.roomID;
-    // const [roomID, setRoomID] = useState(roomData._id)
-    const userID = userData._id;
+
+    
+    // const userData = state.user;
+    const userData = useSelector(state => state.profileReducer.data)
+
+    // const roomID = state.roomID;
+    const [roomID, setRoomID] = useState("")
+
+
+    const userID = userData?._id;
     const JWTToken = localStorage.getItem("JWTToken")
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     //accessing the peersReducer
     const [currentPeersReducer, dispatch] = useReducer(peersReducer, {})
-    const peers = currentPeersReducer.peers
-    const users = currentPeersReducer.users
+    const peers = currentPeersReducer?.peers?.filter(peer => peer.roomEndpoint === roomEndpoint)
+    const usersFiltered = currentPeersReducer?.users?.filter(user => user.roomEndpoint === roomEndpoint)
+    const users = usersFiltered?.map(user => user.userID)
     const chat = currentPeersReducer.chat
+    
 
     const remotePeerRef = useRef({})
     const [usersArray, setUsersArray] = useState([])
@@ -85,6 +89,8 @@ const ChatRoom = (props) => {
                 if(response.ok) {
                     const roomData = await response.json();
                     console.log("wtffff =>", roomData)
+                    
+                    setRoomID(roomData[0]._id)
                     resolve(roomData)
                 } 
             } catch (error) {
@@ -96,35 +102,29 @@ const ChatRoom = (props) => {
 
 
     useEffect(() => {
+        
         //checking if user logged in
         console.log("user", userData, "jwt: ", JWTToken)
         isLoggedInAction(userData, JWTToken, dispatch)
         .then((boolean) => {
             if(boolean === true) {
                 setIsLoggedIn(true)
+                getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
                 console.log("yes its logged in")
             } else {
+                myStream.getTracks()
+                .forEach((track) => track.stop());
                 navigate("/login")
             }
         })
         .catch(err => console.log(err))
-
-        //getting roomData with endpoint
-        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
-
-        //checking if room is full already, if its full redirect the user to rooms page
-        
         
     },[])
 
     useEffect(() => {
-        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
-        console.log("ffffff",roomData)
+        getRoomData(roomEndpoint).then(data => {setRoomData(data[0])})        
     }, [chat])
 
- 
-
-    
     useEffect(()  => {
         console.log(":)))) userData => ", userData)
 
@@ -141,16 +141,10 @@ const ChatRoom = (props) => {
             setMyPeerId(id)
             peerID = id;
             
-            socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID, roomID, roomCapacity})
-            
-            socket.on('user-join', payload => {
-                console.log("USER-JOIN PAYLOAD => ", payload.users)
-                setUsersArray(payload.users)
-            })    
+            socket.emit('join-room', { peerID: id, userID: userID, roomID, roomCapacity, roomEndpoint})
+             
         })
 
-        
-        
         getMediaDevices(mediaConstraints)
         .then(stream => {
             
@@ -160,16 +154,16 @@ const ChatRoom = (props) => {
             stream.getVideoTracks()[0].enabled = false
             stream.getAudioTracks()[0].enabled = false
             // adding our peer
-            console.log("jkfdshskjfjds", peerID, userID)
+            console.log("jkfdshskjfjds", "peerID:", peerID, "userID:", userID,"roomEndpoint:", roomEndpoint)
             
             
-            dispatch(addPeerAction(peerID, stream, userID))
+            dispatch(addPeerAction(peerID, stream, userID, roomEndpoint))
             socket.on('user-connected', payload => {
-                console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID)
+                console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID, "roomEndpoint:", payload.roomEndpoint)
                 // console.log("users in this room after new connection: ", chatRooms)
 
                 //we send the caller user info to who will answer it
-                const options = {metadata: {"userID": userID}};
+                const options = {metadata: {"userID": userID, "roomEndpoint": roomEndpoint}};
                 const call = peer.call(payload.peerID, stream, options)
 
                 let id;
@@ -179,7 +173,7 @@ const ChatRoom = (props) => {
                     if (id !== remoteStream.id) {
                         id = remoteStream.id
                         console.log("#################",payload.peerID, remoteStream, payload.userID)
-                        dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID))
+                        dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID, payload.roomEndpoint))
                         
                         remoteVideoRef.current.srcObject = remoteStream
                         console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)     
@@ -196,7 +190,7 @@ const ChatRoom = (props) => {
                     if (id !== remoteStream.id) {
                         id = remoteStream.id
                         //we get the metadata sended from caller (call.metadata.userID)
-                        dispatch(addPeerAction(call.peer, remoteStream, call.metadata.userID))
+                        dispatch(addPeerAction(call.peer, remoteStream, call.metadata.userID, call.metadata.roomEndpoint))
                         remoteVideoRef.current.srcObject = remoteStream
                         console.log("we answer the stream, addpeerAction triggered! (the owner of answer added)", call.metadata.userID, "xxxx")
                     }      
@@ -233,8 +227,10 @@ const ChatRoom = (props) => {
     }, [currentPeersReducer])
 
     useEffect(() => {
-        console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
-        updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
+        // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
+        if(users) {
+            updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
+        }
     }, [users])
 
 
@@ -242,8 +238,7 @@ const ChatRoom = (props) => {
         //for make sure the user disconnect from the chat room
         window.location.reload();
     }
-    
-    
+
     const leaveTheRoomHandler = () => {
         const updatedUsers = users.filter((user) => user !== userID)
         dispatch(removePeerAction(myPeerId, userID))
@@ -254,13 +249,6 @@ const ChatRoom = (props) => {
         .forEach((track) => track.stop());
 
     }
-
-    // window.onbeforeunload =(e) => {
-    //     e.preventDefault();
-        
-           
-    // }
-
     
     window.onbeforeunload = function(e) {
         e.preventDefault();
@@ -269,9 +257,6 @@ const ChatRoom = (props) => {
         e.returnValue = 'onbeforeunload';
         leaveTheRoomHandler();
       };
-    // window.onunload = () => {
-    //     leaveTheRoomHandler()
-    // }
 
     const toggleCamHandler = () => {
         const videoTrack = myStream.getTracks().find(track => track.kind === 'video')
@@ -295,27 +280,10 @@ const ChatRoom = (props) => {
         }
     }
 
-    // const toggleShareScreenHandler = () => {
-    //     //we are accessing the media stream, not video stream
-    //     if(isSharingScreen) {
-    //         navigator.mediaDevices.getUserMedia({video:isMyCamOpen, audio: isMyMicOpen})
-    //         .then(stream => myVideoRef.current.srcObject = stream)
-    //         .then(setIsSharingScreen(false))
-            
-    //     } else {
-    //         navigator.mediaDevices.getDisplayMedia({})
-    //         .then(stream => myVideoRef.current.srcObject = stream)
-    //         .then(setIsSharingScreen(true))
-            
-    //     }
-    // }
-
     const copyTheChatLink = () => {
         navigator.clipboard.writeText(`${process.env.REACT_APP_BE_DEV_URL}/chatroom/${roomEndpoint}`)
         window.alert("the room link copied!")
     }
-
-
     
     // const getRoomData = (roomID) => {
     //     return new Promise(async (resolve, reject) => {
@@ -358,59 +326,21 @@ const ChatRoom = (props) => {
         socket.emit("chatMessage", newMessage)
     };
 
-    
-
     useEffect(() => {
         //message from server
     socket.on("message", newMessage => {
         // console.log(message)
+
         setChatHistory([...chatHistory, newMessage])
     })
        
     }, [chatHistory])
 
     useEffect(() => {
-        console.log("chatttttHistory", chatHistory)
+        // console.log("chatttttHistory", chatHistory)
     }, [chatHistory])
 
     return (
-        // <Container>
-        //     <div className='mb-3 mt-3'><a href='/rooms'><Button variant='danger' onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
-        //     <div><Button variant='secondary' onClick={copyTheChatLink}>Copy the chat link</Button></div>
-            
-        //     <div className="d-flex flex-column">
-        //         <div className="d-flex flex-column align-items-start mb-5">
-        //             {/* <div>Current user peer id: {myPeerId}</div> */}
-        //             {/* <div>Current userID: {userID}</div> */}
-        //             <div>userName: {userData.username}</div>
-        //             {/* video of current user */}
-        //             <div className="video-grid current-user-video-grid d-flex flex-column">
-        //                 <video className="video current-user-video" ref={myVideoRef} autoPlay/>
-        //                 <div className='d-flex'>
-        //                 {isMyCamOpen 
-        //                 ? <Button className='me-2' onClick={toggleCamHandler}>hide your cam</Button> 
-        //                 :  <Button className='me-2' onClick={toggleCamHandler}>open your cam</Button>}
-        //                 {isMyMicOpen 
-        //                 ? <Button  onClick={toggleMicHandler}>mute mic</Button> 
-        //                 :  <Button onClick={toggleMicHandler}>open mic</Button>}
-        //                 </div>
-
-        //             </div>
-        //         </div>
-        //         <div className='d-flex flex-column'>
-        //             <h1>Remote Peers: </h1>
-        //             {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
-        //             <div key={peer.userID}>
-        //                 {/* <div>{peer.peerID}</div> */}
-        //                 {/* <div>userrrrID: {peer.userID}</div> */}
-        //                 <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
-        //             </div>)}
-        //         </div>
-        //     </div>
-            
-        // </Container>
-
-        //********************************************************************************* */
         <div className='d-flex flex-row chatRoom-div'>
                             <div className='left-sidebar d-flex flex-column justify-content-between align-items-center'>
                                 <div className="navbar-logo d-flex justify-content-center">
@@ -448,7 +378,7 @@ const ChatRoom = (props) => {
                                         {/* <div className='main-top-level'>{roomData.level}</div> */}
                                     </div>
                                     <div>
-                                        <div className='main-top-username'>{userData.username}</div>
+                                        <div className='main-top-username'>{userData?.username}</div>
                                     </div>
                                     
                                     
@@ -471,8 +401,8 @@ const ChatRoom = (props) => {
                                                                 <div className='video-username'>you</div>
                                                             </div>
                                                         </Col>
-                                                        {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
-                                                            <Col sm={6}> 
+                                                        {peers?.map(peer => peer.userID !== userID && 
+                                                            <Col sm={6} key={peer.userID}> 
                                                                 <div className='position-relative'>
                                                                     <div className='video-player' key={peer.userID}>
                                                                             {/* <div>{peer.peerID}</div> */}

@@ -14,11 +14,11 @@ export const UPDATE_CHAT ='UPDATE_CHAT'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
-export const addPeerAction = (peerID, stream, userID) => {
-    console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID)
+export const addPeerAction = (peerID, stream, userID, roomEndpoint) => {
+    console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID, "roomEndpoint =>", roomEndpoint)
     return {
         type:ADD_PEER,
-        payload: {peerID, stream, userID}
+        payload: {peerID, stream, userID, roomEndpoint}
     }
 }
 
