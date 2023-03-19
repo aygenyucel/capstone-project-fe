@@ -5,6 +5,7 @@ import "./videoPlayer.css"
 import { useState } from 'react';
 
 export const VideoPlayer = (props) => {
+    const creatorUserName = props.creatorUserName
     const userID = props.userID
     let videoRef = useRef({});
     const [username, setUsername] = useState("")
@@ -57,6 +58,13 @@ export const VideoPlayer = (props) => {
 
     return  <>  
                 <video ref={videoRef} autoPlay className='video'/>
-                <div className='video-username'>{username}</div>
+                <div className='video-username d-flex flex-column'>
+                    <div>
+                        {username} 
+                    </div>
+                    <div>
+                        {username === creatorUserName && "Creator"}
+                    </div>
+                </div>
             </>
 }

@@ -26,6 +26,7 @@ import { Form } from 'react-bootstrap';
 import { addOnlineUsersAction } from './../../redux/actions/index';
 import onlineChatUsersReducer from './../../redux/reducers/onlineChatUsersReducer';
 import { Navigate } from "react-router-dom";
+import { Button } from 'react-bootstrap';
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
@@ -41,6 +42,8 @@ const ChatRoom = (props) => {
     
     const [roomData, setRoomData] = useState({});
     const roomCapacity = roomData.capacity
+    const roomCreatorID = roomData.creator;
+    const [roomCreatorUsername, setRoomCreatorUsername] = useState("")
     const navigate = useNavigate();
     const state = location.state;
 
@@ -50,12 +53,13 @@ const ChatRoom = (props) => {
 
     // const roomID = state.roomID;
     const [roomID, setRoomID] = useState("")
-
-
+    
+    
     const userID = userData?._id;
+    const userName = userData?.username
     const JWTToken = localStorage.getItem("JWTToken")
     const [isLoggedIn, setIsLoggedIn] = useState(false)
-
+    
     //accessing the peersReducer
     const [currentPeersReducer, dispatch] = useReducer(peersReducer, {})
     const peers = currentPeersReducer?.peers?.filter(peer => peer.roomEndpoint === roomEndpoint)
@@ -63,27 +67,76 @@ const ChatRoom = (props) => {
     const users = usersFiltered?.map(user => user.userID)
     const chat = currentPeersReducer.chat
     
-
+    
     const remotePeerRef = useRef({})
     const [usersArray, setUsersArray] = useState([])
-
+    
     const [myStream, setMyStream] = useState({})
     const [isMyCamOpen, setIsMyCamOpen] = useState(false)
     const [isMyMicOpen, setIsMyMicOpen] = useState(false)
-    // const [isSharingScreen, setIsSharingScreen] = useState(false)
 
-
-    const [chatHistory, setChatHistory] = useState([]);
-    const [text, setText] = useState("");
     const peerRef = useRef({})
 
+    //chat variables
+    const [chatHistory, setChatHistory] = useState([]);
+    const [text, setText] = useState("");
     
 
+    const resetFormValue = () => setText("");
+
+    const onSubmitHandler = (event) => {
+        event.preventDefault();
+        resetFormValue();
+    };
+    const onChangeHandler = (event) => {
+        setText(event.target.value);
+    };
+    const onKeyDownHandler = (event) => {
+        if (event.code === "Enter") {
+            sendMessage();
+            console.log(text)
+        }
+    };
+
+    const sendMessage = () => {
+        const newMessage = {
+            sender: userData.username,
+            msg: text,
+            time: new Date()
+        }
+        socket.emit("chatMessage", newMessage)
+    };
+
+    useEffect(() => {
+        //message from server
+        socket.on("message", newMessage => {
+            setChatHistory([...chatHistory, newMessage])
+        })
+       
+    }, [chatHistory])
+    
+    
     const getMediaDevices = (mediaConstraints) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
     }
     const mediaConstraints = {video: true, audio: true}
 
+
+    const getUserInfo = (userID) => {
+        return new Promise (async(resolve, reject) => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/users/${userID}`, {method: "GET" })
+                if(response.ok) {
+                    const userData = await response.json();
+                    console.log("cccccccccccccc", userData)
+                    resolve(userData)
+                } 
+            } catch (error) {
+                console.log(error)
+                reject(error)
+            }
+        })
+    }
 
     const getRoomData = (roomEndpoint) => {
         return new Promise (async(resolve, reject) => {
@@ -104,31 +157,35 @@ const ChatRoom = (props) => {
     
 
     useEffect(() => {
-        
         //checking if user logged in
         console.log("user", userData, "jwt: ", JWTToken)
         isLoggedInAction(userData, JWTToken, dispatch)
         .then((boolean) => {
             if(boolean === true) {
                 setIsLoggedIn(true)
+
                 console.log("yes its logged in")
                 
                 getRoomData(roomEndpoint).then(data => {
                     setRoomData(data[0])
                     console.log("data ========>", data[0])
         
-                    //todo: check if room full
+                    //check if room is already full, if it is navigate user to /rooms page
                     if( data[0].users.length  >=  data[0].capacity.toString()) {
-                        console.log("gggggggggggggggggggg")
                         alert("sorry the room is full :(")
                         const updatedUsers = data[0].users?.filter((user) => user !== userID)
                         dispatch(removePeerAction(myPeerId, userID))
                         updateRoomUsersAction(data[0].users, data[0]._id, userID).then((action) => dispatch(action))
-
                         window.location.replace('/rooms');
                     }
-        
+
+                    //getting the username of room creator
+                    getUserInfo(data[0].creator).then(userData => {
+                        console.log("ccccccccccccccccccccccc", userData)
+                        setRoomCreatorUsername(userData.username)
+                    })
                 })
+
             } else {
                 myStream.getTracks()
                 .forEach((track) => track.stop());
@@ -141,7 +198,6 @@ const ChatRoom = (props) => {
         
         console.log("users->", users)
         console.log("data========>", roomData)
-       
     },[])
     
     useEffect(() => {
@@ -156,8 +212,8 @@ const ChatRoom = (props) => {
                 { url: 'stun:stun.l.google.com:19302' },
               ]} 
         });
+
         let peerID;
-        
         peer.on('open', (id) => {
             console.log('My peer ID is: ' + id)
             console.log("roomEndpoint: ", roomEndpoint)
@@ -166,7 +222,6 @@ const ChatRoom = (props) => {
             
             socket.emit('join-room', { peerID: id, userID: userID, roomID, roomCapacity, roomEndpoint})
              
-            
         })
 
         getMediaDevices(mediaConstraints)
@@ -241,6 +296,12 @@ const ChatRoom = (props) => {
                 updateRoomUsersAction(payload.users, roomID ,payload.userID).then((action) => dispatch(action))
                 remotePeerRef.current.destroy()
             })
+
+            socket.on("you-kicked", payload => {
+                if(payload.userID === userID){
+                    window.location.replace("/rooms")
+                }
+            })
             
         })
         .catch(err => console.log("Failed to get local stream", err)) 
@@ -270,15 +331,12 @@ const ChatRoom = (props) => {
         dispatch(removePeerAction(myPeerId, userID))
         updateRoomUsersAction(updatedUsers, roomID, userID).then((action) => dispatch(action))
 
-        
         //disable the webcam and mic before leave
         myStream.getTracks()
         .forEach((track) => track.stop());
 
     }
 
-    
-    
     window.onbeforeunload = function(e) {
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -313,61 +371,11 @@ const ChatRoom = (props) => {
         navigator.clipboard.writeText(`${process.env.REACT_APP_BE_DEV_URL}/chatroom/${roomEndpoint}`)
         window.alert("the room link copied!")
     }
-    
-    // const getRoomData = (roomID) => {
-    //     return new Promise(async (resolve, reject) => {
-    //         try {
-    //             const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/${roomID}`, {method: "GET"})
-    //             if(response.ok) {
-    //                 const roomData = await response.json();
-    //                 resolve(roomData);
-    //             }
-    //         } catch (error) {
-    //             console.log(error)
-    //             reject(error)
-    //         }
-    //     })
-    // }
 
-    //*************chat area ***************/
-    
-    const resetFormValue = () => setText("");
-    const onSubmitHandler = (event) => {
-        event.preventDefault();
-        resetFormValue();
-    };
-    const onChangeHandler = (event) => {
-        setText(event.target.value);
-    };
-    const onKeyDownHandler = (event) => {
-        if (event.code === "Enter") {
-            sendMessage();
-            console.log(text)
-        }
-    };
+    const kickTheUser = (e) => {
+        socket.emit("kick-user", {userID: e.target.value, roomEndpoint});
 
-    const sendMessage = () => {
-        const newMessage = {
-            sender: userData.username,
-            msg: text,
-            time: new Date()
-        }
-        socket.emit("chatMessage", newMessage)
-    };
-
-    useEffect(() => {
-        //message from server
-    socket.on("message", newMessage => {
-        // console.log(message)
-
-        setChatHistory([...chatHistory, newMessage])
-    })
-       
-    }, [chatHistory])
-
-    useEffect(() => {
-        // console.log("chatttttHistory", chatHistory)
-    }, [chatHistory])
+    }
 
     return (
         <div className='d-flex flex-row chatRoom-div'>
@@ -405,6 +413,7 @@ const ChatRoom = (props) => {
                                     <div className='d-flex'>
                                         <div className='main-top-language'>{roomData.language} - {roomData.level}</div>
                                         {/* <div className='main-top-level'>{roomData.level}</div> */}
+                                        <div className='main-top-creator'>{roomCreatorUsername}</div>
                                     </div>
                                     <div>
                                         <div className='main-top-username'>{userData?.username}</div>
@@ -427,7 +436,10 @@ const ChatRoom = (props) => {
                                                                 <div className='video-player'>
                                                                     <video className="video current-user-video" ref={myVideoRef} autoPlay/>
                                                                 </div>
-                                                                <div className='video-username'>you</div>
+                                                                <div className='video-username d-flex flex-column'>
+                                                                    <div>you</div>
+                                                                    <div>{userName === roomCreatorUsername && "creator"}</div>
+                                                                    </div>
                                                             </div>
                                                         </Col>
                                                         {peers?.map(peer => peer.userID !== userID && 
@@ -436,38 +448,18 @@ const ChatRoom = (props) => {
                                                                     <div className='video-player' key={peer.userID}>
                                                                             {/* <div>{peer.peerID}</div> */}
                                                                             {/* <div>userrrrID: {peer.userID}</div> */}
-                                                                        <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
+                                                                        <VideoPlayer stream = {peer.stream} userID = {peer.userID} creatorUserName = {roomCreatorUsername}/>
+                                                                    </div>
+                                                                    <div>{userName === roomCreatorUsername && 
+                                                                        <Button value={peer.userID} onClick={kickTheUser}>Kick</Button>
+                                                                        }
                                                                     </div>
                                                                 </div>
                                                             </Col>
                                                         )}
-                                                        
-                                                        {/* <Col sm={6}> 
-                                                            <div className='position-relative'>
-                                                                <div className='video-player'>fsdf</div>
-                                                                <div className='video-username'>username</div>
-
-                                                            </div>
-                                                        </Col> */}
                                                     </Row>
-                                                    <Row>
-                                                        {/* <Col sm={6}> 
-                                                            <div className='position-relative'>
-                                                                <div className='video-player'>fsdf</div>
-                                                                <div className='video-username'>username</div>
-
-                                                            </div>
-                                                        </Col>
-                                                        <Col sm={6}> 
-                                                            <div className='position-relative'>
-                                                                <div className='video-player'>fsdf</div>
-                                                                <div className='video-username'>username</div>
-
-                                                            </div>
-                                                        </Col> */}
-                                                    </Row>
+                                                    
                                                 </Container>
-                                                
                                                 
                                             </div>
                                         </div>
