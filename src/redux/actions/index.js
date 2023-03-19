@@ -10,7 +10,9 @@ export const RESET_ROOMS_STATE = 'RESET_ROOMS_STATE';
 export const GET_ROOMS= 'GET_ROOMS' //fetching /GET
 export const UPDATE_ROOM_USERS = 'UPDATE_ROOM_USERS';
 export const ADD_MESSAGE_TO_CHAT = 'ADD_MESSAGE_TO_CHAT';
-export const UPDATE_CHAT ='UPDATE_CHAT'
+export const UPDATE_CHAT ='UPDATE_CHAT';
+export const ADD_ONLINE_USER = 'ADD_ONLINE_USER';
+export const REMOVE_ONLINE_USER = 'REMOVE_ONLINE_USER'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
@@ -321,7 +323,7 @@ export const getAllRoomsAction = () => {
     })
 }
 
-export const updateRoomUsersAction = (users, roomID) => {
+export const updateRoomUsersAction = (users, roomID, userID) => {
     console.log("updateRoomUsersAction triggered!! users =>", users, "roomID =>", roomID)
     return new Promise (async (resolve, reject) => {
         //first we'll update the users of room on database
@@ -341,7 +343,7 @@ export const updateRoomUsersAction = (users, roomID) => {
                 console.log("updateRoomUsersAction triggered!! fetch the PUT endpoint response json =>", updatedRoom)
                 const action = {
                     type: UPDATE_ROOM_USERS,
-                    payload: {users, roomID}
+                    payload: {users, roomID, userID}
                 }
 
                 resolve(action)
@@ -354,4 +356,22 @@ export const updateRoomUsersAction = (users, roomID) => {
             reject(error)
         }
     })
+}
+
+//adding online users in the all chat rooms
+export const addOnlineUsersAction = (userID) => {
+    console.log("addOnlineUsersAction triggered => userID :", userID)
+    return {
+        type: ADD_ONLINE_USER,
+        payload: {userID}
+    }
+}
+//removing online users in the all chat rooms
+export const removeOnlineUsersAction = (userID) => {
+    console.log("removeOnlineUsersAction triggered => userID :", userID)
+
+    return {
+        type: REMOVE_ONLINE_USER,
+        payload: userID
+    }
 }

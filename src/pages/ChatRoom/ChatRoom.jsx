@@ -5,7 +5,7 @@ import { useReducer, useRef, useState } from 'react';
 import { useEffect } from 'react';
 import Peer from "peerjs";
 import { io } from 'socket.io-client';
-import {  useParams } from 'react-router-dom';
+import {  createBrowserRouter, Router, useParams } from 'react-router-dom';
 import { VideoPlayer } from '../../components/VideoPlayer/VideoPlayer.jsx';
 import peersReducer from '../../redux/reducers/peersReducer';
 import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
@@ -23,7 +23,9 @@ import {HiHome, HiVideoCamera, HiPlus} from 'react-icons/hi'
 import {FaUserFriends} from 'react-icons/fa'
 import {MdSettings} from 'react-icons/md'
 import { Form } from 'react-bootstrap';
-
+import { addOnlineUsersAction } from './../../redux/actions/index';
+import onlineChatUsersReducer from './../../redux/reducers/onlineChatUsersReducer';
+import { Navigate } from "react-router-dom";
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
@@ -75,6 +77,7 @@ const ChatRoom = (props) => {
     const [text, setText] = useState("");
     const peerRef = useRef({})
 
+    
 
     const getMediaDevices = (mediaConstraints) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
@@ -88,7 +91,6 @@ const ChatRoom = (props) => {
                 const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/endpoint/${roomEndpoint}`, {method: "GET" })
                 if(response.ok) {
                     const roomData = await response.json();
-                    console.log("wtffff =>", roomData)
                     
                     setRoomID(roomData[0]._id)
                     resolve(roomData)
@@ -99,7 +101,7 @@ const ChatRoom = (props) => {
             }
         })
     }
-
+    
 
     useEffect(() => {
         
@@ -109,8 +111,24 @@ const ChatRoom = (props) => {
         .then((boolean) => {
             if(boolean === true) {
                 setIsLoggedIn(true)
-                getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
                 console.log("yes its logged in")
+                
+                getRoomData(roomEndpoint).then(data => {
+                    setRoomData(data[0])
+                    console.log("data ========>", data[0])
+        
+                    //todo: check if room full
+                    if( data[0].users.length  >=  data[0].capacity.toString()) {
+                        console.log("gggggggggggggggggggg")
+                        alert("sorry the room is full :(")
+                        const updatedUsers = data[0].users?.filter((user) => user !== userID)
+                        dispatch(removePeerAction(myPeerId, userID))
+                        updateRoomUsersAction(data[0].users, data[0]._id, userID).then((action) => dispatch(action))
+
+                        window.location.replace('/rooms');
+                    }
+        
+                })
             } else {
                 myStream.getTracks()
                 .forEach((track) => track.stop());
@@ -119,8 +137,13 @@ const ChatRoom = (props) => {
         })
         .catch(err => console.log(err))
         
+        //todo: check if user already in another room, if not allow to join
+        
+        console.log("users->", users)
+        console.log("data========>", roomData)
+       
     },[])
-
+    
     useEffect(() => {
         getRoomData(roomEndpoint).then(data => {setRoomData(data[0])})        
     }, [chat])
@@ -143,13 +166,14 @@ const ChatRoom = (props) => {
             
             socket.emit('join-room', { peerID: id, userID: userID, roomID, roomCapacity, roomEndpoint})
              
+            
         })
 
         getMediaDevices(mediaConstraints)
         .then(stream => {
-            
             setMyStream(stream)
             myVideoRef.current.srcObject = stream;
+
             
             stream.getVideoTracks()[0].enabled = false
             stream.getAudioTracks()[0].enabled = false
@@ -157,8 +181,10 @@ const ChatRoom = (props) => {
             console.log("jkfdshskjfjds", "peerID:", peerID, "userID:", userID,"roomEndpoint:", roomEndpoint)
             
             
-            dispatch(addPeerAction(peerID, stream, userID, roomEndpoint))
+                dispatch(addPeerAction(peerID, stream, userID, roomEndpoint))
+
             socket.on('user-connected', payload => {
+                
                 console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID, "roomEndpoint:", payload.roomEndpoint)
                 // console.log("users in this room after new connection: ", chatRooms)
 
@@ -203,18 +229,18 @@ const ChatRoom = (props) => {
                 console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
                 
                 dispatch(removePeerAction(payload.peerID, payload.userID))
-                updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
+                updateRoomUsersAction(payload.users, roomID, payload.userID).then((action) => dispatch(action))
+
+                
             })
             
             socket.on("user-left", (payload) => {
                 console.log("USER-LEFT PAYLOAD => ", payload.users)
                 setUsersArray(payload.users)
                 dispatch(removePeerAction(payload.peerID, payload.userID))
-                updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
+                updateRoomUsersAction(payload.users, roomID ,payload.userID).then((action) => dispatch(action))
                 remotePeerRef.current.destroy()
             })
-
-
             
         })
         .catch(err => console.log("Failed to get local stream", err)) 
@@ -229,7 +255,7 @@ const ChatRoom = (props) => {
     useEffect(() => {
         // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
         if(users) {
-            updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
+            updateRoomUsersAction(users, roomID, userID).then((action) => dispatch(action))
         }
     }, [users])
 
@@ -240,15 +266,18 @@ const ChatRoom = (props) => {
     }
 
     const leaveTheRoomHandler = () => {
-        const updatedUsers = users.filter((user) => user !== userID)
+        const updatedUsers = users?.filter((user) => user !== userID)
         dispatch(removePeerAction(myPeerId, userID))
-        updateRoomUsersAction(updatedUsers, roomID).then((action) => dispatch(action))
+        updateRoomUsersAction(updatedUsers, roomID, userID).then((action) => dispatch(action))
 
+        
         //disable the webcam and mic before leave
         myStream.getTracks()
         .forEach((track) => track.stop());
 
     }
+
+    
     
     window.onbeforeunload = function(e) {
         e.preventDefault();

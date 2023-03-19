@@ -11,6 +11,7 @@ import SearchRoom from '../../components/SearchRoom/SearchRoom.jsx';
 import { Container } from "react-bootstrap";
 import CustomNavbar from "../../components/CustomNavbar/CustomNavbar";
 
+
 const RoomsPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -26,6 +27,7 @@ const RoomsPage = () => {
     useEffect(() => {
         // dispatch(resetPeersStateAction());
         // dispatch(resetRoomsStateAction());
+        
         getAllRoomsAction()
         .then((action) => dispatch(action))
 
@@ -35,6 +37,7 @@ const RoomsPage = () => {
             if(boolean === true) {
                 setIsLoggedIn(true)
                 console.log("yes its logged in")
+                console.log("roomsss", rooms)
             } else {
                 navigate("/login")
             }

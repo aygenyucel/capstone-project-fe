@@ -4,6 +4,7 @@ import storage from "redux-persist/lib/storage";
 import peersReducer from '../reducers/peersReducer.js';
 import profileReducer from './../reducers/profileReducer.js';
 import roomsReducer from './../reducers/roomsReducer.js';
+import onlineChatUsersReducer from './../reducers/onlineChatUsersReducer.js';
 
 const reducers = combineReducers({
     peersReducer: persistReducer({
@@ -19,7 +20,11 @@ const reducers = combineReducers({
     roomsReducer: persistReducer({
         key: 'rooms',
         storage: storage
-    }, roomsReducer)
+    }, roomsReducer),
+    onlineChatUsersReducer: persistReducer({
+        key: 'onlineChatUsers',
+        storage: storage
+    }, onlineChatUsersReducer)
 })
 
 const store = configureStore({

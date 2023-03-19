@@ -42,7 +42,7 @@ const RoomPreview = (props) => {
     useEffect(() => {
         console.log("roomData users", roomData)
 
-        getUsername(roomCreatorID).then((username) =>{ console.log("userrrname:", username); setRoomCreatorUsername(username)})
+        getUsername(roomCreatorID).then((username) =>{setRoomCreatorUsername(username)})
         
         console.log("userssss=>", users)
 
@@ -79,6 +79,10 @@ const RoomPreview = (props) => {
         })
         
     }
+
+    // if(roomCapacity-(users?.length) <0) {
+    //     window.location.reload();
+    // }
     return  (<div className="room-preview">
                 <div className="language-labels">
                     <div className="room-language">
@@ -99,8 +103,8 @@ const RoomPreview = (props) => {
                 </div> */}
 
                 <div className="room-capacity d-flex">
-                    {Array(users.length).fill(<GiPerson className={"room-person room-person-full" }/>)}
-                    {Array(roomCapacity-(users.length)).fill(<GiPerson className={"room-person room-person-empty" }/>)}
+                    {Array(users?.length).fill(<GiPerson className={"room-person room-person-full" }/>)}
+                    {Array(roomCapacity-(users?.length)).fill(<GiPerson className={"room-person room-person-empty" }/>)}
                     {/* <GiPerson className="room-person room-person-full"/>
                     <GiPerson className="room-person room-person-available"/> */}
                 </div>
