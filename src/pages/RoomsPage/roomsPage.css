@@ -2,10 +2,36 @@
     background-color: var(--color-main);
     border-bottom-left-radius: 30px;
     border-bottom-right-radius: 30px;
-    padding-top: 30px;
+    padding-block: 30px;
+    min-height: calc(100vh - 120px);
 }
 
 .create-room-div {
     
     padding-block: 25px;
+}
+
+.page-number {
+    cursor: pointer;
+    padding: 10px;
+    margin-inline: 10px;
+    font-weight: 400;
+}
+
+.page-number-active {
+    color: var(--color-secondary);
+}
+
+.rooms-pages {
+    margin-top: 70px;
+}
+
+.prev-page-btn, .next-page-btn {
+    margin-inline: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.not-active-page {
+    color: aqua;
 }

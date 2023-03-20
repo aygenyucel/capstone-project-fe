@@ -1,4 +1,13 @@
 .search-results {
     padding-bottom: 30px;
-    border-bottom: 1px dotted black;
+    /* border-bottom: 1px dotted black; */
+}
+
+.form-group {
+    width: 300px;
+}
+
+.reset-form-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
 }

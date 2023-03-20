@@ -21,10 +21,7 @@ const reducers = combineReducers({
         key: 'rooms',
         storage: storage
     }, roomsReducer),
-    onlineChatUsersReducer: persistReducer({
-        key: 'onlineChatUsers',
-        storage: storage
-    }, onlineChatUsersReducer)
+    onlineChatUsersReducer:  onlineChatUsersReducer
 })
 
 const store = configureStore({

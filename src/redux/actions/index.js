@@ -13,11 +13,13 @@ export const ADD_MESSAGE_TO_CHAT = 'ADD_MESSAGE_TO_CHAT';
 export const UPDATE_CHAT ='UPDATE_CHAT';
 export const ADD_ONLINE_USER = 'ADD_ONLINE_USER';
 export const REMOVE_ONLINE_USER = 'REMOVE_ONLINE_USER'
+export const RESET_ONLINE_USERS = 'RESET_ONLINE_USERS'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
 export const addPeerAction = (peerID, stream, userID, roomEndpoint) => {
     console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID, "roomEndpoint =>", roomEndpoint)
+    addOnlineUsersAction(userID)
     return {
         type:ADD_PEER,
         payload: {peerID, stream, userID, roomEndpoint}
@@ -26,6 +28,7 @@ export const addPeerAction = (peerID, stream, userID, roomEndpoint) => {
 
 export const removePeerAction = (peerID, userID) => {
     console.log("removePeerAction triggered => removed peerID: ", peerID);
+    removeOnlineUsersAction(userID)
     return {
         type:REMOVE_PEER,
         payload: {peerID, userID}
@@ -115,7 +118,12 @@ export const resetRoomsStateAction = () => {
     }
 }
 
-
+export const resetOnlineUsersAction = () => {
+    console.log("resetOnlineUsers action triggered!")
+    return {
+        type: RESET_ONLINE_USERS
+    }
+}
 export const signupAndGetTokenAction = (newUser) => {
     return new Promise(async (resolve, reject) => {
 
@@ -366,12 +374,13 @@ export const addOnlineUsersAction = (userID) => {
         payload: {userID}
     }
 }
+
 //removing online users in the all chat rooms
 export const removeOnlineUsersAction = (userID) => {
     console.log("removeOnlineUsersAction triggered => userID :", userID)
 
     return {
         type: REMOVE_ONLINE_USER,
-        payload: userID
+        payload: {userID}
     }
 }

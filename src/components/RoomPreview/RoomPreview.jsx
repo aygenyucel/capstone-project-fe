@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState} from "react";
 import {  useDispatch, useSelector } from "react-redux";
 import {GiPerson} from "react-icons/gi"
-import { getUsernameWithIDAction } from "../../redux/actions";
+import "react-component-countdown-timer/lib/styles.css";
 
 
 const RoomPreview = (props) => {
@@ -44,15 +44,6 @@ const RoomPreview = (props) => {
 
         getUsername(roomCreatorID).then((username) =>{setRoomCreatorUsername(username)})
         
-        console.log("userssss=>", users)
-
-        // const usernamesTemp = []
-        // for (let i =0; i < users.length; i++){
-        //     console.log("ddddd", users[i])
-        //     getUsername(users[i]).then((username) => usernamesTemp.push(username))
-
-        // }
-        // setUsernames(usernamesTemp)
         const usernamesTemp = []
         for (let i =0; i < users.length; i++){
             getUsername(users[i]).then((username) => usernamesTemp.push(username))
@@ -61,7 +52,24 @@ const RoomPreview = (props) => {
         setUsernames(usernamesTemp)
 
     }, [])
+    
 
+    const deleteRoom = async(roomID) => {
+        try {
+                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/${roomID}`, {method: "DELETE"})
+                if(response.ok){
+                    const {_id} = response.json()
+                } else {
+                    console.log("oppss something went wrong when fetching")
+                }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const deleteRoomHandler = () => {
+        deleteRoom(roomID);
+    }
     
     const getUsername = (userID) => {
         return new Promise(async (resolve, reject) => {
@@ -80,10 +88,19 @@ const RoomPreview = (props) => {
         
     }
 
-    // if(roomCapacity-(users?.length) <0) {
-    //     window.location.reload();
-    // }
-    return  (<div className="room-preview">
+    
+    return  (
+    <>
+    <div>{roomCreatorID === user._id && 
+        <>
+            {/* <Button onClick={deleteRoomHandler}>Delete the room</Button>
+            <div>You are a creator</div> */}
+        </>
+        }  
+        
+        </div>
+        <div className="room-preview d-flex justify-content-center align-items-center">
+                
                 <div className="language-labels">
                     <div className="room-language">
                         {roomLanguage}
@@ -92,10 +109,30 @@ const RoomPreview = (props) => {
                         {roomLevel}
                     </div>
                 </div>
-                <div className="room-creator d-flex flex-column mb-3">
+                <div className="room-info d-flex justify-content-center align-items-center">
+                    <div className="room-info-place-holders d-flex flex-column align-items-end me-2">
+                        <div className="me-2 room-info-creator">creator</div>
+                        <div className="me-2 room-info-language">language</div>
+                        <div className="me-2 room-info-level">level</div>
+                    </div>
+                    <div className="d-flex flex-column align-items-start">
+                        <div>{roomCreatorUsername}</div>
+                        <div>{roomLanguage}</div>
+                        <div>{roomLevel}</div>
+                    </div>
+                    
+                </div>
+                {/* <div className="room-creator d-flex flex-column mb-3">
                     <div className="room-creator-text">creator</div>
                     <div className="room-creator-username">{roomCreatorUsername}</div>
                 </div>
+                <div>
+                    language: {roomLanguage}
+                     
+                </div>
+                <div>
+                    level: {roomLevel}
+                </div> */}
 
                 {/* <div className="room-online-users d-flex flex-column">
                     <div className="room-online-users-text">participants</div>
@@ -111,32 +148,9 @@ const RoomPreview = (props) => {
                 <div onClick={joinTheRoom} className="room-join-div">
                     Join the room
                 </div>
-            </div>)
-            
-            // <div className="d-flex flex-column room-preview-div">
-            //     <div className="d-flex">
-            //         <div>room id: {roomData._id}</div>
-            //     </div>
-            //     <div className="d-flex">
-            //         <div>room capacity: {roomData.capacity}</div>
-            //     </div>
-            //     <div className="d-flex">
-            //         <div>Language: {roomData.language}</div>
-            //     </div>
-            //     <div className="d-flex">
-            //         <div>level: {roomData.level}</div>
-            //     </div>
-            //     <div className="d-flex">
-            //         <div>creator: {roomData.creator}</div>
-                    
-            //     </div>
-            //     <div>
-            //         <h1>users in the room</h1>
-            //         {users?.map(user =>  <div key={user}>{user}</div>)}
-            //     </div>
-                
-            //     <Button onClick={joinTheRoom}>Join the room</Button>
-            // </div>
+            </div>
+    </>
+    )
 }
 
 export default RoomPreview;

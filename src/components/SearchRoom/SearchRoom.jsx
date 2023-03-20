@@ -1,11 +1,12 @@
 import "./searchRoom.css"
 import { Form } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import languages from 'languages-data';
 import Select from 'react-select';
 import RoomPreview from './../RoomPreview/RoomPreview';
 import { useSelector } from 'react-redux';
+import {MdRefresh} from 'react-icons/md'
 
 
 const SearchRoom = () => {
@@ -79,36 +80,38 @@ const SearchRoom = () => {
         getSearchedRooms(capacity, language, level)
     }
 
+    const ref = React.useRef(null);
+    const resetForm = () => {
+        ref.current.reset()
+        setSearchedRooms([])
+    }
+
     return <>
-                <Form onSubmit={onSubmitHandler} className="d-flex justify-content-center align-items-center mt-3 mb-3">
-                        <Form.Group className="me-2">
+                <Form ref={ref} onSubmit={onSubmitHandler} className="d-flex justify-content-center align-items-end mt-3 mb-3">
+                        <Form.Group className="me-2 d-flex flex-column form-group">
+                            
+                            <div className="d-flex justify-content-start">I want to speak</div>
+                            <Form.Select defaultValue={'DEFAULT'} id="roomLanguage" onChange={(e) => onChangeLanguageHandler(e)}>
+                                <option value="DEFAULT" disabled>
+                                    Select Language
+                                </option>
+                                {languageOptions?.map((language) =>  <option   value= {language.value} >{language.value}</option>)}
+                            </Form.Select>
+                            
+                        </Form.Group>
+                        <Form.Group className="me-2 d-flex flex-column form-group">
+                            <div className="d-flex justify-content-start">Room capacity</div>
                             <Form.Select defaultValue={'DEFAULT'}   id="roomCapacity" onChange={(e) => onChangeCapacityHandler(e)}>
-                                 <option value="DEFAULT" disabled>Room capacity</option>
-                                <option   value= {2} >2</option>
+                                 <option value="DEFAULT" disabled>Select capacity</option>
+                                <option value= {2} >2</option>
                                 <option value={3}>3</option>
                                 <option value={4}>4</option>
                             </Form.Select>
                         </Form.Group>
-                        <Form.Group className="me-2">
-                            <Form.Select defaultValue={'DEFAULT'} id="roomLanguage" onChange={(e) => onChangeLanguageHandler(e)}>
-                                <option value="DEFAULT" disabled>
-                                    Language
-                                </option>
-                                {languageOptions?.map((language) =>  <option   value= {language.value} >{language.value}</option>)}
-                            </Form.Select>
-                                {/* <Select className="select-language"
-                                    defaultValue={language}
-                                    placeholder= {language ? language : "Language" }
-                                    value={language}
-                                    onChange={handleChangeLanguage}
-                                    options={languageOptions}
-                                /> */}
-                               
-                        </Form.Group>
-                        <Form.Group className="me-2">
-                            
+                        <Form.Group className="me-2 d-flex flex-column form-group">
+                            <div className="d-flex justify-content-start">My speaking level</div>
                             <Form.Select defaultValue={'DEFAULT'}  id="roomLevel" onChange={(e) => onChangeLevelHandler(e)}>
-                                <option value="DEFAULT" disabled>Language level</option>
+                                <option value="DEFAULT" disabled>Select level</option>
                                 <option value="A1" >A1 - Beginner</option>
                                 <option value="A2" >A2 - Elementary</option>
                                 <option value="B1">B1 - Intermediate</option>
@@ -117,15 +120,19 @@ const SearchRoom = () => {
                                 <option value="C2">C2 - Proficiency</option>
                                 <option value="Native">Native Speaker</option>
                             </Form.Select>
+                            
                         </Form.Group>
                         {/* <Button type="submit" onClick={getSearchedRooms}>Search</Button> */}
+                        <div className="d-flex flex-column justify-content-center align-items-center">
+                            
+                            <MdRefresh className="reset-form-icon mb-1" onClick={resetForm}/>
+                        </div>
+                        
                 </Form>
                 <div className="search-results d-flex flex-column">
                     
                     {/* <h2>Search Results</h2> */}
                     {searchedRooms.map((room) => <RoomPreview key={room._id} roomData = {room}/>) }
-                   
-                    
                     
                 </div>
              </>

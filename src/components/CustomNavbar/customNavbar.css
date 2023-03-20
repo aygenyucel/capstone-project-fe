@@ -15,7 +15,8 @@
 
 .navbar-middle div {
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: 400;
+    letter-spacing: 1px;
 }
 
 .navbar-right {

@@ -11,10 +11,11 @@ import peersReducer from '../../redux/reducers/peersReducer';
 import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
-import {AiOutlineAudio, AiOutlineAudioMuted} from 'react-icons/ai'
+import {AiOutlineAudio, AiOutlineAudioMuted, AiFillCopy} from 'react-icons/ai'
 import {MdOutlineCallEnd} from 'react-icons/md'
 import {BsCameraVideoOff, BsCameraVideo} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
+import {RxPinLeft} from 'react-icons/rx'
 import {VscUnmute} from 'react-icons/vsc'
 import { useSelector } from 'react-redux';
 import { isLoggedInAction } from './../../redux/actions/index';
@@ -24,8 +25,6 @@ import {FaUserFriends} from 'react-icons/fa'
 import {MdSettings} from 'react-icons/md'
 import { Form } from 'react-bootstrap';
 import { addOnlineUsersAction } from './../../redux/actions/index';
-import onlineChatUsersReducer from './../../redux/reducers/onlineChatUsersReducer';
-import { Navigate } from "react-router-dom";
 import { Button } from 'react-bootstrap';
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
@@ -50,6 +49,9 @@ const ChatRoom = (props) => {
     
     // const userData = state.user;
     const userData = useSelector(state => state.profileReducer.data)
+
+    
+    const onlineChatUsers = useSelector(state => state.onlineChatUsersReducer.data)
 
     // const roomID = state.roomID;
     const [roomID, setRoomID] = useState("")
@@ -157,6 +159,7 @@ const ChatRoom = (props) => {
     
 
     useEffect(() => {
+
         //checking if user logged in
         console.log("user", userData, "jwt: ", JWTToken)
         isLoggedInAction(userData, JWTToken, dispatch)
@@ -184,6 +187,12 @@ const ChatRoom = (props) => {
                         console.log("ccccccccccccccccccccccc", userData)
                         setRoomCreatorUsername(userData.username)
                     })
+                    
+                    if(onlineChatUsers.findIndex(user => user === userID) !== -1){
+                        alert("you are already in another room! please try again after leave current room")
+                        window.location.replace('/rooms')
+                    }
+                    //todo: check if user already in another room, if it is, prevent user to join
                 })
 
             } else {
@@ -194,12 +203,16 @@ const ChatRoom = (props) => {
         })
         .catch(err => console.log(err))
         
-        //todo: check if user already in another room, if not allow to join
         
         console.log("users->", users)
         console.log("data========>", roomData)
     },[])
     
+    useEffect(() => {
+        console.log("---------------------------------onlinechattttusers", onlineChatUsers)
+    }, [onlineChatUsers])
+
+
     useEffect(() => {
         getRoomData(roomEndpoint).then(data => {setRoomData(data[0])})        
     }, [chat])
@@ -400,9 +413,13 @@ const ChatRoom = (props) => {
                                         <MdSettings/>
                                     </div>
                                 </div>
-                                <div className='left-btn d-flex justify-content-center'>
-                                    <div className="sidebar-user-avatar d-flex justify-content-center">
+                                <div className='left-btn d-flex justify-content-center flex-column'>
+                                    <div className="sidebar-user-avatar d-flex justify-content-center mb-3">
                                         <img src="/assets/avatar-default.png" alt="avatar-default" />
+                                    </div>
+
+                                    <div>
+                                        <RxPinLeft/>
                                     </div>
 
                                 </div>
@@ -418,15 +435,13 @@ const ChatRoom = (props) => {
                                     <div>
                                         <div className='main-top-username'>{userData?.username}</div>
                                     </div>
-                                    
-                                    
                                 </div>
                                 <div className='main-bottom d-flex'>
                                     <div className='video-area d-flex flex-column justify-content-between'>
-                                        {/* <div className='video-area-header d-flex'>
-                                            <div>copylink</div>
-                                            <div>invite</div>
-                                        </div> */}
+                                        <div className='video-area-header d-flex'>
+                                            <div><AiFillCopy onClick={copyTheChatLink} className="copy-link-btn"/>copy the chat link</div>
+                                            
+                                        </div>
                                         <div className='video-area-player'>
                                             <div className='video-area-player-frame d-flex flex-column align-items-center justify-content-center'>
                                                 <Container className='d-flex flex-column justify-content-center'>

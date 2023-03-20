@@ -1,5 +1,7 @@
-import { ADD_ONLINE_USER } from "../actions";
+import { ADD_ONLINE_USER, RESET_ONLINE_USERS } from "../actions"
 import { REMOVE_ONLINE_USER } from './../actions/index';
+
+;
 
 const initialState = {
     data : []
@@ -7,16 +9,21 @@ const initialState = {
 
 const onlineChatUsersReducer = (state = initialState, action) => {
     switch (action.type) {
-
+        
         case ADD_ONLINE_USER:
-            console.log("omggggggggggggggggggggggggggggggg", action.payload.userID)
+            console.log("wowowowowo", action.payload)
             if(state.data) {
+                let newDataObject = Object.assign(state.data, {...action.payload.userID});
+                console.log("omggggggggggggggggggggggggggggggg", action.payload.userID)
                 return {
-                    data: [...state.data, action.payload.userID]
+                    ...state,
+                   ...newDataObject
                 }
             } else{
+                let newDataObject = Object.assign(state.data, {...action.payload.userID});
                 return {
-                    data: [action.payload.userID]
+                    ...state,
+                    ...newDataObject
                 }
             }
                 
@@ -25,7 +32,11 @@ const onlineChatUsersReducer = (state = initialState, action) => {
             return {
                 data: state.data.filter(user => user !== action.payload.userID) 
             }
-    
+
+        case RESET_ONLINE_USERS:
+            return {
+                data: []
+            }
         default: 
             return state;
     }

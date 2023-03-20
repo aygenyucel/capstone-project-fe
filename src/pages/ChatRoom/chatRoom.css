@@ -177,7 +177,7 @@
     height: 100%;
     /* font-size: 1.6rem; */
 }
-.sidebar-btns div, .left-btn {
+.sidebar-btns div, .left-btn, .copy-link-btn {
     font-size: 1.4rem;
     margin-block: 10px;
     border: 1px ;
@@ -242,4 +242,8 @@
     font-weight: 700;
     margin-left: 10px;
     margin-bottom: 5px;
+}
+
+.copy-link-btn {
+    font-size: larger;
 }

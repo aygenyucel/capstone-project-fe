@@ -12,7 +12,6 @@ const Home = () => {
     
     
     useEffect(() => {
-       
 
         const timer = () => {
             const randomIndex = Math.floor(Math.random() * languages.length);
@@ -47,7 +46,7 @@ const Home = () => {
                                 
                             </div>
                             <div className="col-6  main-right d-flex justify-content-start aling-items-end">
-                                <img className="home-img img-group-calling" src="/assets/group-calling.png" alt="group-calling" />
+                                <img className="home-img img-group-calling" src="/assets/group_video.svg" alt="group-calling" />
                             </div>
                         </div>
                     </Container>
@@ -73,7 +72,7 @@ const Home = () => {
                     <Container>
                         <div className="d-flex">
                             <div className="col-6 bottom-img-div d-flex justify-content-center">
-                                <img className="home-img bottom-img" src="/assets/around_the_world.png" alt="around-the-world" />
+                                <img className="home-img bottom-img" src="/assets/world.svg" alt="around-the-world" />
                             </div>
                             <div className="col-6 d-flex flex-column justify-content-center  bottom-header">
                                 <div className="d-flex bottom-header-1 mb-3 ">
@@ -94,7 +93,6 @@ const Home = () => {
                         </div>
                     </Container>
                 </div>
-                
             </div>
         </>
 }
