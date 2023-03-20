@@ -4,11 +4,11 @@
     border-bottom-right-radius: 30px;
     padding-block: 30px;
     min-height: calc(100vh - 120px);
+    padding: 50px;
 }
 
-.create-room-div {
-    
-    padding-block: 25px;
+.create-room-div, .search-room-div {
+    margin-bottom: 30px;
 }
 
 .page-number {

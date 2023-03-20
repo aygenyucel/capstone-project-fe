@@ -1,13 +1,36 @@
+.search-room-div {
+    margin-inline: 80px;
+    
+}
+
 .search-results {
-    padding-bottom: 30px;
-    /* border-bottom: 1px dotted black; */
+    background-color: var(--color-light);
+    padding-inline: 30px;
+    padding-block: 60px;
+    margin-inline: 20px;
+    border-radius: 5px;
 }
 
 .form-group {
-    width: 300px;
+    width: 100%;
+    font-weight: 400;
+    margin-inline: 20px;
+}
+.form-select {
+    font-weight: 300;
+    background-color: var(--color-light);
+    border: 1px solid black;
+    color: var(--color-dark);
+}
+.form-select:focus {
+    text-decoration: none;
 }
 
 .reset-form-icon {
     font-size: 1.5rem;
     cursor: pointer;
+}
+
+.room-preview-div {
+    margin: 15px;
 }

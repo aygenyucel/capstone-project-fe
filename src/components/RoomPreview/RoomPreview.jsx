@@ -99,7 +99,7 @@ const RoomPreview = (props) => {
         }  
         
         </div>
-        <div className="room-preview d-flex justify-content-center align-items-center">
+        <div className={`room-preview d-flex justify-content-center align-items-center ${props.className}`}>
                 
                 <div className="language-labels">
                     <div className="room-language">

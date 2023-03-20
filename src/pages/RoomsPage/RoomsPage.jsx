@@ -60,25 +60,6 @@ const RoomsPage = () => {
 
     }, [rooms])
 
-
-    const [isYourRoomsClicked, setIsYourRoomsClicked] = useState(false)
-
-    const showYourRooms = () => {
-        if(isYourRoomsClicked === false){
-            setIsYourRoomsClicked(true)
-        } else {
-            setIsYourRoomsClicked(false)
-        }
-    }
-
-
-   
-
-    // useEffect(() => {
-    //     setSkip(pageNumber*3)
-    //     getRoomsWithPagination(pageNumber*(skip+3),limit)
-    // }, [pageNumber])
-
     const getRoomsWithPagination = async(skip,limit) => {
         try {
             const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms?skip=${skip}&limit=${limit}`)
@@ -152,9 +133,10 @@ const RoomsPage = () => {
                     <CreateCustomRoom/>
                 </div>
                 <div className="roomspage-main d-flex flex-column justify-content-center align-items-center">
-                    
                         <div className="create-room-div">
-                            {/* <div><SearchRoom/></div> */}
+                            <div className="search-room-div">
+                                <SearchRoom/>
+                            </div>
                             {/* <div>
                                 <Button onClick={showYourRooms}>Your rooms</Button>
                                 <div>{isYourRoomsClicked ? rooms.map(room => room.creator === user._id &&
@@ -165,7 +147,7 @@ const RoomsPage = () => {
                         </div>
                         <div className="rooms-list d-flex flex-column justify-content-center align-items-center" >
                             {/* <SearchRoom/> */}
-                            <div className="d-flex flex-row-reverse flex-wrap-reverse justify-content-center">
+                            <div className="d-flex justify-content-center flex-wrap">
                                 {roomsPaginated?.map((room) => 
                                     <div key={room._id} className="m-2"> 
                                         <RoomPreview roomData= {room} />

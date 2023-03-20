@@ -1,12 +1,11 @@
 .room-preview {
     /* padding: 20px; */
-    background-color: var(--color-secondary);
+    background-color: var(--color-dark);
     width: 270px;
     height: 220px;
     border-radius: 4px;
     color: var(--color-white);
     /* From https://css.glass */
-    background: var(--color-dark);
     border: 2px solid black;
     position: relative;
     border-top-right-radius: 50px;
@@ -121,3 +120,9 @@
     font-weight: 400;
     color: var(--color-light);
 }
+
+/* .search-preview {
+    background-color: white;
+    border: none;
+
+} */

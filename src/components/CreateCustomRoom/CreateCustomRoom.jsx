@@ -107,60 +107,57 @@ const CreateCustomRoom = () => {
 
     return <>
             <div className="create-custom-room">
-            <Button className=" create-room-btn"  onClick={handleShow}>
-                Create Your Custom Room 
-            </Button>
+                <button className=" create-room-btn"  onClick={handleShow}>
+                    Create Your Custom Room 
+                </button>
 
-            <Modal show={show} onHide={handleClose} animation={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Create Custom Room</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Select the room capacity</Form.Label>
-                            <Form.Select defaultValue={2}   id="roomCapacity" onChange={e => setCapacity(e.target.value)}>
-                                <option value= {2} >2</option>
-                                <option value={3}>3</option>
-                                <option value={4}>4</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                                <Form.Label>Select the language</Form.Label>
-                                <Select className="select-language"
-                                    defaultValue={"English"}
-                                    placeholder= {language ? language : "English" }
-                                    value={language}
-                                    onChange={handleChangeLanguage}
-                                    options={languageOptions}
-                                />
-                               
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            
-                            <Form.Label>Select Language level</Form.Label>
-                            <Form.Select placeholder="B1 - Intermediate"  defaultValue={'B1'}  id="roomLevel" onChange={e => setLevel(e.target.value)}>
-                                {/* <option value="DEFAULT">Choose a language level</option> */}
-                                <option value="A1" >A1 - Beginner</option>
-                                <option value="A2" >A2 - Elementary</option>
-                                <option value="B1">B1 - Intermediate</option>
-                                <option value="B2">B2 - Upper Intermediate</option>
-                                <option value="C1">C1 - Advanced</option>
-                                <option value="C2">C2 - Proficiency</option>
-                                <option value="Native">Native Speaker</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Button variant="primary" type="submit">
-                            Save Changes
-                        </Button>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                <Modal show={show} onHide={handleClose} animation={true} className= "d-flex justify-content-center align-items-center">
+                    <div className="modal-div">
+                        <Modal.Header closeButton className="d-flex justify-content-center align-items-center">
+                            <Modal.Title >CREATE YOUR CUSTOM ROOM</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form onSubmit={handleSubmit}>
+                                <Form.Group className="mb-3 mt-2 create-room-form-group">
+                                    <Form.Label>Room capacity</Form.Label>
+                                    <Form.Select defaultValue={2}   id="roomCapacity" onChange={e => setCapacity(e.target.value)}>
+                                        <option value= {2} >2</option>
+                                        <option value={3}>3</option>
+                                        <option value={4}>4</option>
+                                    </Form.Select>
+                                </Form.Group>
+                                <Form.Group className="mb-3 create-room-form-group">
+                                        <Form.Label>Language</Form.Label>
+                                        <Select className="select-language"
+                                            defaultValue={"English"}
+                                            placeholder= {language ? language : "English" }
+                                            value={language}
+                                            onChange={handleChangeLanguage}
+                                            options={languageOptions}
+                                        />
+                                    
+                                </Form.Group>
+                                <Form.Group className="mb-3 language-level-form-group">
+                                    
+                                    <Form.Label>Language level</Form.Label>
+                                    <Form.Select placeholder="B1 - Intermediate"  defaultValue={'B1'}  id="roomLevel" onChange={e => setLevel(e.target.value)}>
+                                        {/* <option value="DEFAULT">Choose a language level</option> */}
+                                        <option value="A1" >A1 - Beginner</option>
+                                        <option value="A2" >A2 - Elementary</option>
+                                        <option value="B1">B1 - Intermediate</option>
+                                        <option value="B2">B2 - Upper Intermediate</option>
+                                        <option value="C1">C1 - Advanced</option>
+                                        <option value="C2">C2 - Proficiency</option>
+                                        <option value="Native">Native Speaker</option>
+                                    </Form.Select>
+                                </Form.Group>
+                                <button className="save-room-btn d-flex justify-content-center align-items-center" variant="primary" type="submit">
+                                    CREATE AND JOIN
+                                </button>
+                            </Form>
+                        </Modal.Body>
+                    </div>
+                </Modal>
             </div>
     </>
 } 
