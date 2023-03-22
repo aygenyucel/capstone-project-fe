@@ -62,9 +62,10 @@ export const VideoPlayer = (props) => {
                     <div>
                         {username} 
                     </div>
-                    <div>
-                        {username === creatorUserName && "Creator"}
-                    </div>
                 </div>
+                {username === creatorUserName && <div className='creator-label-other'>
+                    host
+                </div>}
+                
             </>
 }

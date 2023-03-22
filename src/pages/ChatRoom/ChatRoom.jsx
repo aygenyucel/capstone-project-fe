@@ -12,7 +12,7 @@ import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 import {AiOutlineAudio, AiOutlineAudioMuted, AiFillCopy} from 'react-icons/ai'
-import {MdOutlineCallEnd} from 'react-icons/md'
+import {MdOutlineCallEnd, MdOutlineConnectWithoutContact} from 'react-icons/md'
 import {BsCameraVideoOff, BsCameraVideo} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
 import {RxPinLeft} from 'react-icons/rx'
@@ -95,8 +95,11 @@ const ChatRoom = (props) => {
     };
     const onKeyDownHandler = (event) => {
         if (event.code === "Enter") {
-            sendMessage();
-            console.log(text)
+                if(/\S/.test(text)) {
+                    sendMessage();
+                    console.log(text)
+                }
+            
         }
     };
 
@@ -313,6 +316,7 @@ const ChatRoom = (props) => {
             socket.on("you-kicked", payload => {
                 if(payload.userID === userID){
                     window.location.replace("/rooms")
+
                 }
             })
             
@@ -328,9 +332,9 @@ const ChatRoom = (props) => {
 
     useEffect(() => {
         // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
-        if(users) {
-            updateRoomUsersAction(users, roomID, userID).then((action) => dispatch(action))
-        }
+        // if(users) {
+        //     updateRoomUsersAction(users, roomID, userID).then((action) => dispatch(action))
+        // }
     }, [users])
 
 
@@ -354,7 +358,7 @@ const ChatRoom = (props) => {
         e.preventDefault();
         e.stopImmediatePropagation();
         // eslint-disable-next-line no-param-reassign
-        e.returnValue = 'onbeforeunload';
+        // e.returnValue = 'onbeforeunload';
         leaveTheRoomHandler();
       };
 
@@ -387,8 +391,21 @@ const ChatRoom = (props) => {
 
     const kickTheUser = (e) => {
         socket.emit("kick-user", {userID: e.target.value, roomEndpoint});
-
     }
+
+
+    
+
+    const messagesEndRef = useRef(null)
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [chatHistory]);
+
 
     return (
         <div className='d-flex flex-row chatRoom-div'>
@@ -427,46 +444,61 @@ const ChatRoom = (props) => {
                             </div>
                             <div className=' main-area'>
                                 <div className='main-top d-flex align-items-center justify-content-between'>
-                                    <div className='d-flex'>
-                                        <div className='main-top-language'>{roomData.language} - {roomData.level}</div>
+                                    <div className='d-flex justify-content-center align-items-center'>
+                                        <div className='main-top-language me-3'>{roomData.language} - {roomData.level}</div>
                                         {/* <div className='main-top-level'>{roomData.level}</div> */}
-                                        <div className='main-top-creator'>{roomCreatorUsername}</div>
+                                        <div className='d-flex'>
+                                            <div>host:</div> 
+                                            <div className='ms-1 main-top-creator'>{roomCreatorUsername}</div>
+                                        </div>
+                                        
                                     </div>
-                                    <div>
-                                        <div className='main-top-username'>{userData?.username}</div>
+                                    <div className='d-flex justify-content-center align-items-center'>
+                                        
+                                        <div className='copy-link-div me-1' onClick={copyTheChatLink}>copy the chat link
+                                            <AiFillCopy onClick={copyTheChatLink} className="copy-link-btn"/>
+                                        </div>
+                                        
+                                        <div className='main-top-username ms-3'>{userData?.username}</div>
                                     </div>
                                 </div>
                                 <div className='main-bottom d-flex'>
                                     <div className='video-area d-flex flex-column justify-content-between'>
                                         <div className='video-area-header d-flex'>
-                                            <div><AiFillCopy onClick={copyTheChatLink} className="copy-link-btn"/>copy the chat link</div>
+                                            
                                             
                                         </div>
                                         <div className='video-area-player'>
                                             <div className='video-area-player-frame d-flex flex-column align-items-center justify-content-center'>
                                                 <Container className='d-flex flex-column justify-content-center'>
                                                     <Row>
-                                                        <Col sm={6}> 
+                                                        <Col sm={6} className="video-player-col position-relative"> 
                                                             <div className='position-relative'>
                                                                 <div className='video-player'>
                                                                     <video className="video current-user-video" ref={myVideoRef} autoPlay/>
                                                                 </div>
-                                                                <div className='video-username d-flex flex-column'>
+                                                                <div className='video-username your-username d-flex flex-column'>
                                                                     <div>you</div>
-                                                                    <div>{userName === roomCreatorUsername && "creator"}</div>
                                                                     </div>
                                                             </div>
+                                                            {userName === roomCreatorUsername && <div className='creator-label'>host</div>}
+                                                            
                                                         </Col>
                                                         {peers?.map(peer => peer.userID !== userID && 
-                                                            <Col sm={6} key={peer.userID}> 
+                                                            <Col sm={6} key={peer.userID} className="video-player-col"> 
                                                                 <div className='position-relative'>
                                                                     <div className='video-player' key={peer.userID}>
                                                                             {/* <div>{peer.peerID}</div> */}
                                                                             {/* <div>userrrrID: {peer.userID}</div> */}
                                                                         <VideoPlayer stream = {peer.stream} userID = {peer.userID} creatorUserName = {roomCreatorUsername}/>
                                                                     </div>
-                                                                    <div>{userName === roomCreatorUsername && 
-                                                                        <Button value={peer.userID} onClick={kickTheUser}>Kick</Button>
+                                                                    <div>
+                                                                        {userName === roomCreatorUsername && 
+                                                                        <button className='kick-btn d-flex justify-content-center align-items-center' value={peer.userID} onClick={kickTheUser}>
+                                                                            kick
+                                                                            {/* <img src="/assets/kick-icon.jpg" alt="kick"  />  */}
+                                                                        {/* <button className='kick-btn' value={peer.userID} onClick={kickTheUser}>Kick</button> */}
+                                                                        </button>
                                                                         }
                                                                     </div>
                                                                 </div>
@@ -504,24 +536,28 @@ const ChatRoom = (props) => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='chat-area d-flex flex-column justify-content-between '>
-                                        <div className='chat-messages-div'>
+                                    <div className='chat-area d-flex flex-column '>
+                                        <div className='chat-messages-div d-flex flex-column '>
                                             {chatHistory?.map(message => 
-                                                <div className={`chat-message d-flex flex-column ${(message.sender === userData.username)? 'my-message': 'user-message'}`}>
-                                                    <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>
+                                            <div className={`chat-message-display d-flex flex-column ${(message.sender === userData.username)? 'align-items-end': 'align-items-start'}`}>
+                                                {message.sender !== userData.username ?  <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>: <></>}
+                                                   
+                                                <div className={`chat-message d-flex flex-column ${(message.sender === userData.username)? 'my-message ': 'user-message'}`}>
                                                     <div className='chat-message-text d-flex justify-content-start'>{message?.msg}</div>
-                                                    {/* <div>{message}</div> */}
-                                                </div>)}
-                                            
+                                                </div>
+                                             </div>
+                                            )}
+                                             <div ref={messagesEndRef} />
                                         </div>
-                                        <div className='chat-input-div d-flex justify-content-end'>
-                                            <Form className="form" onSubmit={onSubmitHandler}>
+                                            
+                                        <div className='chat-input-div d-flex justify-content-center align-items-center'>
+                                            <Form className="form d-flex justify-content-center align-items-center" onSubmit={onSubmitHandler}>
                                                 <Form.Group
-                                                    className="form-group"
+                                                    className="form-group d-flex justify-content-center align-items-center"
                                                     controlId="formBasicEmail"
                                                 >
                                                     <Form.Control
-                                                        className="form-control"
+                                                        className="form-control chat-input"
                                                         type="text"
                                                         placeholder="Type a message"
                                                         onChange={onChangeHandler}

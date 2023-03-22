@@ -57,7 +57,7 @@ const RoomsPage = () => {
     useEffect(() => {
         getAllRoomsAction()
         .then((action) => dispatch(action))
-
+        getRoomsWithPagination(pageNumber*(skip+3),limit)
     }, [rooms])
 
     const getRoomsWithPagination = async(skip,limit) => {
