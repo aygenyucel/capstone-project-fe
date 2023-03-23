@@ -95,7 +95,7 @@ const SearchRoom = () => {
     useEffect(() => {console.log("is form changed? ", isFormChanged)}, [isFormChanged])
 
     return <div className="search-room-div">
-                <Form ref={ref} onSubmit={onSubmitHandler} className=" d-flex justify-content-center align-items-end mt-3 mb-3">
+                <Form ref={ref} onSubmit={onSubmitHandler} className="form-area justify-content-center align-items-end">
                         <Form.Group className="me-2 d-flex flex-column form-group">
                             
                             <div className="d-flex justify-content-start ms-1 mb-1">I want to speak</div>
@@ -131,12 +131,12 @@ const SearchRoom = () => {
                             
                         </Form.Group>
                         {/* <Button type="submit" onClick={getSearchedRooms}>Search</Button> */}
-                        <div className="d-flex flex-column justify-content-center align-items-center">
-                            
-                            <MdRefresh className="reset-form-icon mb-2 ms-2" onClick={resetForm}/>
-                        </div>
                         
                 </Form>
+                        <div className="reset-form-div d-flex flex-column justify-content-center align-items-center">
+                            
+                            <MdRefresh className="reset-form-icon mt-3" onClick={resetForm}/>
+                        </div>
                 
                 {isFormChanged && 
                     <div className="search-results d-flex flex-wrap">

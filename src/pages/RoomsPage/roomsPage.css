@@ -35,3 +35,9 @@
 .not-active-page {
     color: aqua;
 }
+
+@media (max-width: 867px) {
+    .rooms-pages {
+        margin-top: 20px;
+    }
+}

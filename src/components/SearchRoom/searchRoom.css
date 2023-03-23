@@ -1,6 +1,5 @@
 .search-room-div {
     margin-inline: 80px;
-    
 }
 
 .search-results {
@@ -33,4 +32,41 @@
 
 .room-preview-div {
     margin: 15px;
+}
+
+.form-area {
+    display: flex;
+    flex-direction: row;
+}
+
+@media (max-width: 1024px) {
+    .search-room-div {
+        margin-inline: 20px;
+    }
+}
+
+@media (max-width: 867px) {
+    .search-room-div {
+        margin-inline: 0px;
+    }
+    .create-room-btn {
+        padding-inline: 30px;
+    }
+
+    .search-results {
+        padding-inline: 10px;
+        padding-block: 30px;
+        margin-inline: 0;
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 550px) {
+    .form-area{
+        display: flex;
+        flex-direction: column;
+    }
+    .reset-form-div{
+        /* background-color: antiquewhite; */
+    }
 }

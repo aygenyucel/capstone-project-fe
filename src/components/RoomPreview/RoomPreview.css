@@ -126,3 +126,9 @@
     border: none;
 
 } */
+
+@media (max-width: 867px) {
+    .room-preview {
+        width: 200px;
+    }
+}
