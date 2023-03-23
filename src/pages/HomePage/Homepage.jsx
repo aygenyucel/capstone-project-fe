@@ -32,7 +32,7 @@ const Home = () => {
                     <Container>
                         <div className="main-container d-flex ">
                             
-                            <div className="col-6 d-flex flex-column justify-content-center main-left">
+                            <div className="top-area col-6 d-flex flex-column justify-content-center main-left">
                                 <div className="d-flex flex-column main-header">
                                     <div>Start speaking</div>
                                     <Typical
@@ -74,18 +74,18 @@ const Home = () => {
                             <div className="col-6 bottom-img-div d-flex justify-content-center">
                                 <img className="home-img bottom-img" src="/assets/world.svg" alt="around-the-world" />
                             </div>
-                            <div className="col-6 d-flex flex-column justify-content-center  bottom-header">
+                            <div className="bottom-area col-6 d-flex flex-column justify-content-center  bottom-header">
                                 <div className="d-flex bottom-header-1 mb-3 ">
                                 No lessons, no waiting. 
                                 </div>
-                                <div className="d-flex  bottom-header-2 justify-content-end">
+                                <div className="d-flex  bottom-header-2">
                                 Find yourself a speaking opportunity
                                 </div>
 
                                 <div className="d-flex bottom-header-4 justify-content-end mb-3">
                                 at anytime, anywhere!
                                 </div>
-                            <div className="d-flex  bottom-header-2 justify-content-end">
+                            <div className="d-flex  bottom-header-2">
                             <Button className="discover-btn">DISCOVER</Button>
                             </div>
                             </div>

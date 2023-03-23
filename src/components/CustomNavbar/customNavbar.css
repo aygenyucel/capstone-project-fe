@@ -76,6 +76,7 @@ a:hover {
 }
 
 .navbar-toggle {
+    display: none;
     position: absolute;
     background-color: var(--color-main);
     top:35px;
@@ -87,12 +88,13 @@ a:hover {
     border-top: none;
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
-    
+    z-index: 999;
 }
 
 .navbar-toggle .navbar-item {
     margin-block: 15px;
 }
+
 @media (max-width: 770px) {
     .navbar-middle{
         display: none;
@@ -100,6 +102,10 @@ a:hover {
 
     .navbar-burger-icon {
         display: flex;
+    }
+
+    .navbar-toggle {
+        display: block;
     }
 }
 
