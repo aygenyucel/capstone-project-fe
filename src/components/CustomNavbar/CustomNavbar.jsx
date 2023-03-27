@@ -28,13 +28,10 @@ const CustomNavbar = () => {
     // dispatch(resetRoomsStateAction());
     getAllRoomsAction()
     .then((action) => dispatch(action))
-
-    console.log("user", user, "jwt: ", JWTToken)
     isLoggedInAction(user, JWTToken, dispatch)
     .then((boolean) => {
         if(boolean === true) {
             setIsLoggedIn(true)
-            console.log("yes its logged in")
         } else {
             // navigate("/login")
         }

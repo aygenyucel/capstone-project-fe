@@ -30,7 +30,6 @@ const LoginPage = () => {
                 email: email,
                 password: password
             }
-            console.log("user: ", user)
             loginAndGetTokenAction(user)
             .then(({dispatchAction1, dispatchAction2}) =>{
                 dispatch(dispatchAction1, dispatchAction2)
@@ -44,7 +43,6 @@ const LoginPage = () => {
         
         //checking if user already logged in
         
-        console.log("user", userData, "jwt: ", JWTToken)
         isLoggedInAction(userData, JWTToken, dispatch)
         .then((boolean) => {
             if(boolean === true) {

@@ -19,7 +19,7 @@ export const GET_IS_KICKED = 'GET_IS_KICKED'
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
 export const getIsKickedAction = (isKicked) => {
-    console.log("getIsKickedAction triggered => iskicked payload:", isKicked)
+    // console.log("getIsKickedAction triggered => iskicked payload:", isKicked)
     return {
         type: GET_IS_KICKED,
         payload: isKicked
@@ -27,7 +27,7 @@ export const getIsKickedAction = (isKicked) => {
 }
 
 export const addPeerAction = (peerID, stream, userID, roomEndpoint) => {
-    console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID, "roomEndpoint =>", roomEndpoint)
+    // console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID, "roomEndpoint =>", roomEndpoint)
     addOnlineUsersAction(userID)
     return {
         type:ADD_PEER,
@@ -36,7 +36,7 @@ export const addPeerAction = (peerID, stream, userID, roomEndpoint) => {
 }
 
 export const removePeerAction = (peerID, userID) => {
-    console.log("removePeerAction triggered => removed peerID: ", peerID);
+    // console.log("removePeerAction triggered => removed peerID: ", peerID);
     removeOnlineUsersAction(userID)
     return {
         type:REMOVE_PEER,
@@ -45,7 +45,7 @@ export const removePeerAction = (peerID, userID) => {
 }
 
 export const addMessageToChatAction = (newMessage) => {
-    console.log("addMessageToChatAction triggered => new message:", newMessage);
+    // console.log("addMessageToChatAction triggered => new message:", newMessage);
     return {
         type: ADD_MESSAGE_TO_CHAT,
         payload: {newMessage}
@@ -53,7 +53,7 @@ export const addMessageToChatAction = (newMessage) => {
 }
 
 export const updateChatAction = (chat) => {
-    console.log("addMessageToChatAction triggered => chat:", chat);
+    // console.log("addMessageToChatAction triggered => chat:", chat);
     return {
         type: UPDATE_CHAT,
         payload: {chat}
@@ -77,7 +77,7 @@ export const updateRoomChatAction = (roomID, newMessage, chat) => {
         //         const roomChatId = roomChatData._id
 
                 try {
-                    console.log("wtisth,", chat);
+                    
                     const response= await fetch(`${BE_DEV_URL}/rooms/${roomID}`, 
                     {method: "PUT", 
                     body: JSON.stringify({chat: chat}), 
@@ -86,7 +86,7 @@ export const updateRoomChatAction = (roomID, newMessage, chat) => {
                             }})
                     if(response.ok) {
                         const roomData = await response.json();
-                        console.log("######", roomData);
+                        // console.log("######", roomData);
 
                         resolve(roomData)
                     } else {
@@ -107,7 +107,7 @@ export const updateRoomChatAction = (roomID, newMessage, chat) => {
 }
 
 export const updatePeerStreamsAction = (peers) => {
-    console.log("update peer string triggerssssssssssssss")
+    // console.log("update peer string triggerssssssssssssss")
     return {
         type: UPDATE_PEER_STREAMS,
         payload: {peers}
@@ -115,20 +115,20 @@ export const updatePeerStreamsAction = (peers) => {
 }
 
 export const resetPeersStateAction = () => {
-    console.log("resetStateAction triggered!")
+    // console.log("resetStateAction triggered!")
     return {
         type: RESET_PEERS_STATE
     }
 }
 export const resetRoomsStateAction = () => {
-    console.log("resetRoomStateAction triggered!")
+    // console.log("resetRoomStateAction triggered!")
     return {
         type: RESET_ROOMS_STATE
     }
 }
 
 export const resetOnlineUsersAction = () => {
-    console.log("resetOnlineUsers action triggered!")
+    // console.log("resetOnlineUsers action triggered!")
     return {
         type: RESET_ONLINE_USERS
     }
@@ -136,7 +136,7 @@ export const resetOnlineUsersAction = () => {
 export const signupAndGetTokenAction = (newUser) => {
     return new Promise(async (resolve, reject) => {
 
-        console.log("signupAndGetTokenAction Triggered!")
+        // console.log("signupAndGetTokenAction Triggered!")
         const options = {
             method: "POST",
             body: JSON.stringify(newUser),
@@ -168,7 +168,7 @@ export const signupAndGetTokenAction = (newUser) => {
 
 export const loginAndGetTokenAction = (user) => {
    return new Promise( async (resolve, reject) => {
-        console.log("loginAndGetTokenAction triggered!")
+        // console.log("loginAndGetTokenAction triggered!")
         const options = {
             method: "POST",
             body: JSON.stringify(user),
@@ -183,9 +183,7 @@ export const loginAndGetTokenAction = (user) => {
                 if(response.ok) {
                     const data = await response.json();
                     const {JWTToken} = data;
-                    console.log("JWTToken => ", JWTToken);
                     if(JWTToken) {
-                        console.log("whyyyyyy")
                         const options = {
                             method: "GET",
                             headers: {
@@ -197,7 +195,6 @@ export const loginAndGetTokenAction = (user) => {
                             const response = await fetch(`${BE_DEV_URL}/users/me`, options);
                             if(response.ok){
                                 const user = await response.json()
-                                console.log(user)
                                 if(user) {
                                     localStorage.setItem("JWTToken", JWTToken)
                                     
@@ -261,13 +258,12 @@ export const isLoggedInAction =  (userState, JWTToken, dispatch) => {
                 }
                 try {
                        
-                        console.log("we have jwt but not user redux, fetching /users/me with jwt and saving user if ok")
+                        // console.log("we have jwt but not user redux, fetching /users/me with jwt and saving user if ok")
                         const response = await fetch(`${BE_DEV_URL}/users/me`, options);
                         
                         if(response.ok) {
                             
                             const data = await response.json();
-                            console.log("dataaaa:", data);
                             dispatch({
                                 type: GET_PROFILE,
                                 payload: data
@@ -297,7 +293,7 @@ export const isLoggedInAction =  (userState, JWTToken, dispatch) => {
 }
 
 export const addNewRoomAction = (newRoomData) => {
-    console.log("addNewRoomAction triggered", newRoomData);
+    // console.log("addNewRoomAction triggered", newRoomData);
     return {
         type: ADD_NEW_ROOM,
         payload: newRoomData
@@ -305,7 +301,7 @@ export const addNewRoomAction = (newRoomData) => {
 }
 
 export const deleteRoomAction = (deletedRoomID) => {
-    console.log("deleteRoomActionTriggered");
+    // console.log("deleteRoomActionTriggered");
     return {
         type: DELETE_ROOM,
         payload: deletedRoomID
@@ -341,7 +337,7 @@ export const getAllRoomsAction = () => {
 }
 
 export const updateRoomUsersAction = (users, roomID, userID) => {
-    console.log("updateRoomUsersAction triggered!! users =>", users, "roomID =>", roomID)
+    // console.log("updateRoomUsersAction triggered!! users =>", users, "roomID =>", roomID)
     return new Promise (async (resolve, reject) => {
         //first we'll update the users of room on database
         //then we'll resolve the action to update reducer
@@ -357,7 +353,7 @@ export const updateRoomUsersAction = (users, roomID, userID) => {
             
             if(response.ok) {
                 const updatedRoom = await response.json()
-                console.log("updateRoomUsersAction triggered!! fetch the PUT endpoint response json =>", updatedRoom)
+                // console.log("updateRoomUsersAction triggered!! fetch the PUT endpoint response json =>", updatedRoom)
                 const action = {
                     type: UPDATE_ROOM_USERS,
                     payload: {users, roomID, userID}
@@ -377,7 +373,7 @@ export const updateRoomUsersAction = (users, roomID, userID) => {
 
 //adding online users in the all chat rooms
 export const addOnlineUsersAction = (userID) => {
-    console.log("addOnlineUsersAction triggered => userID :", userID)
+    // console.log("addOnlineUsersAction triggered => userID :", userID)
     return {
         type: ADD_ONLINE_USER,
         payload: {userID}
@@ -386,7 +382,7 @@ export const addOnlineUsersAction = (userID) => {
 
 //removing online users in the all chat rooms
 export const removeOnlineUsersAction = (userID) => {
-    console.log("removeOnlineUsersAction triggered => userID :", userID)
+    // console.log("removeOnlineUsersAction triggered => userID :", userID)
 
     return {
         type: REMOVE_ONLINE_USER,

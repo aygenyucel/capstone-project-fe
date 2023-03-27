@@ -103,7 +103,7 @@ const ChatRoom = (props) => {
         if (event.code === "Enter") {
                 if(/\S/.test(text)) {
                     sendMessage();
-                    console.log(text)
+                    // console.log(text)
                 }
             
         }
@@ -146,7 +146,6 @@ const ChatRoom = (props) => {
                 const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/users/${userID}`, {method: "GET" })
                 if(response.ok) {
                     const userData = await response.json();
-                    console.log("cccccccccccccc", userData)
                     resolve(userData)
                 } 
             } catch (error) {
@@ -177,17 +176,14 @@ const ChatRoom = (props) => {
     useEffect(() => {
 
         //checking if user logged in
-        console.log("user", userData, "jwt: ", JWTToken)
         isLoggedInAction(userData, JWTToken, dispatch)
         .then((boolean) => {
             if(boolean === true) {
                 setIsLoggedIn(true)
-
-                console.log("yes its logged in")
                 
                 getRoomData(roomEndpoint).then(data => {
                     setRoomData(data[0])
-                    console.log("data ========>", data[0])
+                    // console.log("data ========>", data[0])
         
                     //check if room is already full, if it is navigate user to /rooms page
                     if( data[0].users.length  >=  data[0].capacity.toString()) {
@@ -200,7 +196,7 @@ const ChatRoom = (props) => {
 
                     //getting the username of room creator
                     getUserInfo(data[0].creator).then(userData => {
-                        console.log("ccccccccccccccccccccccc", userData)
+                        // console.log( userData)
                         setRoomCreatorUsername(userData.username)
                     })
                     
@@ -208,7 +204,6 @@ const ChatRoom = (props) => {
                         alert("you are already in another room! please try again after leave current room")
                         window.location.replace('/rooms')
                     }
-                    //todo: check if user already in another room, if it is, prevent user to join
                 })
 
             } else {
@@ -220,13 +215,10 @@ const ChatRoom = (props) => {
         .catch(err => console.log(err))
         
         
-        console.log("users->", users)
-        console.log("data========>", roomData)
+        // console.log("users->", users)
+        // console.log("data========>", roomData)
     },[])
     
-    useEffect(() => {
-        console.log("---------------------------------onlinechattttusers", onlineChatUsers)
-    }, [onlineChatUsers])
 
 
     useEffect(() => {
@@ -234,7 +226,7 @@ const ChatRoom = (props) => {
     }, [chat])
 
     useEffect(()  => {
-        console.log(":)))) userData => ", userData)
+        // console.log(" userData => ", userData)
 
         const peer = new Peer({
             config: {'iceServers': [
@@ -244,8 +236,8 @@ const ChatRoom = (props) => {
 
         let peerID;
         peer.on('open', (id) => {
-            console.log('My peer ID is: ' + id)
-            console.log("roomEndpoint: ", roomEndpoint)
+            // console.log('My peer ID is: ' + id)
+            // console.log("roomEndpoint: ", roomEndpoint)
             setMyPeerId(id)
             peerID = id;
             
@@ -262,14 +254,14 @@ const ChatRoom = (props) => {
             stream.getVideoTracks()[0].enabled = false
             stream.getAudioTracks()[0].enabled = false
             // adding our peer
-            console.log("jkfdshskjfjds", "peerID:", peerID, "userID:", userID,"roomEndpoint:", roomEndpoint)
+            // console.log("peerID:", peerID, "userID:", userID,"roomEndpoint:", roomEndpoint)
             
             
                 dispatch(addPeerAction(peerID, stream, userID, roomEndpoint))
 
             socket.on('user-connected', payload => {
                 
-                console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID, "roomEndpoint:", payload.roomEndpoint)
+                // console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID, "roomEndpoint:", payload.roomEndpoint)
                 // console.log("users in this room after new connection: ", chatRooms)
 
                 //we send the caller user info to who will answer it
@@ -282,11 +274,11 @@ const ChatRoom = (props) => {
                     //checking for prevent running the code twice.
                     if (id !== remoteStream.id) {
                         id = remoteStream.id
-                        console.log("#################",payload.peerID, remoteStream, payload.userID)
+                        // console.log("#################",payload.peerID, remoteStream, payload.userID)
                         dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID, payload.roomEndpoint))
                         
                         remoteVideoRef.current.srcObject = remoteStream
-                        console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)     
+                        // console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)     
                     }
                 }) 
             })
@@ -302,7 +294,7 @@ const ChatRoom = (props) => {
                         //we get the metadata sended from caller (call.metadata.userID)
                         dispatch(addPeerAction(call.peer, remoteStream, call.metadata.userID, call.metadata.roomEndpoint))
                         remoteVideoRef.current.srcObject = remoteStream
-                        console.log("we answer the stream, addpeerAction triggered! (the owner of answer added)", call.metadata.userID, "xxxx")
+                        // console.log("we answer the stream, addpeerAction triggered! (the owner of answer added)", call.metadata.userID, "xxxx")
                     }      
                 }) 
             })
@@ -310,7 +302,7 @@ const ChatRoom = (props) => {
             remotePeerRef.current = peer
 
             socket.on('user-disconnected', payload => {
-                console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
+                // console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
                 
                 dispatch(removePeerAction(payload.peerID, payload.userID))
                 updateRoomUsersAction(payload.users, roomID, payload.userID).then((action) => dispatch(action))
@@ -319,7 +311,7 @@ const ChatRoom = (props) => {
             })
             
             socket.on("user-left", (payload) => {
-                console.log("USER-LEFT PAYLOAD => ", payload.users)
+                // console.log("USER-LEFT PAYLOAD => ", payload.users)
                 setUsersArray(payload.users)
                 dispatch(removePeerAction(payload.peerID, payload.userID))
                 updateRoomUsersAction(payload.users, roomID ,payload.userID).then((action) => dispatch(action))
@@ -338,10 +330,10 @@ const ChatRoom = (props) => {
 
     }, [])
     
-    useEffect(() => { 
-        console.log("peers =>", peers)
-        console.log("currentPeersReducer => ", currentPeersReducer)
-    }, [currentPeersReducer])
+    // useEffect(() => { 
+    //     console.log("peers =>", peers)
+    //     console.log("currentPeersReducer => ", currentPeersReducer)
+    // }, [currentPeersReducer])
 
     useEffect(() => {
         // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
@@ -429,49 +421,12 @@ const ChatRoom = (props) => {
         scrollToBottom()
     }, [chatHistory]);
 
-
-   
-
-   
-            // socket.on("new-message-alert", newMessage => {
-            //     if((newMessage.sender !== userData.username) && (isChatOpen === false)) {
-            //             // console.log(newMessage)
-            //             if(isChatOpen === false) {
-            //                 console.log("xxxxxxxxxxxxxxxxxx")
-            //                 toast(`${newMessage.sender} : ${newMessage.msg}`, {
-            //                     toastId: "newMessageToast",
-            //                     position: "bottom-right",
-            //                     autoClose: 2000,
-            //                     hideProgressBar: true,
-            //                     closeOnClick: true,
-            //                     pauseOnHover: true,
-            //                     draggable: true,
-            //                     progress: undefined
-            //                 })
-
-            //             }
-            //     }
-            // })
-
-    
-
-    
-
-    
-
     const toggleChatArea = () => {
         if (isChatOpen) {
             setIsChatOpen(false)
             
         } else {
             setIsChatOpen(true)
-        }
-    }
-    
-    const closeChatArea = () => {
-        if (isChatOpen) {
-            setIsChatOpen(false)
-            
         }
     }
 
