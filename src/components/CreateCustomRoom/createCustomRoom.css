@@ -1,0 +1,67 @@
+.create-room-btn {
+    font-family: var(--secondary-font);
+    font-weight: 400;
+    font-size: 1rem;
+    
+    color: var(--color-black);
+    padding-block: 10px;
+    padding-inline: 60px;
+    border-radius: 5px;
+    border: 0;
+    border-top: 4px solid transparent;
+    
+    text-decoration: none;
+    background-color: transparent;
+    border: 2px solid var(--color-black);
+    transition: background-color 1s;
+}
+
+.create-room-btn:hover {
+    background-color: var(--color-light);
+    color: black;
+    /* border: 2px solid var(--color-secondary); */
+}
+
+.modal-div {
+    padding: 30px;
+    width: 500px;
+    background-color: var(--color-black);
+    color: var(--color-light);
+    
+}
+
+.select-language {
+    color: black;
+}
+
+.btn-close {
+    background-color: var(--color-secondary);
+}
+
+.save-room-btn {
+    background-color: var(--color-secondary);
+    border: none;
+    height: 38px;
+    width: 100%;
+    padding-inline: 50px;
+    border-radius: 5px;
+    font-weight: 500;
+    margin-top: 40px;
+}
+
+
+@media (max-width: 1024px) {
+    
+}
+
+@media (max-width: 867px) {
+    .modal-div, .modal-content {
+        width: 400px;
+    }
+}
+
+@media (max-width: 550px) {
+    .modal-div, .modal-content {
+        width: 250px;
+    }
+}

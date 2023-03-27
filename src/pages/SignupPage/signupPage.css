@@ -1,0 +1,28 @@
+.signup-div{
+    width: 400px;
+    background-color: var(--color-main);
+    padding: 40px;
+    border-radius: 10px;
+}
+
+
+.signup-page-header {
+    font-size: 1.3rem;
+}
+
+.signup-btn {
+    background-color: var(--color-secondary);
+    border: none;
+    height: 38px;
+    width: 100%;
+    padding-inline: 50px;
+    border-radius: 5px;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+.signup-label-login {
+    font-weight: 500;
+    color: var(--color-secondary);
+
+}

@@ -1,0 +1,20 @@
+/* .video-player-container {
+    margin: 5px;
+    padding: 5px;
+} */
+
+.creator-label-other {
+    position: absolute;
+    /* background-color: wheat; */
+    left: -23px;
+    color: black;
+    bottom: 25px;
+    font-weight: 400;
+    font-size: 0.9rem;
+    transform:rotateZ(270deg);
+    color: var(--color-secondary);
+    border: 2px solid black;
+    border-radius: 5px;
+    padding-inline: 5px
+}
+

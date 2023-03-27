@@ -1,0 +1,112 @@
+.navbar-div {
+    width: 100%;
+    padding-block: 30px;
+    margin-bottom: 10px;
+    background-color: var(--color-main);
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    height: 90px;
+}
+
+.navbar-logo {
+    font-family: var(--secondary-font);
+    font-weight: 400;
+}
+.navbar-middle {
+    display: flex;
+}
+.navbar-middle div {
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.navbar-right {
+    font-family: var(--secondary-font);
+    font-weight: 400;
+    font-size: 0.8rem;
+}
+
+.sign-up-btn {
+    font-family: var(--secondary-font);
+    font-weight: 400;
+    font-size: 0.8rem;
+    background-color: var(--color-black);
+    color: var(--color-white);
+    padding-block: 5px;
+    padding-inline: 30px;
+    border-radius: 5px;
+}
+
+.user-avatar img{
+    height: 30px;
+    border-radius: 50px;
+}
+
+a {
+    text-decoration: none;
+    color: var(--color-black);
+    margin: 0;
+}
+a:hover {
+    color: black;
+}
+.navbar-item a:hover {
+    color: gray;
+}
+.navbar-item {
+    position: relative;
+    margin-inline: 20px;
+}
+.active{
+    position: absolute;
+    bottom: -10px;
+    color: var(--color-black);
+    height: 6px;
+    width: 6px;
+    background-color: var(--color-black);
+    border-radius: 50px;
+}
+
+.navbar-burger-icon {
+    display: none;
+    margin-left: 30px;
+    font-size: 1.7rem;
+    cursor: pointer;
+}
+
+.navbar-toggle {
+    display: none;
+    position: absolute;
+    background-color: var(--color-main);
+    top:35px;
+    right: 0;
+    padding-inline: 15px;
+    padding-block: 10px;
+    width: 180px;
+    border: 1px solid black;
+    border-top: none;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    z-index: 999;
+}
+
+.navbar-toggle .navbar-item {
+    margin-block: 15px;
+}
+
+@media (max-width: 770px) {
+    .navbar-middle{
+        display: none;
+    }
+
+    .navbar-burger-icon {
+        display: flex;
+    }
+
+    .navbar-toggle {
+        display: block;
+    }
+}
+
+@media (max-width: 510px) {}

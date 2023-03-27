@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600;700;800;900&display=swap');
+
+:root {
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */
+  /* --main-font: 'Comfortaa', cursive; */
+  --main-font: 'Kanit', sans-serif;
+  
+  --secondary-font: 'Bungee', cursive;
+  /* --secondary-font: 'Kanit', sans-serif; */
+  background-color: #FFFFFF;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  --color-main: #CDDEFF;
+  /* #CFECF4 */
+  --color-secondary: #FF5959;
+  /* #5C2EE2 */
+  --color-dark: #676FA3;
+  --color-light: #EEF2FF;
+  --color-black: #121329;
+  --color-white: #FFFFFF;
+  --color-gray: #EDF0F5;
+  --color-gray-dark: #3F3D56;
+
+  /* FF5959
+  676FA3
+  CDDEFF
+  EEF2FF */
+
+}
+.App {
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */
+  text-align: center;
+  font-family: 'Kanit', sans-serif;
+  font-weight: 300;
+  padding: 10px;
+}
+
