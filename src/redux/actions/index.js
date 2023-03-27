@@ -10,20 +10,34 @@ export const RESET_ROOMS_STATE = 'RESET_ROOMS_STATE';
 export const GET_ROOMS= 'GET_ROOMS' //fetching /GET
 export const UPDATE_ROOM_USERS = 'UPDATE_ROOM_USERS';
 export const ADD_MESSAGE_TO_CHAT = 'ADD_MESSAGE_TO_CHAT';
-export const UPDATE_CHAT ='UPDATE_CHAT'
+export const UPDATE_CHAT ='UPDATE_CHAT';
+export const ADD_ONLINE_USER = 'ADD_ONLINE_USER';
+export const REMOVE_ONLINE_USER = 'REMOVE_ONLINE_USER'
+export const RESET_ONLINE_USERS = 'RESET_ONLINE_USERS'
+export const GET_IS_KICKED = 'GET_IS_KICKED'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
 
-export const addPeerAction = (peerID, stream, userID) => {
-    console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID)
+export const getIsKickedAction = (isKicked) => {
+    console.log("getIsKickedAction triggered => iskicked payload:", isKicked)
+    return {
+        type: GET_IS_KICKED,
+        payload: isKicked
+    }
+}
+
+export const addPeerAction = (peerID, stream, userID, roomEndpoint) => {
+    console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID, "roomEndpoint =>", roomEndpoint)
+    addOnlineUsersAction(userID)
     return {
         type:ADD_PEER,
-        payload: {peerID, stream, userID}
+        payload: {peerID, stream, userID, roomEndpoint}
     }
 }
 
 export const removePeerAction = (peerID, userID) => {
     console.log("removePeerAction triggered => removed peerID: ", peerID);
+    removeOnlineUsersAction(userID)
     return {
         type:REMOVE_PEER,
         payload: {peerID, userID}
@@ -113,7 +127,12 @@ export const resetRoomsStateAction = () => {
     }
 }
 
-
+export const resetOnlineUsersAction = () => {
+    console.log("resetOnlineUsers action triggered!")
+    return {
+        type: RESET_ONLINE_USERS
+    }
+}
 export const signupAndGetTokenAction = (newUser) => {
     return new Promise(async (resolve, reject) => {
 
@@ -321,7 +340,7 @@ export const getAllRoomsAction = () => {
     })
 }
 
-export const updateRoomUsersAction = (users, roomID) => {
+export const updateRoomUsersAction = (users, roomID, userID) => {
     console.log("updateRoomUsersAction triggered!! users =>", users, "roomID =>", roomID)
     return new Promise (async (resolve, reject) => {
         //first we'll update the users of room on database
@@ -341,7 +360,7 @@ export const updateRoomUsersAction = (users, roomID) => {
                 console.log("updateRoomUsersAction triggered!! fetch the PUT endpoint response json =>", updatedRoom)
                 const action = {
                     type: UPDATE_ROOM_USERS,
-                    payload: {users, roomID}
+                    payload: {users, roomID, userID}
                 }
 
                 resolve(action)
@@ -354,4 +373,23 @@ export const updateRoomUsersAction = (users, roomID) => {
             reject(error)
         }
     })
+}
+
+//adding online users in the all chat rooms
+export const addOnlineUsersAction = (userID) => {
+    console.log("addOnlineUsersAction triggered => userID :", userID)
+    return {
+        type: ADD_ONLINE_USER,
+        payload: {userID}
+    }
+}
+
+//removing online users in the all chat rooms
+export const removeOnlineUsersAction = (userID) => {
+    console.log("removeOnlineUsersAction triggered => userID :", userID)
+
+    return {
+        type: REMOVE_ONLINE_USER,
+        payload: {userID}
+    }
 }

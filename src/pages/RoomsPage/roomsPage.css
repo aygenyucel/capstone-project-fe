@@ -2,10 +2,72 @@
     background-color: var(--color-main);
     border-bottom-left-radius: 30px;
     border-bottom-right-radius: 30px;
-    padding-top: 30px;
+    padding-block: 30px;
+    min-height: calc(100vh - 120px);
+    padding: 50px;
+    width: 100%;
 }
 
-.create-room-div {
-    
-    padding-block: 25px;
+.create-room-div, .search-room-div {
+    margin-bottom: 30px;
+}
+
+.page-number {
+    cursor: pointer;
+    padding: 10px;
+    margin-inline: 10px;
+    font-weight: 400;
+}
+
+.page-number-active {
+    color: var(--color-secondary);
+}
+
+.rooms-pages {
+    margin-top: 70px;
+}
+
+.prev-page-btn, .next-page-btn {
+    margin-inline: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.not-active-page {
+    color: aqua;
+}
+
+.kicked-modal {
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    margin: auto;
+    background-color: rgba(0, 0, 0, 0.725);
+    border-radius: 10px;
+
+}
+
+.modal-dialog {
+    width: 450px;
+    height: 100%;
+    margin-top: 200px;
+}
+
+
+@media (max-width: 867px) {
+    .rooms-pages {
+        margin-top: 20px;
+    }
+}
+
+
+@media (max-width: 550px) {
+    .rooms-pages {
+        margin-top: 20px;
+    }
+
+    .modal-dialog {
+        width: 250px;
+    }
 }

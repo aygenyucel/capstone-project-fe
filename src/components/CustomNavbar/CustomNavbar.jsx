@@ -7,6 +7,7 @@ import { isLoggedInAction } from './../../redux/actions/index';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'react-bootstrap';
+import { GiHamburgerMenu } from "react-icons/gi";
 
 const CustomNavbar = () => {
   const location = useLocation();
@@ -39,10 +40,19 @@ const CustomNavbar = () => {
         }
     })
     .catch(err => console.log(err))
-}, [])
+  }, [])
 
-    return  <div className="navbar-div">
-              <Container>
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false)
+  const toggleNavbar = () => {
+    if(isNavbarOpen) {
+      setIsNavbarOpen(false)
+    } else {
+      setIsNavbarOpen(true)
+    }
+  }
+
+    return  <div className="navbar-div position-relative">
+              <Container className="d-flex justify-content-between">
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="navbar-left d-flex justify-content-center align-items-center">
                     <a href="/">
@@ -51,7 +61,10 @@ const CustomNavbar = () => {
                     </div>
                     </a>
                   </div>
-                  <div className="navbar-middle d-flex justify-content-center align-items-center">
+
+                  
+                  </div>
+                  <div className="navbar-middle justify-content-center align-items-center">
                     <div className="navbar-item d-flex justify-content-center">
                       <div className={location.pathname=== "/" && "active"}></div>
                       <a href="/" ><div >Home</div></a>
@@ -68,14 +81,16 @@ const CustomNavbar = () => {
                       <div className={location.pathname=== "#" && "active"}></div>
                       <a href="#"><div>About Sipeaky</div></a>
                     </div>
-                  </div>
                   
-                  {isLoggedIn
+                  </div>
+                <div className="d-flex">
+                {isLoggedIn
                   ? 
                   <a href="#">
-                    <div className="navbar-right user-info d-flex justify-content-center">
+                    <div className="navbar-right user-info d-flex justify-content-center align-items-center">
                       <div className="d-flex justify-content-center align-items-center">{user.username}</div>
                       <div className="user-avatar ms-3 d-flex justify-content-center align-items-center"><img src="/assets/avatar-default.png" alt="avatar-default" /></div>
+                      
                     </div>
                   </a>
                   : 
@@ -86,10 +101,28 @@ const CustomNavbar = () => {
                     </div>
                   </a>
                   }
-                  
-                  
+                  <div className='navbar-burger position-relative' onClick={toggleNavbar}>
+                        <GiHamburgerMenu className="navbar-burger-icon"/>
+
+                        {isNavbarOpen ? <div className="navbar-toggle justify-content-center align-items-center">
+                          <div className="navbar-item d-flex justify-content-center">
+                            <a href="/" ><div >Home</div></a>
+                          </div>
+                          <div className="navbar-item d-flex justify-content-center">
+                            <a href="/rooms"> <div >Chat rooms</div></a>
+                          </div>
+                          <div className="navbar-item d-flex justify-content-center">
+                            <a href="#"><div >Create a room</div></a>
+                          </div>
+                          <div className="navbar-item d-flex justify-content-center">
+                            <a href="#"><div>About Sipeaky</div></a>
+                          </div>
+                      </div> : <></>}
+                  </div>
                 </div>
             </Container>
+            
+                
             </div>
 }
 export default CustomNavbar

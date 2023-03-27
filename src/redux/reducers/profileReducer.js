@@ -1,9 +1,10 @@
-import { GET_PROFILE, GET_PROFILE_ID } from "../actions"
+import { GET_PROFILE, GET_PROFILE_ID, GET_IS_KICKED } from "../actions"
 
 
 const initialState = {
     data: null,
-    profileID: ""
+    profileID: "",
+    isKicked: false
 }
 
 const profileReducer = (state = initialState, action) => {
@@ -18,6 +19,11 @@ const profileReducer = (state = initialState, action) => {
             return {
                 ...state,
                 profileID: action.payload
+            }
+        case GET_IS_KICKED:
+            return {
+                ...state,
+                isKicked: action.payload
             }
         default: 
             return state

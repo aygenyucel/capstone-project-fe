@@ -1,33 +1,35 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import './chatRoom.css';
-import { Button, Container, Row, Col } from "react-bootstrap"
+import {  Container, Row, Col } from "react-bootstrap"
 import { useReducer, useRef, useState } from 'react';
 import { useEffect } from 'react';
 import Peer from "peerjs";
 import { io } from 'socket.io-client';
-import { json, useParams } from 'react-router-dom';
+import {  createBrowserRouter, Router, useParams } from 'react-router-dom';
 import { VideoPlayer } from '../../components/VideoPlayer/VideoPlayer.jsx';
 import peersReducer from '../../redux/reducers/peersReducer';
-import { addMessageToChatAction, addPeerAction, updateChatAction, updateRoomChatAction, updateRoomUsersAction } from '../../redux/actions';
+import { addPeerAction, getIsKickedAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
-import CustomNavbar from './../../components/CustomNavbar/CustomNavbar';
-import {AiOutlineAudio, AiFillAudio, AiOutlineAudioMuted} from 'react-icons/ai'
-import {MdOutlineCallEnd} from 'react-icons/md'
-import {BsCameraVideoOff, BsCameraVideo} from 'react-icons/bs'
+import {AiOutlineAudio, AiOutlineAudioMuted, AiFillCopy} from 'react-icons/ai'
+import {MdOutlineCallEnd, MdOutlineConnectWithoutContact} from 'react-icons/md'
+import {BsCameraVideoOff, BsCameraVideo, BsFillChatLeftDotsFill} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
-import {VscUnmute, VscMute} from 'react-icons/vsc'
+import {RxHamburgerMenu, RxPinLeft} from 'react-icons/rx'
+import {BiLeftArrow, BiRightArrow} from 'react-icons/bi'
+
+import {GiHamburgerMenu} from 'react-icons/gi'
+
+import {VscUnmute} from 'react-icons/vsc'
 import { useSelector } from 'react-redux';
 import { isLoggedInAction } from './../../redux/actions/index';
 import { useNavigate } from 'react-router-dom';
-import {BiHomeAlt} from 'react-icons/bi'
 import {HiHome, HiVideoCamera, HiPlus} from 'react-icons/hi'
 import {FaUserFriends} from 'react-icons/fa'
-import {MdSettings, MdAddBox} from 'react-icons/md'
-import {BsArrowLeftSquareFill} from 'react-icons/bs'
-import {TbArrowBarLeft} from 'react-icons/tb'
+import {MdSettings} from 'react-icons/md'
 import { Form } from 'react-bootstrap';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
@@ -43,49 +45,109 @@ const ChatRoom = (props) => {
     
     const [roomData, setRoomData] = useState({});
     const roomCapacity = roomData.capacity
+    const roomCreatorID = roomData.creator;
+    const [roomCreatorUsername, setRoomCreatorUsername] = useState("")
     const navigate = useNavigate();
     const state = location.state;
-    const userData = state.user;
-    const roomID = state.roomID;
-    // const [roomID, setRoomID] = useState(roomData._id)
-    const userID = userData._id;
+
+    
+    // const userData = state.user;
+    const userData = useSelector(state => state.profileReducer.data)
+
+    
+    const onlineChatUsers = useSelector(state => state.onlineChatUsersReducer.data)
+
+    // const roomID = state.roomID;
+    const [roomID, setRoomID] = useState("")
+    
+    
+    const userID = userData?._id;
+    const userName = userData?.username
     const JWTToken = localStorage.getItem("JWTToken")
     const [isLoggedIn, setIsLoggedIn] = useState(false)
-
+    
     //accessing the peersReducer
     const [currentPeersReducer, dispatch] = useReducer(peersReducer, {})
-    const peers = currentPeersReducer.peers
-    const users = currentPeersReducer.users
+    const peers = currentPeersReducer?.peers?.filter(peer => peer.roomEndpoint === roomEndpoint)
+    const usersFiltered = currentPeersReducer?.users?.filter(user => user.roomEndpoint === roomEndpoint)
+    const users = usersFiltered?.map(user => user.userID)
     const chat = currentPeersReducer.chat
-
+    
+    
     const remotePeerRef = useRef({})
     const [usersArray, setUsersArray] = useState([])
-
+    
     const [myStream, setMyStream] = useState({})
     const [isMyCamOpen, setIsMyCamOpen] = useState(false)
     const [isMyMicOpen, setIsMyMicOpen] = useState(false)
-    // const [isSharingScreen, setIsSharingScreen] = useState(false)
 
-
-    const [chatHistory, setChatHistory] = useState([]);
-    const [text, setText] = useState("");
     const peerRef = useRef({})
 
+    //chat variables
+    const [chatHistory, setChatHistory] = useState([]);
+    const [text, setText] = useState("");
 
+    const [isChatOpen, setIsChatOpen] = useState(false)
+    
+
+    const resetFormValue = () => setText("");
+
+    const onSubmitHandler = (event) => {
+        event.preventDefault();
+        resetFormValue();
+    };
+    const onChangeHandler = (event) => {
+        setText(event.target.value);
+    };
+    const onKeyDownHandler = (event) => {
+        if (event.code === "Enter") {
+                if(/\S/.test(text)) {
+                    sendMessage();
+                    console.log(text)
+                }
+            
+        }
+    };
+
+    const sendMessage = () => {
+        const newMessage = {
+            sender: userData.username,
+            msg: text,
+            time: `${new Date().getHours()}:${new Date().getMinutes()}`
+        }
+        socket.emit("chatMessage", newMessage)
+    };
+
+    useEffect(() => {
+        //message from server
+        socket.on("message", newMessage => {
+            setChatHistory([...chatHistory, newMessage])
+            
+            
+           
+        })
+
+        
+       
+    }, [chatHistory])
+
+    
+    
+    
     const getMediaDevices = (mediaConstraints) => {
         return navigator.mediaDevices.getUserMedia(mediaConstraints)
     }
     const mediaConstraints = {video: true, audio: true}
 
 
-    const getRoomData = (roomEndpoint) => {
+    const getUserInfo = (userID) => {
         return new Promise (async(resolve, reject) => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/endpoint/${roomEndpoint}`, {method: "GET" })
+                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/users/${userID}`, {method: "GET" })
                 if(response.ok) {
-                    const roomData = await response.json();
-                    console.log("wtffff =>", roomData)
-                    resolve(roomData)
+                    const userData = await response.json();
+                    console.log("cccccccccccccc", userData)
+                    resolve(userData)
                 } 
             } catch (error) {
                 console.log(error)
@@ -94,37 +156,83 @@ const ChatRoom = (props) => {
         })
     }
 
+    const getRoomData = (roomEndpoint) => {
+        return new Promise (async(resolve, reject) => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/endpoint/${roomEndpoint}`, {method: "GET" })
+                if(response.ok) {
+                    const roomData = await response.json();
+                    
+                    setRoomID(roomData[0]._id)
+                    resolve(roomData)
+                } 
+            } catch (error) {
+                console.log(error)
+                reject(error)
+            }
+        })
+    }
+    
 
     useEffect(() => {
+
         //checking if user logged in
         console.log("user", userData, "jwt: ", JWTToken)
         isLoggedInAction(userData, JWTToken, dispatch)
         .then((boolean) => {
             if(boolean === true) {
                 setIsLoggedIn(true)
+
                 console.log("yes its logged in")
+                
+                getRoomData(roomEndpoint).then(data => {
+                    setRoomData(data[0])
+                    console.log("data ========>", data[0])
+        
+                    //check if room is already full, if it is navigate user to /rooms page
+                    if( data[0].users.length  >=  data[0].capacity.toString()) {
+                        alert("sorry the room is full :(")
+                        const updatedUsers = data[0].users?.filter((user) => user !== userID)
+                        dispatch(removePeerAction(myPeerId, userID))
+                        updateRoomUsersAction(data[0].users, data[0]._id, userID).then((action) => dispatch(action))
+                        window.location.replace('/rooms');
+                    }
+
+                    //getting the username of room creator
+                    getUserInfo(data[0].creator).then(userData => {
+                        console.log("ccccccccccccccccccccccc", userData)
+                        setRoomCreatorUsername(userData.username)
+                    })
+                    
+                    if(onlineChatUsers.findIndex(user => user === userID) !== -1){
+                        alert("you are already in another room! please try again after leave current room")
+                        window.location.replace('/rooms')
+                    }
+                    //todo: check if user already in another room, if it is, prevent user to join
+                })
+
             } else {
+                myStream.getTracks()
+                .forEach((track) => track.stop());
                 navigate("/login")
             }
         })
         .catch(err => console.log(err))
-
-        //getting roomData with endpoint
-        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
-
-        //checking if room is full already, if its full redirect the user to rooms page
         
         
+        console.log("users->", users)
+        console.log("data========>", roomData)
     },[])
+    
+    useEffect(() => {
+        console.log("---------------------------------onlinechattttusers", onlineChatUsers)
+    }, [onlineChatUsers])
+
 
     useEffect(() => {
-        getRoomData(roomEndpoint).then(data => {setRoomData(data[0]);console.log("%%%%%%%%%%%", data[0]._id)})
-        console.log("ffffff",roomData)
+        getRoomData(roomEndpoint).then(data => {setRoomData(data[0])})        
     }, [chat])
 
- 
-
-    
     useEffect(()  => {
         console.log(":)))) userData => ", userData)
 
@@ -133,43 +241,39 @@ const ChatRoom = (props) => {
                 { url: 'stun:stun.l.google.com:19302' },
               ]} 
         });
+
         let peerID;
-        
         peer.on('open', (id) => {
             console.log('My peer ID is: ' + id)
             console.log("roomEndpoint: ", roomEndpoint)
             setMyPeerId(id)
             peerID = id;
             
-            socket.emit('join-room', {roomEndpoint, peerID: id, userID: userID, roomID, roomCapacity})
-            
-            socket.on('user-join', payload => {
-                console.log("USER-JOIN PAYLOAD => ", payload.users)
-                setUsersArray(payload.users)
-            })    
+            socket.emit('join-room', { peerID: id, userID: userID, roomID, roomCapacity, roomEndpoint})
+             
         })
 
-        
-        
         getMediaDevices(mediaConstraints)
         .then(stream => {
-            
             setMyStream(stream)
             myVideoRef.current.srcObject = stream;
+
             
             stream.getVideoTracks()[0].enabled = false
             stream.getAudioTracks()[0].enabled = false
             // adding our peer
-            console.log("jkfdshskjfjds", peerID, userID)
+            console.log("jkfdshskjfjds", "peerID:", peerID, "userID:", userID,"roomEndpoint:", roomEndpoint)
             
             
-            dispatch(addPeerAction(peerID, stream, userID))
+                dispatch(addPeerAction(peerID, stream, userID, roomEndpoint))
+
             socket.on('user-connected', payload => {
-                console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID)
+                
+                console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID, "roomEndpoint:", payload.roomEndpoint)
                 // console.log("users in this room after new connection: ", chatRooms)
 
                 //we send the caller user info to who will answer it
-                const options = {metadata: {"userID": userID}};
+                const options = {metadata: {"userID": userID, "roomEndpoint": roomEndpoint}};
                 const call = peer.call(payload.peerID, stream, options)
 
                 let id;
@@ -179,7 +283,7 @@ const ChatRoom = (props) => {
                     if (id !== remoteStream.id) {
                         id = remoteStream.id
                         console.log("#################",payload.peerID, remoteStream, payload.userID)
-                        dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID))
+                        dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID, payload.roomEndpoint))
                         
                         remoteVideoRef.current.srcObject = remoteStream
                         console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)     
@@ -196,7 +300,7 @@ const ChatRoom = (props) => {
                     if (id !== remoteStream.id) {
                         id = remoteStream.id
                         //we get the metadata sended from caller (call.metadata.userID)
-                        dispatch(addPeerAction(call.peer, remoteStream, call.metadata.userID))
+                        dispatch(addPeerAction(call.peer, remoteStream, call.metadata.userID, call.metadata.roomEndpoint))
                         remoteVideoRef.current.srcObject = remoteStream
                         console.log("we answer the stream, addpeerAction triggered! (the owner of answer added)", call.metadata.userID, "xxxx")
                     }      
@@ -209,18 +313,25 @@ const ChatRoom = (props) => {
                 console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
                 
                 dispatch(removePeerAction(payload.peerID, payload.userID))
-                updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
+                updateRoomUsersAction(payload.users, roomID, payload.userID).then((action) => dispatch(action))
+
+                
             })
             
             socket.on("user-left", (payload) => {
                 console.log("USER-LEFT PAYLOAD => ", payload.users)
                 setUsersArray(payload.users)
                 dispatch(removePeerAction(payload.peerID, payload.userID))
-                updateRoomUsersAction(payload.users, roomID).then((action) => dispatch(action))
+                updateRoomUsersAction(payload.users, roomID ,payload.userID).then((action) => dispatch(action))
                 remotePeerRef.current.destroy()
             })
 
-
+            socket.on("you-kicked", payload => {
+                if(payload.userID === userID){
+                    dispatch(getIsKickedAction(true))
+                    window.location.replace("/rooms?isKicked=true")
+                }
+            })
             
         })
         .catch(err => console.log("Failed to get local stream", err)) 
@@ -233,8 +344,10 @@ const ChatRoom = (props) => {
     }, [currentPeersReducer])
 
     useEffect(() => {
-        console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
-        updateRoomUsersAction(users, roomID).then((action) => dispatch(action))
+        // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
+        if(users) {
+            updateRoomUsersAction(users, roomID, userID).then((action) => dispatch(action))
+        }
     }, [users])
 
 
@@ -242,12 +355,11 @@ const ChatRoom = (props) => {
         //for make sure the user disconnect from the chat room
         window.location.reload();
     }
-    
-    
+
     const leaveTheRoomHandler = () => {
-        const updatedUsers = users.filter((user) => user !== userID)
+        const updatedUsers = users?.filter((user) => user !== userID)
         dispatch(removePeerAction(myPeerId, userID))
-        updateRoomUsersAction(updatedUsers, roomID).then((action) => dispatch(action))
+        updateRoomUsersAction(updatedUsers, roomID, userID).then((action) => dispatch(action))
 
         //disable the webcam and mic before leave
         myStream.getTracks()
@@ -255,23 +367,13 @@ const ChatRoom = (props) => {
 
     }
 
-    // window.onbeforeunload =(e) => {
-    //     e.preventDefault();
-        
-           
-    // }
-
-    
     window.onbeforeunload = function(e) {
         e.preventDefault();
         e.stopImmediatePropagation();
         // eslint-disable-next-line no-param-reassign
-        e.returnValue = 'onbeforeunload';
+        // e.returnValue = 'onbeforeunload';
         leaveTheRoomHandler();
       };
-    // window.onunload = () => {
-    //     leaveTheRoomHandler()
-    // }
 
     const toggleCamHandler = () => {
         const videoTrack = myStream.getTracks().find(track => track.kind === 'video')
@@ -295,130 +397,116 @@ const ChatRoom = (props) => {
         }
     }
 
-    // const toggleShareScreenHandler = () => {
-    //     //we are accessing the media stream, not video stream
-    //     if(isSharingScreen) {
-    //         navigator.mediaDevices.getUserMedia({video:isMyCamOpen, audio: isMyMicOpen})
-    //         .then(stream => myVideoRef.current.srcObject = stream)
-    //         .then(setIsSharingScreen(false))
-            
-    //     } else {
-    //         navigator.mediaDevices.getDisplayMedia({})
-    //         .then(stream => myVideoRef.current.srcObject = stream)
-    //         .then(setIsSharingScreen(true))
-            
-    //     }
-    // }
-
     const copyTheChatLink = () => {
         navigator.clipboard.writeText(`${process.env.REACT_APP_BE_DEV_URL}/chatroom/${roomEndpoint}`)
-        window.alert("the room link copied!")
+        // toast("The link of the room copied!")
+        toast('The link of the room copied!', {
+            toastId: "copyLinkToast",
+            position: "top-center",
+            autoClose: 2200,
+            hideProgressBar: false,
+            closeOnClick: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+        })
+    }
+    
+    const kickTheUser = (e) => {
+        socket.emit("kick-user", {userID: e.target.value, roomEndpoint});
     }
 
 
     
-    // const getRoomData = (roomID) => {
-    //     return new Promise(async (resolve, reject) => {
-    //         try {
-    //             const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms/${roomID}`, {method: "GET"})
-    //             if(response.ok) {
-    //                 const roomData = await response.json();
-    //                 resolve(roomData);
-    //             }
-    //         } catch (error) {
-    //             console.log(error)
-    //             reject(error)
-    //         }
-    //     })
-    // }
 
-    //*************chat area ***************/
-    
-    const resetFormValue = () => setText("");
-    const onSubmitHandler = (event) => {
-        event.preventDefault();
-        resetFormValue();
-    };
-    const onChangeHandler = (event) => {
-        setText(event.target.value);
-    };
-    const onKeyDownHandler = (event) => {
-        if (event.code === "Enter") {
-            sendMessage();
-            console.log(text)
-        }
-    };
+    const messagesEndRef = useRef(null)
 
-    const sendMessage = () => {
-        const newMessage = {
-            sender: userData.username,
-            msg: text,
-            time: new Date()
-        }
-        socket.emit("chatMessage", newMessage)
-    };
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [chatHistory]);
+
+
+   
+
+   
+            // socket.on("new-message-alert", newMessage => {
+            //     if((newMessage.sender !== userData.username) && (isChatOpen === false)) {
+            //             // console.log(newMessage)
+            //             if(isChatOpen === false) {
+            //                 console.log("xxxxxxxxxxxxxxxxxx")
+            //                 toast(`${newMessage.sender} : ${newMessage.msg}`, {
+            //                     toastId: "newMessageToast",
+            //                     position: "bottom-right",
+            //                     autoClose: 2000,
+            //                     hideProgressBar: true,
+            //                     closeOnClick: true,
+            //                     pauseOnHover: true,
+            //                     draggable: true,
+            //                     progress: undefined
+            //                 })
+
+            //             }
+            //     }
+            // })
 
     
 
-    useEffect(() => {
-        //message from server
-    socket.on("message", newMessage => {
-        // console.log(message)
-        setChatHistory([...chatHistory, newMessage])
-    })
-       
-    }, [chatHistory])
+    
 
-    useEffect(() => {
-        console.log("chatttttHistory", chatHistory)
-    }, [chatHistory])
+    
 
+    const toggleChatArea = () => {
+        if (isChatOpen) {
+            setIsChatOpen(false)
+            
+        } else {
+            setIsChatOpen(true)
+        }
+    }
+    
+    const closeChatArea = () => {
+        if (isChatOpen) {
+            setIsChatOpen(false)
+            
+        }
+    }
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+    const toggleSidebar = () => {
+        if(isSidebarOpen) {
+            setIsSidebarOpen(false)
+        } else {
+            setIsSidebarOpen(true)
+        }
+    }
+
+    const closeSidebar = () => {
+        if (isSidebarOpen) {
+            setIsSidebarOpen(false)
+            
+        }
+    }
+    
     return (
-        // <Container>
-        //     <div className='mb-3 mt-3'><a href='/rooms'><Button variant='danger' onClick={leaveTheRoomHandler}>Leave the room</Button></a></div>
-        //     <div><Button variant='secondary' onClick={copyTheChatLink}>Copy the chat link</Button></div>
-            
-        //     <div className="d-flex flex-column">
-        //         <div className="d-flex flex-column align-items-start mb-5">
-        //             {/* <div>Current user peer id: {myPeerId}</div> */}
-        //             {/* <div>Current userID: {userID}</div> */}
-        //             <div>userName: {userData.username}</div>
-        //             {/* video of current user */}
-        //             <div className="video-grid current-user-video-grid d-flex flex-column">
-        //                 <video className="video current-user-video" ref={myVideoRef} autoPlay/>
-        //                 <div className='d-flex'>
-        //                 {isMyCamOpen 
-        //                 ? <Button className='me-2' onClick={toggleCamHandler}>hide your cam</Button> 
-        //                 :  <Button className='me-2' onClick={toggleCamHandler}>open your cam</Button>}
-        //                 {isMyMicOpen 
-        //                 ? <Button  onClick={toggleMicHandler}>mute mic</Button> 
-        //                 :  <Button onClick={toggleMicHandler}>open mic</Button>}
-        //                 </div>
-
-        //             </div>
-        //         </div>
-        //         <div className='d-flex flex-column'>
-        //             <h1>Remote Peers: </h1>
-        //             {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
-        //             <div key={peer.userID}>
-        //                 {/* <div>{peer.peerID}</div> */}
-        //                 {/* <div>userrrrID: {peer.userID}</div> */}
-        //                 <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
-        //             </div>)}
-        //         </div>
-        //     </div>
-            
-        // </Container>
-
-        //********************************************************************************* */
         <div className='d-flex flex-row chatRoom-div'>
-                            <div className='left-sidebar d-flex flex-column justify-content-between align-items-center'>
+                
+                            <div className='left-sidebar  flex-column justify-content-between align-items-center'>
                                 <div className="navbar-logo d-flex justify-content-center">
+                                    <a href='/rooms'>
                                     sipeaky
+
+                                    </a>
                                 </div>
                                 <div className='sidebar-btns d-flex flex-column justify-content-center align-items-center'>
                                     <div className='d-flex justify-content-center'>
+                                    <a href='/rooms'>
                                         <HiHome/>
+                                        </a>
                                     </div>
                                     <div className='d-flex justify-content-center'>
                                         <HiVideoCamera/>
@@ -433,86 +521,143 @@ const ChatRoom = (props) => {
                                         <MdSettings/>
                                     </div>
                                 </div>
-                                <div className='left-btn d-flex justify-content-center'>
-                                    <div className="sidebar-user-avatar d-flex justify-content-center">
+                                <div className='left-btn d-flex justify-content-center flex-column'>
+                                    <div className="sidebar-user-avatar d-flex justify-content-center mb-3">
                                         <img src="/assets/avatar-default.png" alt="avatar-default" />
+                                    </div>
+
+                                    <div>
+                                    <a href='/rooms'>
+                                        <RxPinLeft onClick={leaveTheRoomHandler}/>
+                                    </a>
                                     </div>
 
                                 </div>
                             
                             </div>
-                            <div className=' main-area'>
-                                <div className='main-top d-flex align-items-center justify-content-between'>
-                                    <div className='d-flex'>
-                                        <div className='main-top-language'>{roomData.language} - {roomData.level}</div>
+                            
+                            <div className=' main-area position-relative' onClick={closeSidebar}>
+                                <div className='main-top d-flex align-items-center justify-content-between position-relative'>
+                                    <div className='d-flex justify-content-center align-items-center'>
+
+                                       
+                                        
+                                        <div className='main-top-language me-3'>{roomData.language} - {roomData.level}</div>
                                         {/* <div className='main-top-level'>{roomData.level}</div> */}
+                                        <div className='main-top-host'>
+                                            <div>host:</div> 
+                                            <div className='ms-1 main-top-creator'>{roomCreatorUsername}</div>
+                                        </div>
+
+                                        <div className='main-top-host-mobile'>
+                                            <div>host:</div> 
+                                            <div className='ms-1 main-top-creator'>{roomCreatorUsername}</div>
+                                        </div>
+                                        
                                     </div>
-                                    <div>
-                                        <div className='main-top-username'>{userData.username}</div>
+                                    <div className='d-flex justify-content-center align-items-center'>
+                                        
+                                        <div className='copy-link-div d-flex'>
+                                            <div  onClick={copyTheChatLink} className='copy-link-text'>copy the chat link</div> 
+                                            <div onClick={copyTheChatLink} className="copy-link-btn-div">
+
+                                                <AiFillCopy  className="copy-link-btn"/>
+                                            </div>
+                                            <ToastContainer 
+                                                
+                                                id= "copyLinkToast"/>
+                                        </div>
+                                        
+                                        <div className='main-top-username'>{userData?.username}</div>
+                                        
+                                        
+                                        {/* sidebar for the tablet and phones */}
+                                        <div className='sidebar-burger' onClick={toggleSidebar}>
+                                                <GiHamburgerMenu/>
+                                        </div>
                                     </div>
-                                    
-                                    
+                                </div>
+                                <div className={`left-sidebar-mobile flex-column justify-content-between align-items-center ${isSidebarOpen? "left-sidebar-mobile-open": "left-sidebar-mobile-close"}`}>
+                                    <div className="navbar-logo d-flex justify-content-center">
+                                        sipeaky
+                                    </div>
+                                    <div className='sidebar-btns d-flex flex-column justify-content-center align-items-center'>
+                                        <div className='d-flex justify-content-center'>
+                                            <HiHome/>
+                                        </div>
+                                        <div className='d-flex justify-content-center'>
+                                            <HiVideoCamera/>
+                                        </div>
+                                        <div className='d-flex justify-content-center'>
+                                            <FaUserFriends/>
+                                        </div>
+                                        <div>
+                                            <HiPlus/>
+                                        </div>
+                                        <div className='d-flex justify-content-center'>
+                                            <MdSettings/>
+                                        </div>
+                                    </div>
+                                    <div className='left-btn d-flex justify-content-center flex-column'>
+                                        <div className="sidebar-user-avatar d-flex justify-content-center mb-3">
+                                            <img src="/assets/avatar-default.png" alt="avatar-default" />
+                                        </div>
+
+                                        <div>
+                                            <RxPinLeft/>
+                                        </div>
+
+                                    </div>
+                                
                                 </div>
                                 <div className='main-bottom d-flex'>
                                     <div className='video-area d-flex flex-column justify-content-between'>
-                                        {/* <div className='video-area-header d-flex'>
-                                            <div>copylink</div>
-                                            <div>invite</div>
+                                        {/* <div className='video-area-header '>
+                                            
                                         </div> */}
                                         <div className='video-area-player'>
                                             <div className='video-area-player-frame d-flex flex-column align-items-center justify-content-center'>
                                                 <Container className='d-flex flex-column justify-content-center'>
                                                     <Row>
-                                                        <Col sm={6}> 
+                                                        <Col sm={6} className="video-player-col position-relative"> 
                                                             <div className='position-relative'>
                                                                 <div className='video-player'>
                                                                     <video className="video current-user-video" ref={myVideoRef} autoPlay/>
                                                                 </div>
-                                                                <div className='video-username'>you</div>
+                                                                <div className='video-username your-username d-flex flex-column'>
+                                                                    <div>you</div>
+                                                                    </div>
                                                             </div>
+                                                            {userName === roomCreatorUsername && <div className='creator-label'>host</div>}
+                                                            
                                                         </Col>
-                                                        {currentPeersReducer.peers?.map(peer => peer.userID !== userID && 
-                                                            <Col sm={6}> 
+                                                        {peers?.map(peer => peer.userID !== userID && 
+                                                            <Col sm={6} key={peer.userID} className="video-player-col"> 
                                                                 <div className='position-relative'>
                                                                     <div className='video-player' key={peer.userID}>
                                                                             {/* <div>{peer.peerID}</div> */}
                                                                             {/* <div>userrrrID: {peer.userID}</div> */}
-                                                                        <VideoPlayer stream = {peer.stream} userID = {peer.userID} />
+                                                                        <VideoPlayer stream = {peer.stream} userID = {peer.userID} creatorUserName = {roomCreatorUsername}/>
+                                                                    </div>
+                                                                    <div>
+                                                                        {userName === roomCreatorUsername && 
+                                                                        <button className='kick-btn d-flex justify-content-center align-items-center' value={peer.userID} onClick={kickTheUser}>
+                                                                            kick
+                                                                            {/* <img src="/assets/kick-icon.jpg" alt="kick"  />  */}
+                                                                        {/* <button className='kick-btn' value={peer.userID} onClick={kickTheUser}>Kick</button> */}
+                                                                        </button>
+                                                                        }
                                                                     </div>
                                                                 </div>
                                                             </Col>
                                                         )}
-                                                        
-                                                        {/* <Col sm={6}> 
-                                                            <div className='position-relative'>
-                                                                <div className='video-player'>fsdf</div>
-                                                                <div className='video-username'>username</div>
-
-                                                            </div>
-                                                        </Col> */}
                                                     </Row>
-                                                    <Row>
-                                                        {/* <Col sm={6}> 
-                                                            <div className='position-relative'>
-                                                                <div className='video-player'>fsdf</div>
-                                                                <div className='video-username'>username</div>
-
-                                                            </div>
-                                                        </Col>
-                                                        <Col sm={6}> 
-                                                            <div className='position-relative'>
-                                                                <div className='video-player'>fsdf</div>
-                                                                <div className='video-username'>username</div>
-
-                                                            </div>
-                                                        </Col> */}
-                                                    </Row>
+                                                    
                                                 </Container>
-                                                
                                                 
                                             </div>
                                         </div>
-                                        <div className='video-area-footer d-flex justify-content-center align-items-center'>
+                                        <div className='video-area-footer d-flex justify-content-center align-items-center position-relative'>
                                             <div className='chat-btns mute-btn d-flex justify-content-center align-items-center'>
                                                 <VscUnmute/>
                                                 {/* <VscMute/> */}
@@ -534,28 +679,40 @@ const ChatRoom = (props) => {
                                                     :  <BsCameraVideo onClick={toggleCamHandler} />}
                                             </div>
                                             <div className='chat-btns settings-btn d-flex justify-content-center align-items-center'>
-                                                <FiSettings/>
+                                                <FiSettings className='settings-icon'/>
+                                                <BsFillChatLeftDotsFill className='chat-icon-footer' onClick={toggleChatArea}/>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div className='chat-area d-flex flex-column justify-content-between '>
-                                        <div className='chat-messages-div'>
-                                            {chatHistory?.map(message => 
-                                                <div className={`chat-message d-flex flex-column ${(message.sender === userData.username)? 'my-message': 'user-message'}`}>
-                                                    <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>
-                                                    <div className='chat-message-text d-flex justify-content-start'>{message?.msg}</div>
-                                                    {/* <div>{message}</div> */}
-                                                </div>)}
                                             
                                         </div>
-                                        <div className='chat-input-div d-flex justify-content-end'>
-                                            <Form className="form" onSubmit={onSubmitHandler}>
+
+                                        
+                                        
+                                    </div>
+                                    <div className='chat-area '>
+                                        <div className='chat-messages-div d-flex flex-column '>
+                                            {chatHistory?.map(message => 
+                                            <div className={`chat-message-display d-flex flex-column ${(message.sender === userData.username)? 'align-items-end': 'align-items-start'}`}>
+                                                {message.sender !== userData.username ?  <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>: <></>}
+                                                   
+                                                <div className={`chat-message d-flex flex-column  position-relative ${(message.sender === userData.username)? 'my-message ': 'user-message'}`}>
+                                                    <div className='chat-message-text d-flex justify-content-start'>{message?.msg}</div>
+                                                    <div className='chat-message-time position-absolute'>
+                                                        {message.time}
+                                                    </div>
+                                                </div>
+                                             </div>
+                                            )}
+                                             <div ref={messagesEndRef} />
+                                        </div>
+                                            
+                                        <div className='chat-input-div d-flex justify-content-center align-items-center'>
+                                            <Form className="form d-flex justify-content-center align-items-center" onSubmit={onSubmitHandler}>
                                                 <Form.Group
-                                                    className="form-group"
+                                                    className="form-group d-flex justify-content-center align-items-center"
                                                     controlId="formBasicEmail"
                                                 >
                                                     <Form.Control
-                                                        className="form-control"
+                                                        className="form-control chat-input"
                                                         type="text"
                                                         placeholder="Type a message"
                                                         onChange={onChangeHandler}
@@ -566,7 +723,53 @@ const ChatRoom = (props) => {
                                             </Form>
                                         </div>
                                     </div>
+                                    
                                 </div>
+                                <div className='chat-mobile-btn  position-absolute' onClick={toggleChatArea}>
+                                    {/* <div>chat</div> */}
+                                    <BiLeftArrow className='left-arrow-icon'/>
+                                    <BsFillChatLeftDotsFill className='chat-icon'/>
+                                </div>
+                                <div className={`chat-area-mobile position-absolute ${isChatOpen ? `chat-area-mobile-open`: `chat-area-mobile-close`}`}>
+
+                                    <div className='chat-area-mobile-toggle position-absolute ' onClick={toggleChatArea}>
+                                        <BiRightArrow/>
+                                    </div>
+                                        <div className='chat-messages-div d-flex flex-column '>
+                                            {chatHistory?.map(message => 
+                                            <div className={`chat-message-display d-flex flex-column ${(message.sender === userData.username)? 'align-items-end': 'align-items-start'}`}>
+                                                {message.sender !== userData.username ?  <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>: <></>}
+                                                   
+                                                <div className={`chat-message d-flex flex-column position-relative ${(message.sender === userData.username)? 'my-message ': 'user-message'}`}>
+                                                    <div className='chat-message-text d-flex justify-content-start align-items-start'>{message?.msg}</div>
+                                                    <div className='chat-message-time position-absolute'>
+                                                        {message.time}
+                                                    </div>
+                                                </div>
+
+                                             </div>
+                                            )}
+                                             <div ref={messagesEndRef} />
+                                        </div>
+                                            
+                                        <div className='chat-input-div d-flex justify-content-center align-items-center'>
+                                            <Form className="form d-flex justify-content-center align-items-center" onSubmit={onSubmitHandler}>
+                                                <Form.Group
+                                                    className="form-group d-flex justify-content-center align-items-center"
+                                                    controlId="formBasicEmail"
+                                                >
+                                                    <Form.Control
+                                                        className="form-control chat-input"
+                                                        type="text"
+                                                        placeholder="Type a message"
+                                                        onChange={onChangeHandler}
+                                                        value={text}
+                                                        onKeyDown={onKeyDownHandler}
+                                                    />
+                                                </Form.Group>
+                                            </Form>
+                                        </div>
+                                    </div>
                             </div>
                     </div>
     )

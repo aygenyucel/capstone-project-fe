@@ -17,8 +17,8 @@ const peersReducer = (state = initialState, action) => {
                 if(index === -1) {
                     return {
                         ...state,
-                        peers: [...state.peers, {peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID}],
-                        users: [...state.users, action.payload.userID]
+                        peers: [...state.peers, {peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID, roomEndpoint: action.payload.roomEndpoint}],
+                        users: [...state.users, {userID: action.payload.userID, roomEndpoint: action.payload.roomEndpoint}]
                     }
                 } else {
                     return {
@@ -29,8 +29,8 @@ const peersReducer = (state = initialState, action) => {
             } else {
                 return {
                     ...state,
-                    peers: [{peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID}],
-                    users: [action.payload.userID]
+                    peers: [{peerID: action.payload.peerID, stream: action.payload.stream, userID: action.payload.userID, roomEndpoint: action.payload.roomEndpoint}],
+                    users: [{userID: action.payload.userID, roomEndpoint: action.payload.roomEndpoint}]
                 }
             }
 
@@ -38,7 +38,7 @@ const peersReducer = (state = initialState, action) => {
                 return {
                     ...state,
                     peers: state.peers.filter((peer) => peer.peerID !== action.payload.peerID),
-                    users: state.users.filter((user) => user !== action.payload.userID)
+                    users: state.users.filter((user) => user.userID !== action.payload.userID)
                 }
 
         case ADD_MESSAGE_TO_CHAT:
