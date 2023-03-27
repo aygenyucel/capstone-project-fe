@@ -618,6 +618,11 @@
         display: flex;
 
     }
+
+    .main-top-username {
+        font-size: 0.8rem;
+        margin-right: 10px;
+    }
   }
 
   @media (max-width: 510px) {
@@ -641,7 +646,8 @@
     }
 
     .main-top-username {
-        display: none;
+        font-size: 0.8rem;
+        margin-right: 10px;
     }
     
   }

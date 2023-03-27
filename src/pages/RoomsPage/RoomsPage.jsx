@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import "./roomsPage.css";
 import { useDispatch } from 'react-redux';
-import { getAllRoomsAction, isLoggedInAction} from "../../redux/actions/index.js";
+import { getAllRoomsAction, getIsKickedAction, isLoggedInAction} from "../../redux/actions/index.js";
 import { useEffect, useState } from "react";
 import { resolvePath, useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
@@ -13,6 +13,7 @@ import CustomNavbar from "../../components/CustomNavbar/CustomNavbar";
 import { Button } from 'react-bootstrap';
 import { useInfiniteScroll } from "infinite-scroll-hook";
 import {GrFormNext, GrFormPrevious} from "react-icons/gr"
+import { Modal } from 'react-bootstrap';
 
 
 const RoomsPage = () => {
@@ -24,12 +25,21 @@ const RoomsPage = () => {
     const user = useSelector(state => state.profileReducer.data)
     const rooms = useSelector(state => state.roomsReducer.rooms)
     const users = useSelector(state => state.peersReducer.users)
+    const isKicked = useSelector(state => state.profileReducer.isKicked)
 
     
     const [skip, setSkip] = useState(0)
     const [limit, setLimit] = useState(4)
     const [pageNumber, setPageNumber] = useState(0)
     const [roomsPaginated, setRoomsPaginated] = useState([])
+
+    const [isKickedModalOpen, setIsKickedModalOpen] = useState(false)
+    const closeKickedModal = () => {
+        if(isKickedModalOpen){
+            setIsKickedModalOpen(false);
+            navigate("/rooms")
+        }
+    }
     useEffect(() => {
         // dispatch(resetPeersStateAction());
         // dispatch(resetRoomsStateAction());
@@ -51,6 +61,15 @@ const RoomsPage = () => {
         .catch(err => console.log(err))
 
         getRoomsWithPagination(pageNumber*(skip+3),limit)
+
+        const queryParameters = new URLSearchParams(window.location.search)
+        const isKicked = queryParameters.get("isKicked")
+        
+        //check if user kicked and navigated to rooms page
+        if(isKicked) {
+            setIsKickedModalOpen(true)
+        }
+       
     }, [])
 
     
@@ -63,7 +82,7 @@ const RoomsPage = () => {
     const getRoomsWithPagination = async(skip,limit) => {
         try {
             const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms?skip=${skip}&limit=${limit}`)
-            console.log("xxxxxxxxx", skip, "xxxxxxxxx", limit)
+            // console.log("xxxxxxxxx", skip, "xxxxxxxxx", limit)
             if(response.ok) {
                 const data = await response.json();
                 setRoomsPaginated(data)
@@ -125,10 +144,35 @@ const RoomsPage = () => {
     }, [startIndex, endIndex, pageNumber])
 
 
+    
+
+
+    // useEffect(() => {
+    //     console.log("lksdjslfksf", isKicked)
+    //     if(isKicked === true) {
+    //         setIsKickedModalOpen(true)
+    //     }
+    // }, [isKicked])
     return  isLoggedIn && 
-            <>
+            <div className="position-relative d-flex flex-column justify-content-center align-items-center">
             <CustomNavbar/> 
-            <div className=" roomspage d-flex flex-column ">
+
+            <div className=" roomspage d-flex flex-column  justify-content-center align-items-center">
+                {isKickedModalOpen && 
+                <div
+                className="modal show kicked-modal d-flex flex-column justify-content-center align-items-center"
+                style={{ display: 'block', position: 'absolute' }}
+                >
+                <Modal.Dialog className="modal-dialog">
+                    <Modal.Header closeButton onClick={closeKickedModal}>
+                    </Modal.Header>
+
+                    <Modal.Body>
+                    <p>Ouch! You kicked out of the meeting</p>
+                    </Modal.Body>
+                </Modal.Dialog>
+            </div>}
+                
                 <div className="create-room-div">
                     <CreateCustomRoom/>
                 </div>
@@ -165,7 +209,7 @@ const RoomsPage = () => {
                         </div>
                 </div>
             </div>
-            </>
+            </div>
 }
 
 export default RoomsPage;

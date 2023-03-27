@@ -8,7 +8,7 @@ import { io } from 'socket.io-client';
 import {  createBrowserRouter, Router, useParams } from 'react-router-dom';
 import { VideoPlayer } from '../../components/VideoPlayer/VideoPlayer.jsx';
 import peersReducer from '../../redux/reducers/peersReducer';
-import { addPeerAction, updateRoomUsersAction } from '../../redux/actions';
+import { addPeerAction, getIsKickedAction, updateRoomUsersAction } from '../../redux/actions';
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 import {AiOutlineAudio, AiOutlineAudioMuted, AiFillCopy} from 'react-icons/ai'
@@ -30,6 +30,7 @@ import {MdSettings} from 'react-icons/md'
 import { Form } from 'react-bootstrap';
 import { addOnlineUsersAction } from './../../redux/actions/index';
 import { Button } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
@@ -319,8 +320,8 @@ const ChatRoom = (props) => {
 
             socket.on("you-kicked", payload => {
                 if(payload.userID === userID){
-                    window.location.replace("/rooms")
-
+                    dispatch(getIsKickedAction(true))
+                    window.location.replace("/rooms?isKicked=true")
                 }
             })
             
@@ -336,9 +337,9 @@ const ChatRoom = (props) => {
 
     useEffect(() => {
         // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", users)
-        // if(users) {
-        //     updateRoomUsersAction(users, roomID, userID).then((action) => dispatch(action))
-        // }
+        if(users) {
+            updateRoomUsersAction(users, roomID, userID).then((action) => dispatch(action))
+        }
     }, [users])
 
 
@@ -447,6 +448,7 @@ const ChatRoom = (props) => {
     }
     return (
         <div className='d-flex flex-row chatRoom-div'>
+                
                             <div className='left-sidebar  flex-column justify-content-between align-items-center'>
                                 <div className="navbar-logo d-flex justify-content-center">
                                     sipeaky

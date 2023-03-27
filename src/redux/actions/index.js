@@ -14,8 +14,17 @@ export const UPDATE_CHAT ='UPDATE_CHAT';
 export const ADD_ONLINE_USER = 'ADD_ONLINE_USER';
 export const REMOVE_ONLINE_USER = 'REMOVE_ONLINE_USER'
 export const RESET_ONLINE_USERS = 'RESET_ONLINE_USERS'
+export const GET_IS_KICKED = 'GET_IS_KICKED'
 
 const BE_DEV_URL = process.env.REACT_APP_BE_DEV_URL
+
+export const getIsKickedAction = (isKicked) => {
+    console.log("getIsKickedAction triggered => iskicked payload:", isKicked)
+    return {
+        type: GET_IS_KICKED,
+        payload: isKicked
+    }
+}
 
 export const addPeerAction = (peerID, stream, userID, roomEndpoint) => {
     console.log("addPeerAction triggered => added PeerID: ", peerID, "userID =>", userID, "roomEndpoint =>", roomEndpoint)

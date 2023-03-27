@@ -127,7 +127,7 @@ const CreateCustomRoom = () => {
                                     </Form.Select>
                                 </Form.Group>
                                 <Form.Group className="mb-3 create-room-form-group">
-                                        <Form.Label>Language</Form.Label>
+                                        <Form.Label className="form-label">Language</Form.Label>
                                         <Select className="select-language"
                                             defaultValue={"English"}
                                             placeholder= {language ? language : "English" }
@@ -137,7 +137,7 @@ const CreateCustomRoom = () => {
                                         />
                                     
                                 </Form.Group>
-                                <Form.Group className="mb-3 language-level-form-group">
+                                <Form.Group className="mb-3 create-room-form-group">
                                     
                                     <Form.Label>Language level</Form.Label>
                                     <Form.Select placeholder="B1 - Intermediate"  defaultValue={'B1'}  id="roomLevel" onChange={e => setLevel(e.target.value)}>

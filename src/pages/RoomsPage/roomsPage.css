@@ -36,6 +36,23 @@
     color: aqua;
 }
 
+.kicked-modal {
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    margin: auto;
+    background-color: rgba(0, 0, 0, 0.725);
+    border-radius: 10px;
+
+}
+
+.modal-dialog {
+    width: 450px;
+    height: 100%;
+}
+
+
 @media (max-width: 867px) {
     .rooms-pages {
         margin-top: 20px;
