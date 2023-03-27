@@ -86,7 +86,10 @@ const Home = () => {
                                 at anytime, anywhere!
                                 </div>
                             <div className="d-flex  bottom-header-2">
-                            <Button className="discover-btn">DISCOVER</Button>
+                                <a href="/rooms">
+                                <Button className="discover-btn">DISCOVER</Button>
+                                </a>
+                            
                             </div>
                             </div>
 

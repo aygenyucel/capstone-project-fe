@@ -107,6 +107,16 @@ a:hover {
     .navbar-toggle {
         display: block;
     }
+
+    .navbar-div {
+        padding-inline: 30px;
+    }
 }
 
-@media (max-width: 510px) {}
+@media (max-width: 510px) {
+
+    
+    .navbar-burger-icon {
+        margin-left: 15px;
+    }
+}
