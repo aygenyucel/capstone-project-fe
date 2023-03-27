@@ -132,7 +132,7 @@ const SearchRoom = () => {
                 </Form>
                         <div className="reset-form-div d-flex flex-column justify-content-center align-items-center">
                             
-                            <MdRefresh className="reset-form-icon mt-3" onClick={resetForm}/>
+                            <MdRefresh className="reset-form-icon" onClick={resetForm}/>
                         </div>
                 
                 {isFormChanged && 

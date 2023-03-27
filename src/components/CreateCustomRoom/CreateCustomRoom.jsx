@@ -105,7 +105,7 @@ const CreateCustomRoom = () => {
       };
 
     return <>
-            <div className="create-custom-room">
+            <div className="create-custom-room position-relative">
                 <button className=" create-room-btn"  onClick={handleShow}>
                     Create Your Custom Room 
                 </button>
@@ -113,7 +113,7 @@ const CreateCustomRoom = () => {
                 <Modal show={show} onHide={handleClose} animation={true} className= "d-flex justify-content-center align-items-center">
                     <div className="modal-div">
                         <Modal.Header closeButton className="d-flex justify-content-center align-items-center">
-                            <Modal.Title >CREATE YOUR CUSTOM ROOM</Modal.Title>
+                            <Modal.Title className="modal-title" >CREATE YOUR CUSTOM ROOM</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
                             <Form onSubmit={handleSubmit}>
