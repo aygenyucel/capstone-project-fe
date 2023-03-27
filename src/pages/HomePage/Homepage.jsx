@@ -56,7 +56,7 @@ const Home = () => {
                         <div className="d-flex justify-content-center btn-div">
                             <div className="btn-div-left ">
                                 <img className="arrow-svg" src="/assets/undraw_fun-arrow.svg" alt="arrow-svg" />
-                                <Button className="main-btn get-started-btn">
+                                <Button className="main-btn get-started-btn" href="/rooms">
                                     Get started
                                 </Button>
                             </div>

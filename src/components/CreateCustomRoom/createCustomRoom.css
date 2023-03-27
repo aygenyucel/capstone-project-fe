@@ -27,6 +27,7 @@
     width: 500px;
     background-color: var(--color-black);
     color: var(--color-light);
+    
 }
 
 .select-language {
@@ -46,4 +47,21 @@
     border-radius: 5px;
     font-weight: 500;
     margin-top: 40px;
+}
+
+
+@media (max-width: 1024px) {
+    
+}
+
+@media (max-width: 867px) {
+    .modal-div, .modal-content {
+        width: 400px;
+    }
+}
+
+@media (max-width: 550px) {
+    .modal-div, .modal-content {
+        width: 250px;
+    }
 }

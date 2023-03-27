@@ -28,9 +28,8 @@ import {HiHome, HiVideoCamera, HiPlus} from 'react-icons/hi'
 import {FaUserFriends} from 'react-icons/fa'
 import {MdSettings} from 'react-icons/md'
 import { Form } from 'react-bootstrap';
-import { addOnlineUsersAction } from './../../redux/actions/index';
-import { Button } from 'react-bootstrap';
-import { Modal } from 'react-bootstrap';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const socket = io(process.env.REACT_APP_BE_DEV_URL, {transports:["websocket"]})
 
@@ -87,6 +86,8 @@ const ChatRoom = (props) => {
     //chat variables
     const [chatHistory, setChatHistory] = useState([]);
     const [text, setText] = useState("");
+
+    const [isChatOpen, setIsChatOpen] = useState(false)
     
 
     const resetFormValue = () => setText("");
@@ -112,7 +113,7 @@ const ChatRoom = (props) => {
         const newMessage = {
             sender: userData.username,
             msg: text,
-            time: new Date()
+            time: `${new Date().getHours()}:${new Date().getMinutes()}`
         }
         socket.emit("chatMessage", newMessage)
     };
@@ -121,9 +122,16 @@ const ChatRoom = (props) => {
         //message from server
         socket.on("message", newMessage => {
             setChatHistory([...chatHistory, newMessage])
+            
+            
+           
         })
+
+        
        
     }, [chatHistory])
+
+    
     
     
     const getMediaDevices = (mediaConstraints) => {
@@ -391,9 +399,19 @@ const ChatRoom = (props) => {
 
     const copyTheChatLink = () => {
         navigator.clipboard.writeText(`${process.env.REACT_APP_BE_DEV_URL}/chatroom/${roomEndpoint}`)
-        window.alert("the room link copied!")
+        // toast("The link of the room copied!")
+        toast('The link of the room copied!', {
+            toastId: "copyLinkToast",
+            position: "top-center",
+            autoClose: 2200,
+            hideProgressBar: false,
+            closeOnClick: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+        })
     }
-
+    
     const kickTheUser = (e) => {
         socket.emit("kick-user", {userID: e.target.value, roomEndpoint});
     }
@@ -412,7 +430,34 @@ const ChatRoom = (props) => {
     }, [chatHistory]);
 
 
-    const [isChatOpen, setIsChatOpen] = useState(false)
+   
+
+   
+            // socket.on("new-message-alert", newMessage => {
+            //     if((newMessage.sender !== userData.username) && (isChatOpen === false)) {
+            //             // console.log(newMessage)
+            //             if(isChatOpen === false) {
+            //                 console.log("xxxxxxxxxxxxxxxxxx")
+            //                 toast(`${newMessage.sender} : ${newMessage.msg}`, {
+            //                     toastId: "newMessageToast",
+            //                     position: "bottom-right",
+            //                     autoClose: 2000,
+            //                     hideProgressBar: true,
+            //                     closeOnClick: true,
+            //                     pauseOnHover: true,
+            //                     draggable: true,
+            //                     progress: undefined
+            //                 })
+
+            //             }
+            //     }
+            // })
+
+    
+
+    
+
+    
 
     const toggleChatArea = () => {
         if (isChatOpen) {
@@ -446,16 +491,22 @@ const ChatRoom = (props) => {
             
         }
     }
+    
     return (
         <div className='d-flex flex-row chatRoom-div'>
                 
                             <div className='left-sidebar  flex-column justify-content-between align-items-center'>
                                 <div className="navbar-logo d-flex justify-content-center">
+                                    <a href='/rooms'>
                                     sipeaky
+
+                                    </a>
                                 </div>
                                 <div className='sidebar-btns d-flex flex-column justify-content-center align-items-center'>
                                     <div className='d-flex justify-content-center'>
+                                    <a href='/rooms'>
                                         <HiHome/>
+                                        </a>
                                     </div>
                                     <div className='d-flex justify-content-center'>
                                         <HiVideoCamera/>
@@ -476,7 +527,9 @@ const ChatRoom = (props) => {
                                     </div>
 
                                     <div>
-                                        <RxPinLeft/>
+                                    <a href='/rooms'>
+                                        <RxPinLeft onClick={leaveTheRoomHandler}/>
+                                    </a>
                                     </div>
 
                                 </div>
@@ -504,13 +557,19 @@ const ChatRoom = (props) => {
                                     </div>
                                     <div className='d-flex justify-content-center align-items-center'>
                                         
-                                        <div className='copy-link-div d-flex' onClick={copyTheChatLink}>
-                                            <div>copy the chat link</div> 
-                                            <AiFillCopy onClick={copyTheChatLink} className="copy-link-btn"/>
+                                        <div className='copy-link-div d-flex'>
+                                            <div  onClick={copyTheChatLink} className='copy-link-text'>copy the chat link</div> 
+                                            <div onClick={copyTheChatLink} className="copy-link-btn-div">
+
+                                                <AiFillCopy  className="copy-link-btn"/>
+                                            </div>
+                                            <ToastContainer 
+                                                
+                                                id= "copyLinkToast"/>
                                         </div>
                                         
                                         <div className='main-top-username'>{userData?.username}</div>
-
+                                        
                                         
                                         {/* sidebar for the tablet and phones */}
                                         <div className='sidebar-burger' onClick={toggleSidebar}>
@@ -635,8 +694,11 @@ const ChatRoom = (props) => {
                                             <div className={`chat-message-display d-flex flex-column ${(message.sender === userData.username)? 'align-items-end': 'align-items-start'}`}>
                                                 {message.sender !== userData.username ?  <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>: <></>}
                                                    
-                                                <div className={`chat-message d-flex flex-column ${(message.sender === userData.username)? 'my-message ': 'user-message'}`}>
+                                                <div className={`chat-message d-flex flex-column  position-relative ${(message.sender === userData.username)? 'my-message ': 'user-message'}`}>
                                                     <div className='chat-message-text d-flex justify-content-start'>{message?.msg}</div>
+                                                    <div className='chat-message-time position-absolute'>
+                                                        {message.time}
+                                                    </div>
                                                 </div>
                                              </div>
                                             )}
@@ -678,9 +740,13 @@ const ChatRoom = (props) => {
                                             <div className={`chat-message-display d-flex flex-column ${(message.sender === userData.username)? 'align-items-end': 'align-items-start'}`}>
                                                 {message.sender !== userData.username ?  <div className='chat-message-sender d-flex justify-content-end'> {message?.sender}</div>: <></>}
                                                    
-                                                <div className={`chat-message d-flex flex-column ${(message.sender === userData.username)? 'my-message ': 'user-message'}`}>
+                                                <div className={`chat-message d-flex flex-column position-relative ${(message.sender === userData.username)? 'my-message ': 'user-message'}`}>
                                                     <div className='chat-message-text d-flex justify-content-start align-items-start'>{message?.msg}</div>
+                                                    <div className='chat-message-time position-absolute'>
+                                                        {message.time}
+                                                    </div>
                                                 </div>
+
                                              </div>
                                             )}
                                              <div ref={messagesEndRef} />
