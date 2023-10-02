@@ -73,7 +73,7 @@ const SearchRoom = () => {
     }
     const onChangeLanguageHandler = (e) => {
         const language = e.target.value
-        console.log("language changed! ", language)
+        // console.log("language changed! ", language)
         setLanguage(e.target.value);
         getSearchedRooms(capacity, language, level)
         setIsFormChanged(true)
@@ -91,8 +91,6 @@ const SearchRoom = () => {
         setSearchedRooms([])
         setIsFormChanged(false)
     }
-
-    useEffect(() => {console.log("is form changed? ", isFormChanged)}, [isFormChanged])
 
     return <div className="search-room-div">
                 <Form ref={ref} onSubmit={onSubmitHandler} className="form-area justify-content-center align-items-end">

@@ -14,7 +14,7 @@ const PeerJSRoom = (props) => {
         const peer = new Peer();
         
         peer.on('open', (id) => {
-            console.log('My peer ID is: ' + id)
+            // console.log('My peer ID is: ' + id)
             setPeerId(id)
 
             //answering  call (triggers when we get a call)
@@ -27,7 +27,7 @@ const PeerJSRoom = (props) => {
                     call.on('stream', (remoteStream) => {
                         // Show stream in some video/canvas element.
                         remoteVideoRef.current.srcObject = remoteStream
-                        console.log("remoteVideoRef.current: ", remoteVideoRef.current)
+                        // console.log("remoteVideoRef.current: ", remoteVideoRef.current)
                     })
                 })
                 .catch(err => console.log("Failed to get local stream", err)) 
