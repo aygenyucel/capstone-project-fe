@@ -14,6 +14,8 @@ import { Button } from 'react-bootstrap';
 import { useInfiniteScroll } from "infinite-scroll-hook";
 import {GrFormNext, GrFormPrevious} from "react-icons/gr"
 import { Modal } from 'react-bootstrap';
+import { Circles } from "react-loader-spinner";
+
 
 
 const RoomsPage = () => {
@@ -34,6 +36,8 @@ const RoomsPage = () => {
     const [roomsPaginated, setRoomsPaginated] = useState([])
 
     const [isKickedModalOpen, setIsKickedModalOpen] = useState(false)
+    const [isRoomsLoading, setIsRoomsLoading] = useState(true)
+
     const closeKickedModal = () => {
         if(isKickedModalOpen){
             setIsKickedModalOpen(false);
@@ -76,7 +80,7 @@ const RoomsPage = () => {
     useEffect(() => {
         getAllRoomsAction()
         .then((action) => dispatch(action))
-        getRoomsWithPagination(pageNumber*(skip+3),limit)
+        getRoomsWithPagination(pageNumber*(skip+3),limit).then(() => setIsRoomsLoading(false))
     }, [rooms])
 
     const getRoomsWithPagination = async(skip,limit) => {
@@ -86,6 +90,7 @@ const RoomsPage = () => {
             if(response.ok) {
                 const data = await response.json();
                 setRoomsPaginated(data)
+                
             }
         } catch (error) {
             console.log(error)
@@ -96,7 +101,10 @@ const RoomsPage = () => {
     const [endIndex, setEndIndex] = useState(3);
     const [currentPage, setCurrentPage] = useState(0);
     const [isPageClicked, setIsPageClicked] = useState(false);
+
+
     const changePage = (e) => {
+        setIsRoomsLoading(true)
         e.preventDefault()
         const newPageNumber = e.currentTarget.getAttribute('value')
         setCurrentPage(e.currentTarget.getAttribute('value'))
@@ -105,13 +113,15 @@ const RoomsPage = () => {
         const newSkip = newPageNumber*3
         // console.log("newPageNumber", newPageNumber, "newSkip", newSkip)
         
-        getRoomsWithPagination(newSkip, limit)
+        getRoomsWithPagination(newSkip, limit).then(() => {setIsRoomsLoading(false)})
         setStartIndex(startIndex)
         setEndIndex(endIndex)
     }
 
     const prevClick = () => {
         if(startIndex > 0){
+            setIsRoomsLoading(true)
+
             setStartIndex(startIndex-1);
             setEndIndex(endIndex-1)
 
@@ -119,7 +129,7 @@ const RoomsPage = () => {
             setCurrentPage(newPageNumber)
             setPageNumber(newPageNumber)
             const newSkip = newPageNumber*3
-            getRoomsWithPagination(newSkip, limit)
+            getRoomsWithPagination(newSkip, limit).then(() => {setIsRoomsLoading(false)})
         }
     }
 
@@ -127,6 +137,8 @@ const RoomsPage = () => {
 
     const nextClick = () => {
         if(endIndex <= totalPages){
+            setIsRoomsLoading(true)
+
             setStartIndex(startIndex+1);
             setEndIndex(endIndex+1)
 
@@ -134,7 +146,7 @@ const RoomsPage = () => {
             setCurrentPage(newPageNumber)
             setPageNumber(newPageNumber)
             const newSkip = newPageNumber*3
-            getRoomsWithPagination(newSkip, limit)
+            getRoomsWithPagination(newSkip, limit).then(() => {setIsRoomsLoading(false)})
         }
     }
 
@@ -172,21 +184,28 @@ const RoomsPage = () => {
                             <div className="search-room-div">
                                 <SearchRoom/>
                             </div>
-                            {/* <div>
-                                <Button onClick={showYourRooms}>Your rooms</Button>
-                                <div>{isYourRoomsClicked ? rooms.map(room => room.creator === user._id &&
-                                    <div key={room._id} className="m-2"> 
-                                        <RoomPreview roomData= {room} />
-                                    </div>) : <div>nothing to show</div>}</div>
-                            </div> */}
                         </div>
                         <div className="rooms-list d-flex flex-column justify-content-center align-items-center" >
                             {/* <SearchRoom/> */}
                             <div className="d-flex justify-content-center flex-wrap">
+                                {isRoomsLoading ? 
+                                <div className="d-flex flex-column justify-content-center align-items-center">
+                                    <Circles
+                                        type="Spinner Type"
+                                        visible={isRoomsLoading}
+                                        color="#FF5959"
+                                        width={"50px"}
+                                    />
+                                    <div className="mt-2" style={{color: "#FF5959", fontSize: "0.8rem"}}>Please wait, connecting to the backend may take some time..</div>
+                                </div> 
+                                : <> 
                                 {roomsPaginated?.map((room) => 
                                     <div key={room._id} className="m-2"> 
                                         <RoomPreview roomData= {room} />
-                                    </div>)}
+                                    </div>)
+                                } 
+                                </>
+                                }
                             
                             </div>
                             
