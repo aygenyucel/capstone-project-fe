@@ -24,7 +24,7 @@ const LoginPage = (props) => {
             username: username,
             password: password
         }
-        console.log("new registered user => ", newUser)
+        // console.log("new registered user => ", newUser)
 
         signupAndGetTokenAction(newUser)
         .then((dispatchObj) => 

@@ -52,8 +52,8 @@ const RoomsPage = () => {
         .then((boolean) => {
             if(boolean === true) {
                 setIsLoggedIn(true)
-                console.log("yes its logged in")
-                console.log("roomsss", rooms)
+                // console.log("yes its logged in")
+                // console.log("roomsss", rooms)
             } else {
                 navigate("/login")
             }
@@ -101,9 +101,9 @@ const RoomsPage = () => {
         const newPageNumber = e.currentTarget.getAttribute('value')
         setCurrentPage(e.currentTarget.getAttribute('value'))
         setPageNumber(newPageNumber)
-        console.log(newPageNumber, "#######")
+        // console.log(newPageNumber, "#######")
         const newSkip = newPageNumber*3
-        console.log("newPageNumber", newPageNumber, "newSkip", newSkip)
+        // console.log("newPageNumber", newPageNumber, "newSkip", newSkip)
         
         getRoomsWithPagination(newSkip, limit)
         setStartIndex(startIndex)
@@ -140,19 +140,10 @@ const RoomsPage = () => {
 
     useEffect(() => {
         setTotalPagesArray([...Array(totalPages).keys()].slice(startIndex, endIndex))
-        console.log(totalPagesArray)
+        // console.log(totalPagesArray)
     }, [startIndex, endIndex, pageNumber])
 
-
     
-
-
-    // useEffect(() => {
-    //     console.log("lksdjslfksf", isKicked)
-    //     if(isKicked === true) {
-    //         setIsKickedModalOpen(true)
-    //     }
-    // }, [isKicked])
     return  isLoggedIn && 
             <div className="position-relative d-flex flex-column justify-content-center align-items-center">
             <CustomNavbar/> 

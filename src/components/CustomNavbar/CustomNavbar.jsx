@@ -29,12 +29,12 @@ const CustomNavbar = () => {
     getAllRoomsAction()
     .then((action) => dispatch(action))
 
-    console.log("user", user, "jwt: ", JWTToken)
+    // console.log("user", user, "jwt: ", JWTToken)
     isLoggedInAction(user, JWTToken, dispatch)
     .then((boolean) => {
         if(boolean === true) {
             setIsLoggedIn(true)
-            console.log("yes its logged in")
+            // console.log("yes its logged in")
         } else {
             // navigate("/login")
         }
@@ -121,8 +121,6 @@ const CustomNavbar = () => {
                   </div>
                 </div>
             </Container>
-            
-                
             </div>
 }
 export default CustomNavbar

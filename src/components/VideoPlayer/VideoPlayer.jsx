@@ -12,8 +12,8 @@ export const VideoPlayer = (props) => {
 
     useEffect(() => {
         videoRef.current.srcObject = props.stream
-        console.log("videPlayer triggered")
-        console.log("cccc", props.stream.enabled)
+        // console.log("videPlayer triggered")
+        // console.log("cccc", props.stream.enabled)
 
 
         //checking if the webcam of user open or not

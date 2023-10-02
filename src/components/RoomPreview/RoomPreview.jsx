@@ -30,7 +30,7 @@ const RoomPreview = (props) => {
     //todo get username for the creator
     //todo get username of the users in the rooms
     const joinTheRoom = () => {
-        console.log("join the room button triggered!")
+        // console.log("join the room button triggered!")
         if(users.length < roomData.capacity){
             navigate(`/chatroom/${roomData.endpoint}`, {state: {user: user, roomID: roomData._id}})
         } else {
@@ -40,7 +40,7 @@ const RoomPreview = (props) => {
     }
 
     useEffect(() => {
-        console.log("roomData users", roomData)
+        // console.log("roomData users", roomData)
 
         getUsername(roomCreatorID).then((username) =>{setRoomCreatorUsername(username)})
         
@@ -122,22 +122,6 @@ const RoomPreview = (props) => {
                     </div>
                     
                 </div>
-                {/* <div className="room-creator d-flex flex-column mb-3">
-                    <div className="room-creator-text">creator</div>
-                    <div className="room-creator-username">{roomCreatorUsername}</div>
-                </div>
-                <div>
-                    language: {roomLanguage}
-                     
-                </div>
-                <div>
-                    level: {roomLevel}
-                </div> */}
-
-                {/* <div className="room-online-users d-flex flex-column">
-                    <div className="room-online-users-text">participants</div>
-                    {users?.map(user =>  <div key={user}>{user}</div>)}
-                </div> */}
 
                 <div className="room-capacity d-flex">
                     {Array(users?.length).fill(<GiPerson className={"room-person room-person-full" }/>)}

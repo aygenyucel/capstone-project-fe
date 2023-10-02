@@ -28,7 +28,7 @@ const SearchRoom = () => {
         
         setLanguageOptions(languagesData.map((language ) =>  {
             return {value: language.name, label: language.name}}))
-        console.log("xxx", languageOptions)
+        // console.log("xxx", languageOptions)
     }, [])
 
     
@@ -52,7 +52,7 @@ const SearchRoom = () => {
 
             if(response.ok) {
                 const data = await response.json();
-                console.log("searched rooms triggered!", data, searchQuery)
+                // console.log("searched rooms triggered!", data, searchQuery)
                 setSearchedRooms(data)
                 
             } else {

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import "./createCustomRoom.css"
-import { Container, Button, Modal, Form } from 'react-bootstrap';
+import { Modal, Form } from 'react-bootstrap';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
@@ -10,8 +10,6 @@ import { v1 as uuid } from "uuid";
 import { useNavigate } from 'react-router-dom';
 import languages from 'languages-data';
 import Select from 'react-select';
-
-
 
 const CreateCustomRoom = () => {
     const dispatch = useDispatch();
@@ -39,7 +37,7 @@ const CreateCustomRoom = () => {
         createNewRoom()
         .then(({data, roomEndpoint, roomID}) => {
             dispatch(addNewRoomAction(data))
-            console.log("ddddddd", data, roomEndpoint, roomID)
+            // console.log("ddddddd", data, roomEndpoint, roomID)
             navigate(`/chatroom/${roomEndpoint}`, {state: {user: userData, roomID: roomID}})
         })
         .catch((err) => {console.log(err)});
@@ -55,7 +53,7 @@ const CreateCustomRoom = () => {
         
         setLanguageOptions(languagesData.map((language ) =>  {
             return {value: language.name, label: language.name}}))
-        console.log("xxx", languageOptions)
+        // console.log("xxx", languageOptions)
     }, [])
     const createNewRoom = () => {
         return new Promise (async (resolve, reject) => {
@@ -81,7 +79,7 @@ const CreateCustomRoom = () => {
                 const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms`, options)
                 if(response.ok) {
                     const data = await response.json();
-                    console.log("new room data", data)
+                    // console.log("new room data", data)
                     const roomEndpoint = data.endpoint
                     const roomID = data._id
                     resolve({data, roomEndpoint, roomID})
@@ -102,7 +100,7 @@ const CreateCustomRoom = () => {
 
     const  handleChangeLanguage = (selectedLanguage) => {
         setLanguage(selectedLanguage.value)
-        console.log("language selected: ", language)
+        // console.log("language selected: ", language)
       };
 
     return <>
