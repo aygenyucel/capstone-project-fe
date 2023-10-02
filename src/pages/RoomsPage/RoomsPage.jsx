@@ -47,7 +47,7 @@ const RoomsPage = () => {
         getAllRoomsAction()
         .then((action) => dispatch(action))
 
-        console.log("user", user, "jwt: ", JWTToken)
+        // console.log("user", user, "jwt: ", JWTToken)
         isLoggedInAction(user, JWTToken, dispatch)
         .then((boolean) => {
             if(boolean === true) {
@@ -143,7 +143,7 @@ const RoomsPage = () => {
         // console.log(totalPagesArray)
     }, [startIndex, endIndex, pageNumber])
 
-    
+
     return  isLoggedIn && 
             <div className="position-relative d-flex flex-column justify-content-center align-items-center">
             <CustomNavbar/> 
