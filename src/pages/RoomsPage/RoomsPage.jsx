@@ -14,6 +14,8 @@ import { Button } from 'react-bootstrap';
 import { useInfiniteScroll } from "infinite-scroll-hook";
 import {GrFormNext, GrFormPrevious} from "react-icons/gr"
 import { Modal } from 'react-bootstrap';
+import { Circles } from "react-loader-spinner";
+
 
 
 const RoomsPage = () => {
@@ -34,6 +36,8 @@ const RoomsPage = () => {
     const [roomsPaginated, setRoomsPaginated] = useState([])
 
     const [isKickedModalOpen, setIsKickedModalOpen] = useState(false)
+    const [isRoomsLoading, setIsRoomsLoading] = useState(true)
+
     const closeKickedModal = () => {
         if(isKickedModalOpen){
             setIsKickedModalOpen(false);
@@ -51,6 +55,8 @@ const RoomsPage = () => {
         .then((boolean) => {
             if(boolean === true) {
                 setIsLoggedIn(true)
+                // console.log("yes its logged in")
+                // console.log("rooms:", rooms)
             } else {
                 navigate("/login")
             }
@@ -72,41 +78,52 @@ const RoomsPage = () => {
     
     useEffect(() => {
         getAllRoomsAction()
-        .then((action) => dispatch(action))
-        getRoomsWithPagination(pageNumber*(skip+3),limit)
+        .then((action) => {dispatch(action)
+        }).then(() => {getRoomsWithPagination(pageNumber*(skip+3),limit)}).then((data) => {setIsRoomsLoading(false)})
     }, [rooms])
 
-    const getRoomsWithPagination = async(skip,limit) => {
-        try {
-            const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms?skip=${skip}&limit=${limit}`)
-            // console.log("xxxxxxxxx", skip, "xxxxxxxxx", limit)
-            if(response.ok) {
-                const data = await response.json();
-                setRoomsPaginated(data)
+    
+
+    function getRoomsWithPagination (skip, limit) { return new Promise(async (resolve, reject) => {
+        
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/rooms?skip=${skip}&limit=${limit}`)
+                // console.log("xxxxxxxxx", skip, "xxxxxxxxx", limit)
+                if(response.ok) {
+                    const data = await response.json();
+                    setRoomsPaginated(data)
+                   resolve(data)
+                }
+            } catch (error) {
+                console.log(error)
+                reject(error)
             }
-        } catch (error) {
-            console.log(error)
-        }
-    }
+        
+    }) }
     const [totalPages, setTotalPages] = useState(Math.ceil(rooms.length/limit))
     const [startIndex, setStartIndex] = useState(0);
     const [endIndex, setEndIndex] = useState(3);
     const [currentPage, setCurrentPage] = useState(0);
     const [isPageClicked, setIsPageClicked] = useState(false);
+
     const changePage = (e) => {
         e.preventDefault()
+        setRoomsPaginated([])
+        setIsRoomsLoading(true)
         const newPageNumber = e.currentTarget.getAttribute('value')
         setCurrentPage(e.currentTarget.getAttribute('value'))
         setPageNumber(newPageNumber)
         const newSkip = newPageNumber*3
         
-        getRoomsWithPagination(newSkip, limit)
+        getRoomsWithPagination(newSkip, limit).then((data) => {setRoomsPaginated(data)})
         setStartIndex(startIndex)
         setEndIndex(endIndex)
     }
 
     const prevClick = () => {
         if(startIndex > 0){
+            setIsRoomsLoading(true)
+
             setStartIndex(startIndex-1);
             setEndIndex(endIndex-1)
 
@@ -122,6 +139,8 @@ const RoomsPage = () => {
 
     const nextClick = () => {
         if(endIndex <= totalPages){
+            setIsRoomsLoading(true)
+
             setStartIndex(startIndex+1);
             setEndIndex(endIndex+1)
 
@@ -167,25 +186,38 @@ const RoomsPage = () => {
                             <div className="search-room-div">
                                 <SearchRoom/>
                             </div>
-                            {/* <div>
-                                <Button onClick={showYourRooms}>Your rooms</Button>
-                                <div>{isYourRoomsClicked ? rooms.map(room => room.creator === user._id &&
-                                    <div key={room._id} className="m-2"> 
-                                        <RoomPreview roomData= {room} />
-                                    </div>) : <div>nothing to show</div>}</div>
-                            </div> */}
                         </div>
                         <div className="rooms-list d-flex flex-column justify-content-center align-items-center" >
                             {/* <SearchRoom/> */}
                             <div className="d-flex justify-content-center flex-wrap">
+                        {isRoomsLoading ?
+                         <div className="d-flex flex-column justify-content-center align-items-center">
+                         <Circles
+                             type="Spinner Type"
+                             visible={isRoomsLoading}
+                             color="#FF5959"
+                             width={"50px"}
+                         />
+                         <div className="mt-2" style={{color: "#FF5959", fontSize: "0.8rem"}}>Please wait, connecting to the backend may take some time..</div>
+                     </div> 
+                        :
+                        
+                                
+                               
+                                 <> 
                                 {roomsPaginated?.map((room) => 
                                     <div key={room._id} className="m-2"> 
                                         <RoomPreview roomData= {room} />
-                                    </div>)}
+                                    </div>)
+                                } 
+                                </>
+                                
                             
-                            </div>
                             
+                        }
                         </div>
+                        </div>
+                        
                         <div className="rooms-pages d-flex justify-content-between align-items-center">
                                 {(startIndex > 0)? <div> <GrFormPrevious onClick={prevClick} className="prev-page-btn"/> </div>: <div> <GrFormPrevious className="prev-page-btn invisible"/> </div>}
                                 {totalPagesArray.map((i) => 

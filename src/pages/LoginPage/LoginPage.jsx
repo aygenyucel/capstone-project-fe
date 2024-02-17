@@ -46,7 +46,7 @@ const LoginPage = () => {
         isLoggedInAction(userData, JWTToken, dispatch)
         .then((boolean) => {
             if(boolean === true) {
-                console.log("yes its logged in")
+                // console.log("yes its logged in")
                 navigate("/rooms")
             } 
         })

@@ -28,6 +28,7 @@ const CustomNavbar = () => {
     // dispatch(resetRoomsStateAction());
     getAllRoomsAction()
     .then((action) => dispatch(action))
+    // console.log("user", user, "jwt: ", JWTToken)
     isLoggedInAction(user, JWTToken, dispatch)
     .then((boolean) => {
         if(boolean === true) {
@@ -118,8 +119,6 @@ const CustomNavbar = () => {
                   </div>
                 </div>
             </Container>
-            
-                
             </div>
 }
 export default CustomNavbar

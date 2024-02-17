@@ -43,10 +43,10 @@ const SimplePeerRoom = (props) => {
     
     useEffect(() => {
         socket.on("clientId",  socketId => { 
-            console.log("welcome, ", socketId)
+            // console.log("welcome, ", socketId)
             getUserMedia(mediaConstraints)
             .then((stream) => {
-                console.log(stream)
+                // console.log(stream)
                currentUserVideoRef.current.srcObject = stream;
 
                socket.emit("joinRoom", roomID); 
@@ -93,18 +93,17 @@ const SimplePeerRoom = (props) => {
                     
                     peer.signal(payload.signalData)
                     peer.on("signal", signalData => {
-                        console.log("½½½½½½½½½½½½½½½½½½½½½½½½½")
                         socket.emit("sendingReturningSignal", {callerID, signalData})
                     })
 
-                    console.log("new user joined!!!!!!!")
+                    // console.log("new user joined!!!!!!!")
                     peersRef.current.push({peerID: socketId, peer: peer})
                     setPeers([...peers, peer])
                })
 
                 socket.on("receivingReturnedSignal", payload => {
                     const item = peersRef.current.find(p => p.peerID === payload.id);
-                    console.log("#### item.peer ### ", item.peer );
+                    // console.log("#### item.peer ### ", item.peer );
                     item.peer.signal(payload.signal);
                 })
                 
@@ -113,8 +112,8 @@ const SimplePeerRoom = (props) => {
         })
     }, []);
 
-    console.log("### peersRef.current  ", peersRef.current)
-    console.log("### peers  ", peers)
+    // console.log("### peersRef.current  ", peersRef.current)
+    // console.log("### peers  ", peers)
 
 
     function addPeer(incomingSignal, callerID, stream) {
