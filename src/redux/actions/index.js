@@ -77,7 +77,6 @@ export const updateRoomChatAction = (roomID, newMessage, chat) => {
         //         const roomChatId = roomChatData._id
 
                 try {
-                    // console.log("wtisth,", chat);
                     const response= await fetch(`${BE_DEV_URL}/rooms/${roomID}`, 
                     {method: "PUT", 
                     body: JSON.stringify({chat: chat}), 
@@ -183,7 +182,6 @@ export const loginAndGetTokenAction = (user) => {
                 if(response.ok) {
                     const data = await response.json();
                     const {JWTToken} = data;
-                    // console.log("JWTToken => ", JWTToken);
                     if(JWTToken) {
                         const options = {
                             method: "GET",
@@ -196,7 +194,6 @@ export const loginAndGetTokenAction = (user) => {
                             const response = await fetch(`${BE_DEV_URL}/users/me`, options);
                             if(response.ok){
                                 const user = await response.json()
-                                // console.log(user)
                                 if(user) {
                                     localStorage.setItem("JWTToken", JWTToken)
                                     
@@ -263,7 +260,6 @@ export const isLoggedInAction =  (userState, JWTToken, dispatch) => {
                         if(response.ok) {
                             
                             const data = await response.json();
-                            // console.log("dataaaa:", data);
                             dispatch({
                                 type: GET_PROFILE,
                                 payload: data

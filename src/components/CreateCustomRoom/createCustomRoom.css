@@ -8,7 +8,6 @@
     padding-inline: 60px;
     border-radius: 5px;
     border: 0;
-    border-top: 4px solid transparent;
     
     text-decoration: none;
     background-color: transparent;
@@ -62,6 +61,20 @@
 
 @media (max-width: 550px) {
     .modal-div, .modal-content {
-        width: 250px;
+        /* width: 350px; */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+
+    .save-room-btn {
+        height: 50px;
+        padding-inline: 5px;
+    }
+
+    .modal-title {
+        font-size: 1.2rem;
     }
 }

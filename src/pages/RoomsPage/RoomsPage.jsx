@@ -51,13 +51,12 @@ const RoomsPage = () => {
         getAllRoomsAction()
         .then((action) => dispatch(action))
 
-        // console.log("user", user, "jwt: ", JWTToken)
         isLoggedInAction(user, JWTToken, dispatch)
         .then((boolean) => {
             if(boolean === true) {
                 setIsLoggedIn(true)
                 // console.log("yes its logged in")
-                // console.log("roomsss", rooms)
+                // console.log("rooms:", rooms)
             } else {
                 navigate("/login")
             }
@@ -114,9 +113,7 @@ const RoomsPage = () => {
         const newPageNumber = e.currentTarget.getAttribute('value')
         setCurrentPage(e.currentTarget.getAttribute('value'))
         setPageNumber(newPageNumber)
-        // console.log(newPageNumber, "#######")
         const newSkip = newPageNumber*3
-        // console.log("newPageNumber", newPageNumber, "newSkip", newSkip)
         
         getRoomsWithPagination(newSkip, limit).then((data) => {setRoomsPaginated(data)})
         setStartIndex(startIndex)

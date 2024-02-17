@@ -146,7 +146,6 @@ const ChatRoom = (props) => {
                 const response = await fetch(`${process.env.REACT_APP_BE_DEV_URL}/users/${userID}`, {method: "GET" })
                 if(response.ok) {
                     const userData = await response.json();
-                    // console.log("cccccccccccccc", userData)
                     resolve(userData)
                 }
             } catch (error) {
@@ -177,18 +176,15 @@ const ChatRoom = (props) => {
     useEffect(() => {
 
         //checking if user logged in
-        // console.log("user", userData, "jwt: ", JWTToken)
         isLoggedInAction(userData, JWTToken, dispatch)
         .then((boolean) => {
             if(boolean === true) {
                 setIsLoggedIn(true)
-
                 // console.log("yes its logged in")
 
                 getRoomData(roomEndpoint).then(data => {
                     setRoomData(data[0])
                     // console.log("data ========>", data[0])
-
                     //check if room is already full, if it is navigate user to /rooms page
                     if( data[0].users.length  >=  data[0].capacity.toString()) {
                         alert("sorry the room is full :(")
@@ -200,7 +196,6 @@ const ChatRoom = (props) => {
 
                     //getting the username of room creator
                     getUserInfo(data[0].creator).then(userData => {
-                        // console.log("ccccccccccccccccccccccc", userData)
                         setRoomCreatorUsername(userData.username)
                     })
 
@@ -208,7 +203,6 @@ const ChatRoom = (props) => {
                         alert("you are already in another room! please try again after leave current room")
                         window.location.replace('/rooms')
                     }
-                    //todo: check if user already in another room, if it is, prevent user to join
                 })
 
             } else {
@@ -218,8 +212,6 @@ const ChatRoom = (props) => {
             }
         })
         .catch(err => console.log(err))
-
-
         // console.log("users->", users)
         // console.log("data========>", roomData)
     },[])
@@ -227,15 +219,20 @@ const ChatRoom = (props) => {
     // useEffect(() => {
     //     console.log("------onlinechattttusers", onlineChatUsers)
     // }, [onlineChatUsers])
-
+        
+        
+        // console.log("users->", users)
+        // console.log("data========>", roomData)
+    },[])
+    
 
     useEffect(() => {
         getRoomData(roomEndpoint).then(data => {setRoomData(data[0])})
     }, [chat])
 
     useEffect(()  => {
-        // console.log(":)))) userData => ", userData)
-
+        // console.log(" userData => ", userData)
+      
         const peer = new Peer({
             config: {'iceServers': [
                 { url: 'stun:stun.l.google.com:19302' },
@@ -262,13 +259,16 @@ const ChatRoom = (props) => {
             stream.getVideoTracks()[0].enabled = false
             stream.getAudioTracks()[0].enabled = false
             // adding our peer
-            // console.log("jkfdshskjfjds", "peerID:", peerID, "userID:", userID,"roomEndpoint:", roomEndpoint)
+            // console.log("peerID:", peerID, "userID:", userID,"roomEndpoint:", roomEndpoint)
+            dispatch(addPeerAction(peerID, stream, userID, roomEndpoint))
 
-
+            socket.on('user-connected', payload => {
+            // console.log("peerID:", peerID, "userID:", userID,"roomEndpoint:", roomEndpoint)
+            
+            
                 dispatch(addPeerAction(peerID, stream, userID, roomEndpoint))
 
             socket.on('user-connected', payload => {
-
                 // console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID, "roomEndpoint:", payload.roomEndpoint)
                 // console.log("users in this room after new connection: ", chatRooms)
 
@@ -287,6 +287,7 @@ const ChatRoom = (props) => {
 
                         remoteVideoRef.current.srcObject = remoteStream
                         // console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)
+
                     }
                 })
             })
@@ -337,8 +338,7 @@ const ChatRoom = (props) => {
         .catch(err => console.log("Failed to get local stream", err))
 
     }, [])
-
-    // useEffect(() => {
+    // useEffect(() => { 
     //     console.log("peers =>", peers)
     //     console.log("currentPeersReducer => ", currentPeersReducer)
     // }, [currentPeersReducer])
@@ -433,7 +433,6 @@ const ChatRoom = (props) => {
             setIsChatOpen(true)
         }
     }
-
     const closeChatArea = () => {
         if (isChatOpen) {
             setIsChatOpen(false)

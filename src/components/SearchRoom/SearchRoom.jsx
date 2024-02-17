@@ -133,7 +133,7 @@ const SearchRoom = () => {
                 </Form>
                         <div className="reset-form-div d-flex flex-column justify-content-center align-items-center">
                             
-                            <MdRefresh className="reset-form-icon mt-3" onClick={resetForm}/>
+                            <MdRefresh className="reset-form-icon" onClick={resetForm}/>
                         </div>
                 
                 {isFormChanged && 
@@ -143,7 +143,7 @@ const SearchRoom = () => {
                         ? <div>No search results found. <span>Create your own?</span></div> 
                         : <div className="d-flex justify-content-center flex-wrap align-items-center"> 
                             {searchedRooms.map((room) =>
-                                <div className="room-preview-div">
+                                <div className="room-preview-div" key={room._id}>
                                     <RoomPreview  className = {"search-preview"} key={room._id} roomData = {room}/>
                                 </div>
                             ) }

@@ -655,13 +655,7 @@
     .sidebar-burger{
         margin-left: 0;
     }
-    .copy-link-div div {
-        display: none;
-    }
-
-    .copy-link-btn {
-        display: none;
-    }
+    
 
     
     .chat-btns, .end-call-btn {
