@@ -12,10 +12,10 @@ import { addPeerAction, getIsKickedAction, updateRoomUsersAction } from '../../r
 import { removePeerAction } from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 import {AiOutlineAudio, AiOutlineAudioMuted, AiFillCopy} from 'react-icons/ai'
-import {MdOutlineCallEnd, MdOutlineConnectWithoutContact} from 'react-icons/md'
+import {MdOutlineCallEnd} from 'react-icons/md'
 import {BsCameraVideoOff, BsCameraVideo, BsFillChatLeftDotsFill} from 'react-icons/bs'
 import {FiSettings} from 'react-icons/fi'
-import {RxHamburgerMenu, RxPinLeft} from 'react-icons/rx'
+import {RxPinLeft} from 'react-icons/rx'
 import {BiLeftArrow, BiRightArrow} from 'react-icons/bi'
 
 import {GiHamburgerMenu} from 'react-icons/gi'
