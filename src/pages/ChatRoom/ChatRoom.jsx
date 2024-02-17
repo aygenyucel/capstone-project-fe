@@ -89,7 +89,6 @@ const ChatRoom = (props) => {
 
     const [isChatOpen, setIsChatOpen] = useState(false)
 
-
     const resetFormValue = () => setText("");
 
     const onSubmitHandler = (event) => {
@@ -103,9 +102,7 @@ const ChatRoom = (props) => {
         if (event.code === "Enter") {
                 if(/\S/.test(text)) {
                     sendMessage();
-                    // console.log(text)
                 }
-
         }
     };
 
@@ -122,13 +119,7 @@ const ChatRoom = (props) => {
         //message from server
         socket.on("message", newMessage => {
             setChatHistory([...chatHistory, newMessage])
-
-
-
         })
-
-
-
     }, [chatHistory])
 
 
@@ -223,8 +214,6 @@ const ChatRoom = (props) => {
         
         // console.log("users->", users)
         // console.log("data========>", roomData)
-    },[])
-    
 
     useEffect(() => {
         getRoomData(roomEndpoint).then(data => {setRoomData(data[0])})
@@ -268,72 +257,73 @@ const ChatRoom = (props) => {
             
                 dispatch(addPeerAction(peerID, stream, userID, roomEndpoint))
 
-            socket.on('user-connected', payload => {
-                // console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID, "roomEndpoint:", payload.roomEndpoint)
-                // console.log("users in this room after new connection: ", chatRooms)
+                socket.on('user-connected', payload => {
+                    // console.log("new user-connected => peerID: ", payload.peerID, "userID:", payload.userID, "roomEndpoint:", payload.roomEndpoint)
+                    // console.log("users in this room after new connection: ", chatRooms)
 
-                //we send the caller user info to who will answer it
-                const options = {metadata: {"userID": userID, "roomEndpoint": roomEndpoint}};
-                const call = peer.call(payload.peerID, stream, options)
+                    //we send the caller user info to who will answer it
+                    const options = {metadata: {"userID": userID, "roomEndpoint": roomEndpoint}};
+                    const call = peer.call(payload.peerID, stream, options)
 
-                let id;
-                //current peer send an offer to new peer
-                call.on('stream', remoteStream => {
-                    //checking for prevent running the code twice.
-                    if (id !== remoteStream.id) {
-                        id = remoteStream.id
-                        // console.log("#################",payload.peerID, remoteStream, payload.userID)
-                        dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID, payload.roomEndpoint))
+                    let id;
+                    //current peer send an offer to new peer
+                    call.on('stream', remoteStream => {
+                        //checking for prevent running the code twice.
+                        if (id !== remoteStream.id) {
+                            id = remoteStream.id
+                            // console.log("#################",payload.peerID, remoteStream, payload.userID)
+                            dispatch(addPeerAction(payload.peerID, remoteStream, payload.userID, payload.roomEndpoint))
 
-                        remoteVideoRef.current.srcObject = remoteStream
-                        // console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)
+                            remoteVideoRef.current.srcObject = remoteStream
+                            // console.log("New peer get called and addPeerAction triggered! (the remote peer added)", payload.userID)
 
+                        }
+                    })
+                })
+
+                peer.on('call', call => {
+                    call.answer(stream)
+                    let id;
+
+                    //curent peer answer the new peer's stream
+                    call.on("stream", remoteStream => {
+                        if (id !== remoteStream.id) {
+                            id = remoteStream.id
+                            //we get the metadata sended from caller (call.metadata.userID)
+                            dispatch(addPeerAction(call.peer, remoteStream, call.metadata.userID, call.metadata.roomEndpoint))
+                            remoteVideoRef.current.srcObject = remoteStream
+                            // console.log("we answer the stream, addpeerAction triggered! (the owner of answer added)", call.metadata.userID, "xxxx")
+                        }
+                    })
+                })
+
+                remotePeerRef.current = peer
+
+                socket.on('user-disconnected', payload => {
+                    // console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
+
+                    dispatch(removePeerAction(payload.peerID, payload.userID))
+                    updateRoomUsersAction(payload.users, roomID, payload.userID).then((action) => dispatch(action))
+
+
+                })
+
+                socket.on("user-left", (payload) => {
+                    // console.log("USER-LEFT PAYLOAD => ", payload.users)
+                    setUsersArray(payload.users)
+                    dispatch(removePeerAction(payload.peerID, payload.userID))
+                    updateRoomUsersAction(payload.users, roomID ,payload.userID).then((action) => dispatch(action))
+                    remotePeerRef.current.destroy()
+                })
+
+                socket.on("you-kicked", payload => {
+                    if(payload.userID === userID){
+                        dispatch(getIsKickedAction(true))
+                        window.location.replace("/rooms?isKicked=true")
                     }
                 })
-            })
-
-            peer.on('call', call => {
-                call.answer(stream)
-                let id;
-
-                //curent peer answer the new peer's stream
-                call.on("stream", remoteStream => {
-                    if (id !== remoteStream.id) {
-                        id = remoteStream.id
-                        //we get the metadata sended from caller (call.metadata.userID)
-                        dispatch(addPeerAction(call.peer, remoteStream, call.metadata.userID, call.metadata.roomEndpoint))
-                        remoteVideoRef.current.srcObject = remoteStream
-                        // console.log("we answer the stream, addpeerAction triggered! (the owner of answer added)", call.metadata.userID, "xxxx")
-                    }
-                })
-            })
-
-            remotePeerRef.current = peer
-
-            socket.on('user-disconnected', payload => {
-                // console.log("xxxxxxxxxx user disconnected xxxxxxxxx", payload.peerID)
-
-                dispatch(removePeerAction(payload.peerID, payload.userID))
-                updateRoomUsersAction(payload.users, roomID, payload.userID).then((action) => dispatch(action))
-
 
             })
-
-            socket.on("user-left", (payload) => {
-                // console.log("USER-LEFT PAYLOAD => ", payload.users)
-                setUsersArray(payload.users)
-                dispatch(removePeerAction(payload.peerID, payload.userID))
-                updateRoomUsersAction(payload.users, roomID ,payload.userID).then((action) => dispatch(action))
-                remotePeerRef.current.destroy()
-            })
-
-            socket.on("you-kicked", payload => {
-                if(payload.userID === userID){
-                    dispatch(getIsKickedAction(true))
-                    window.location.replace("/rooms?isKicked=true")
-                }
-            })
-
         })
         .catch(err => console.log("Failed to get local stream", err))
 
